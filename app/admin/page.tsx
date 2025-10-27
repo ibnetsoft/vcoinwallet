@@ -1421,7 +1421,7 @@ export default function AdminPage() {
                 <div className="bg-gray-700/50 rounded-xl p-5 border border-gray-600">
                   <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                     <Users className="w-5 h-5 mr-2 text-green-400" />
-                    추천인 보너스 설정
+                    추천인 배당코인 보너스 설정
                   </h3>
                   <div>
                     <label className="block text-sm text-gray-300 mb-2">배당코인 추천 보너스 (백분율)</label>
