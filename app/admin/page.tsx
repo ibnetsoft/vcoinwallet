@@ -5,14 +5,32 @@ import { useRouter } from 'next/navigation'
 import { Users, Coins, Gift, Search, ArrowLeft, Shield, Settings, Lock, Mail, Phone, X, ArrowUpDown } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 
+interface User {
+  id: string
+  name: string
+  phone: string
+  email?: string
+  password: string
+  referralCode: string
+  referrerId?: string
+  securityCoins: number
+  dividendCoins: number
+  memberNumber: number
+  role: 'ADMIN' | 'TEAM_LEADER' | 'USER'
+  isAdmin: boolean
+  status?: 'ACTIVE' | 'BLOCKED' | 'DELETED'
+  createdAt: string
+  updatedAt: string
+}
+
 export default function AdminPage() {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [users, setUsers] = useState<any[]>([])
+  const [user, setUser] = useState<User | null>(null)
+  const [users, setUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [grantSearchTerm, setGrantSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [grantAmount, setGrantAmount] = useState('10000') // 기본값 10000개 (100만원)
   const [grantDescription, setGrantDescription] = useState('')
   const [grantMode, setGrantMode] = useState<'add' | 'set'>('add') // 지급 모드: add(추가), set(수정)
@@ -22,7 +40,7 @@ export default function AdminPage() {
   const [roleSearchTerm, setRoleSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState<'users' | 'grant' | 'roles' | 'settings' | 'coin-settings'>('users')
   const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'TEAM_LEADER' | 'USER'>('ALL')
-  const [selectedUserDetail, setSelectedUserDetail] = useState<any>(null)
+  const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
@@ -971,7 +989,7 @@ export default function AdminPage() {
               </label>
               <select
                 value={selectedUser?.id || ''}
-                onChange={(e) => setSelectedUser(users.find(u => u.id === e.target.value))}
+                onChange={(e) => setSelectedUser(users.find(u => u.id === e.target.value) || null)}
                 className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
               >
                 <option value="">회원을 선택하세요</option>
