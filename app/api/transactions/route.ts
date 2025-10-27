@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 거래 내역 가져오기
-    const transactions = db.getTransactions(userId)
+    const transactions = await db.getTransactionsByUserId(userId)
 
     // 날짜순으로 정렬 (최신순)
     const sortedTransactions = transactions.sort((a, b) =>

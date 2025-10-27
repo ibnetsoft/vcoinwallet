@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const { userId, amount, description } = body
 
     // 사용자 확인
-    const user = db.findUserById(userId)
+    const user = await db.findUserById(userId)
 
     if (!user) {
       return NextResponse.json(
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 배당코인 수정 (추천인 보너스 없음)
-    const success = db.setDividendCoins(
+    const success = await db.setDividendCoins(
       userId,
       amount,
       description || `배당코인 수정 - ${amount}개로 변경`
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 업데이트된 사용자 정보 가져오기
-    const updatedUser = db.findUserById(userId)
+    const updatedUser = await db.findUserById(userId)
 
     return NextResponse.json({
       success: true,

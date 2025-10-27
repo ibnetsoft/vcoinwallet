@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const user = db.findUserById(decoded.userId)
+    const user = await db.findUserById(decoded.userId)
     if (!user) {
       return NextResponse.json(
         { error: '사용자를 찾을 수 없습니다.' },
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 해당 사용자가 추천한 회원 목록 가져오기
-    const allUsers = db.getAllUsers()
+    const allUsers = await db.getAllUsers()
     const referredUsers = allUsers.filter(u => u.referrerId === user.id)
 
     // 가입일 기준 최신순 정렬 (최신이 먼저)

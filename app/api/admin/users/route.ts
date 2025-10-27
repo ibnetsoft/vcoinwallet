@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     // }
 
     // 모든 사용자 가져오기
-    const users = db.getAllUsers()
+    const users = await db.getAllUsers()
 
     // 비밀번호 제거
     const usersWithoutPassword = users.map(({ password, ...user }) => ({

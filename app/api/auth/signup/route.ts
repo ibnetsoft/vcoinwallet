@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 휴대폰 번호 중복 확인
-    const existingUser = db.findUserByPhone(phone)
+    const existingUser = await db.findUserByPhone(phone)
 
     if (existingUser) {
       return NextResponse.json(
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // 추천인 확인
     if (referralCode) {
-      const referrer = db.findUserByReferralCode(referralCode)
+      const referrer = await db.findUserByReferralCode(referralCode)
       if (!referrer) {
         return NextResponse.json(
           { error: '유효하지 않은 추천 코드입니다.' },
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 사용자 생성
-    const user = db.createUser({
+    const user = await db.createUser({
       name,
       phone,
       email: email || undefined,

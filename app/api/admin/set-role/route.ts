@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 관리자 권한 확인
-    const adminUser = db.findUserById(decoded.userId)
+    const adminUser = await db.findUserById(decoded.userId)
     if (!adminUser || !adminUser.isAdmin) {
       return NextResponse.json(
         { error: '관리자 권한이 필요합니다.' },
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const targetUser = db.findUserById(userId)
+    const targetUser = await db.findUserById(userId)
     if (!targetUser) {
       return NextResponse.json(
         { error: '사용자를 찾을 수 없습니다.' },
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 사용자 등급 업데이트
-    const updatedUser = db.updateUser(userId, {
+    const updatedUser = await db.updateUser(userId, {
       role: role as 'ADMIN' | 'TEAM_LEADER' | 'USER',
       isAdmin: role === 'ADMIN'  // 하위 호환성
     })

@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '사용자 ID가 필요합니다.' }, { status: 400 })
     }
 
-    const success = db.deleteUser(userId)
+    const success = await db.deleteUser(userId)
 
     if (!success) {
       return NextResponse.json({ error: '회원 탈퇴 처리에 실패했습니다.' }, { status: 400 })

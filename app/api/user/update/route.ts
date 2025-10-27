@@ -28,7 +28,7 @@ export async function PUT(request: NextRequest) {
     const { name, phone, email, currentPassword, newPassword } = body
 
     // 현재 사용자 정보 가져오기
-    const user = db.findUserById(decoded.userId)
+    const user = await db.findUserById(decoded.userId)
     if (!user) {
       return NextResponse.json(
         { error: '사용자를 찾을 수 없습니다.' },
@@ -65,7 +65,7 @@ export async function PUT(request: NextRequest) {
 
     // 전화번호 변경 시 중복 확인
     if (phone && phone !== user.phone) {
-      const existingUser = db.findUserByPhone(phone)
+      const existingUser = await db.findUserByPhone(phone)
       if (existingUser) {
         return NextResponse.json(
           { error: '이미 사용 중인 전화번호입니다.' },
@@ -87,7 +87,7 @@ export async function PUT(request: NextRequest) {
       updateData.password = hashedPassword
     }
 
-    const updatedUser = db.updateUser(decoded.userId, updateData)
+    const updatedUser = await db.updateUser(decoded.userId, updateData)
 
     if (!updatedUser) {
       return NextResponse.json(

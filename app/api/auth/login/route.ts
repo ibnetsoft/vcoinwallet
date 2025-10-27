@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const { phone, password } = body
 
     // 사용자 조회
-    const user = db.findUserByPhone(phone)
+    const user = await db.findUserByPhone(phone)
 
     if (!user) {
       return NextResponse.json(

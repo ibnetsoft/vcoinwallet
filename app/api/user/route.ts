@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 사용자 정보 가져오기
-    const user = db.findUserById(userId)
+    const user = await db.findUserById(userId)
 
     if (!user) {
       return NextResponse.json(

@@ -29,10 +29,10 @@ export async function POST(request: NextRequest) {
     let message = ''
 
     if (action === 'block') {
-      success = db.blockUser(userId)
+      success = await db.blockUser(userId)
       message = success ? '회원이 차단되었습니다.' : '회원 차단에 실패했습니다.'
     } else if (action === 'unblock') {
-      success = db.unblockUser(userId)
+      success = await db.unblockUser(userId)
       message = success ? '회원 차단이 해제되었습니다.' : '차단 해제에 실패했습니다.'
     } else {
       return NextResponse.json({ error: '유효하지 않은 액션입니다.' }, { status: 400 })

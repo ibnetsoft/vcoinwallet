@@ -1,8 +1,5 @@
-import fs from 'fs'
-import path from 'path'
-import { hashPassword, generateReferralCode, calculateSignupBonus } from './auth'
-
-const DB_PATH = path.join(process.cwd(), 'data.json')
+import { supabaseAdmin } from './supabase'
+import { generateReferralCode, calculateSignupBonus } from './auth'
 
 interface User {
   id: string
@@ -15,11 +12,11 @@ interface User {
   securityCoins: number
   dividendCoins: number
   memberNumber: number
-  role: 'ADMIN' | 'TEAM_LEADER' | 'USER'  // 관리자, 팀장, 일반회원
-  isAdmin: boolean  // 하위 호환성을 위해 유지
-  status?: 'ACTIVE' | 'BLOCKED' | 'DELETED'  // 계정 상태
+  role: 'ADMIN' | 'TEAM_LEADER' | 'USER'
+  isAdmin: boolean
+  status?: 'ACTIVE' | 'BLOCKED' | 'DELETED'
   createdAt: string
-  updatedAt: string
+  updatedAt?: string
 }
 
 interface Transaction {
@@ -34,94 +31,82 @@ interface Transaction {
   createdAt: string
 }
 
-interface Database {
-  users: User[]
-  transactions: Transaction[]
-  systemConfig: {
-    currentMemberCount: number
-    securityCoinNewUser: number
-    securityCoinReferral: number
-    dividendCoinPer100: number
-    dividendCoinReferral: number
-  }
+interface SystemConfig {
+  securityCoinNewUser: number
+  securityCoinReferral: number
+  dividendCoinPer100: number
+  dividendCoinReferral: number
 }
 
-// 데이터베이스 초기화
-function initDB(): Database {
-  return {
-    users: [],
-    transactions: [],
-    systemConfig: {
-      currentMemberCount: 0,
-      securityCoinNewUser: 500,
-      securityCoinReferral: 1000,
-      dividendCoinPer100: 10000,
-      dividendCoinReferral: 1000
-    }
-  }
-}
-
-// 데이터베이스 읽기
-function readDB(): Database {
-  try {
-    if (!fs.existsSync(DB_PATH)) {
-      const initialDB = initDB()
-      writeDB(initialDB)
-      return initialDB
-    }
-    const data = fs.readFileSync(DB_PATH, 'utf-8')
-    return JSON.parse(data)
-  } catch (error) {
-    console.error('DB 읽기 오류:', error)
-    return initDB()
-  }
-}
-
-// 데이터베이스 쓰기
-function writeDB(db: Database) {
-  try {
-    fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2))
-  } catch (error) {
-    console.error('DB 쓰기 오류:', error)
-  }
-}
-
-// 사용자 관련 함수들
+// Supabase 기반 데이터베이스 함수들
 export const db = {
   // 사용자 찾기
-  findUserByPhone(phone: string): User | null {
-    const database = readDB()
-    return database.users.find(u => u.phone === phone) || null
+  async findUserByPhone(phone: string): Promise<User | null> {
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('phone', phone)
+      .single()
+
+    if (error) return null
+    return data ? convertFromSupabaseUser(data) : null
   },
 
-  findUserByEmail(email: string): User | null {
-    const database = readDB()
-    return database.users.find(u => u.email === email) || null
+  async findUserByEmail(email: string): Promise<User | null> {
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single()
+
+    if (error) return null
+    return data ? convertFromSupabaseUser(data) : null
   },
 
-  findUserById(id: string): User | null {
-    const database = readDB()
-    return database.users.find(u => u.id === id) || null
+  async findUserById(id: string): Promise<User | null> {
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) return null
+    return data ? convertFromSupabaseUser(data) : null
   },
 
-  findUserByReferralCode(code: string): User | null {
-    const database = readDB()
-    return database.users.find(u => u.referralCode === code) || null
+  async findUserByReferralCode(code: string): Promise<User | null> {
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('referral_code', code)
+      .single()
+
+    if (error) return null
+    return data ? convertFromSupabaseUser(data) : null
   },
-  
+
   // 사용자 생성
-  createUser(data: {
+  async createUser(data: {
     name: string
     phone: string
     email?: string
     password: string
     referralCode?: string
-  }): User {
-    const database = readDB()
+  }): Promise<User> {
+    // 다음 회원번호 가져오기
+    const { data: metaData } = await supabaseAdmin
+      .from('metadata')
+      .select('value')
+      .eq('key', 'next_member_number')
+      .single()
 
-    // 회원 번호 증가
-    database.systemConfig.currentMemberCount++
-    const memberNumber = database.systemConfig.currentMemberCount
+    const memberNumber = metaData?.value || 1
+
+    // 회원번호 증가
+    await supabaseAdmin
+      .from('metadata')
+      .update({ value: memberNumber + 1, updated_at: new Date().toISOString() })
+      .eq('key', 'next_member_number')
 
     // 보너스 계산
     const { securityCoins, referralBonus } = calculateSignupBonus(memberNumber)
@@ -129,291 +114,314 @@ export const db = {
     // 추천인 확인
     let referrer = null
     if (data.referralCode) {
-      referrer = database.users.find(u => u.referralCode === data.referralCode)
+      referrer = await this.findUserByReferralCode(data.referralCode)
     }
 
     // 새 사용자 생성
-    const newUser: User = {
-      id: Date.now().toString(),
+    const newUserId = Date.now().toString()
+    const newUser = {
+      id: newUserId,
       name: data.name,
       phone: data.phone,
-      email: data.email,
-      password: data.password,  // 평문 비밀번호 저장 (암호화하지 않음)
-      referralCode: generateReferralCode(),
-      referrerId: referrer?.id,
-      securityCoins,
-      dividendCoins: 0,
-      memberNumber,
-      role: 'USER',  // 기본값: 일반회원
-      isAdmin: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      email: data.email || '',
+      password: data.password, // 평문 저장
+      referral_code: generateReferralCode(),
+      referred_by: referrer?.referralCode,
+      security_coins: securityCoins,
+      dividend_coins: 0,
+      member_number: memberNumber,
+      role: 'USER',
+      is_admin: false,
+      created_at: new Date().toISOString()
     }
-    
-    database.users.push(newUser)
-    
+
+    const { data: insertedUser, error } = await supabaseAdmin
+      .from('users')
+      .insert(newUser)
+      .select()
+      .single()
+
+    if (error) throw new Error('사용자 생성 실패: ' + error.message)
+
     // 가입 보너스 거래 기록
-    database.transactions.push({
+    await supabaseAdmin.from('transactions').insert({
       id: Date.now().toString(),
-      userId: newUser.id,
+      user_id: newUserId,
       type: 'SIGNUP_BONUS',
-      coinType: 'SECURITY',
+      coin_type: 'SECURITY',
       amount: securityCoins,
       balance: securityCoins,
       description: `회원가입 보너스 (회원번호: ${memberNumber})`,
-      createdAt: new Date().toISOString()
+      created_at: new Date().toISOString()
     })
-    
+
     // 추천인 보너스 지급
     if (referrer) {
-      const referrerIndex = database.users.findIndex(u => u.id === referrer.id)
-      database.users[referrerIndex].securityCoins += referralBonus
-      
-      database.transactions.push({
+      const newSecurityCoins = referrer.securityCoins + referralBonus
+
+      await supabaseAdmin
+        .from('users')
+        .update({ security_coins: newSecurityCoins })
+        .eq('id', referrer.id)
+
+      await supabaseAdmin.from('transactions').insert({
         id: (Date.now() + 1).toString(),
-        userId: referrer.id,
+        user_id: referrer.id,
         type: 'REFERRAL_BONUS',
-        coinType: 'SECURITY',
+        coin_type: 'SECURITY',
         amount: referralBonus,
-        balance: database.users[referrerIndex].securityCoins,
+        balance: newSecurityCoins,
         description: `추천 보너스 - ${newUser.name}님 가입`,
-        referralId: newUser.id,
-        createdAt: new Date().toISOString()
+        created_at: new Date().toISOString()
       })
     }
-    
-    writeDB(database)
-    return newUser
+
+    return convertFromSupabaseUser(insertedUser)
   },
-  
+
   // 배당코인 지급
-  grantDividendCoins(userId: string, amount: number, description?: string): boolean {
-    const database = readDB()
-    const userIndex = database.users.findIndex(u => u.id === userId)
+  async grantDividendCoins(userId: string, amount: number, description?: string): Promise<boolean> {
+    const user = await this.findUserById(userId)
+    if (!user) return false
 
-    if (userIndex === -1) return false
+    const newBalance = user.dividendCoins + amount
 
-    const user = database.users[userIndex]
-    database.users[userIndex].dividendCoins += amount
+    const { error: updateError } = await supabaseAdmin
+      .from('users')
+      .update({ dividend_coins: newBalance })
+      .eq('id', userId)
 
-    // 거래 기록 생성
-    database.transactions.push({
+    if (updateError) return false
+
+    // 거래 기록
+    await supabaseAdmin.from('transactions').insert({
       id: Date.now().toString(),
-      userId: user.id,
+      user_id: userId,
       type: 'ADMIN_GRANT',
-      coinType: 'DIVIDEND',
+      coin_type: 'DIVIDEND',
       amount: amount,
-      balance: database.users[userIndex].dividendCoins,
-      description: description || '관리자 수동 지급',
-      createdAt: new Date().toISOString()
+      balance: newBalance,
+      description: description || '관리자 지급',
+      created_at: new Date().toISOString()
     })
 
-    // 추천인 보너스 자동 지급 (항상 지급)
+    // 추천인에게 보너스 지급
     if (user.referrerId) {
-      const referrerIndex = database.users.findIndex(u => u.id === user.referrerId)
-      if (referrerIndex !== -1) {
-        // 코인 설정에서 추천인 보너스 값 가져오기 (기본값: 1000)
-        let bonusAmount = 1000
-        try {
-          if (typeof localStorage !== 'undefined') {
-            const coinSettings = localStorage.getItem('coinSettings')
-            if (coinSettings) {
-              const settings = JSON.parse(coinSettings)
-              bonusAmount = settings.referralBonus || 1000
-            }
-          }
-        } catch (e) {
-          // localStorage 접근 불가 시 기본값 사용
-          bonusAmount = 1000
-        }
+      const referrer = await this.findUserById(user.referrerId)
+      if (referrer) {
+        const config = await this.getSystemConfig()
+        const referralBonus = config.dividendCoinReferral
+        const referrerNewBalance = referrer.dividendCoins + referralBonus
 
-        database.users[referrerIndex].dividendCoins += bonusAmount
+        await supabaseAdmin
+          .from('users')
+          .update({ dividend_coins: referrerNewBalance })
+          .eq('id', referrer.id)
 
-        database.transactions.push({
+        await supabaseAdmin.from('transactions').insert({
           id: (Date.now() + 1).toString(),
-          userId: user.referrerId,
+          user_id: referrer.id,
           type: 'REFERRAL_BONUS',
-          coinType: 'DIVIDEND',
-          amount: bonusAmount,
-          balance: database.users[referrerIndex].dividendCoins,
+          coin_type: 'DIVIDEND',
+          amount: referralBonus,
+          balance: referrerNewBalance,
           description: `추천 보너스 - ${user.name}님 배당코인 구매`,
-          referralId: user.id,
-          createdAt: new Date().toISOString()
+          created_at: new Date().toISOString()
         })
       }
     }
 
-    writeDB(database)
     return true
   },
 
-  // 배당코인 수정 (추천인 보너스 없음)
-  setDividendCoins(userId: string, amount: number, description?: string): boolean {
-    const database = readDB()
-    const userIndex = database.users.findIndex(u => u.id === userId)
+  // 배당코인 설정 (덮어쓰기)
+  async setDividendCoins(userId: string, amount: number, description?: string): Promise<boolean> {
+    const user = await this.findUserById(userId)
+    if (!user) return false
 
-    if (userIndex === -1) return false
+    const { error } = await supabaseAdmin
+      .from('users')
+      .update({ dividend_coins: amount })
+      .eq('id', userId)
 
-    const user = database.users[userIndex]
-    const oldAmount = database.users[userIndex].dividendCoins
-    database.users[userIndex].dividendCoins = amount
+    if (error) return false
 
-    // 거래 기록 생성
-    database.transactions.push({
+    // 거래 기록
+    await supabaseAdmin.from('transactions').insert({
       id: Date.now().toString(),
-      userId: user.id,
+      user_id: userId,
       type: 'ADMIN_GRANT',
-      coinType: 'DIVIDEND',
-      amount: amount - oldAmount, // 변경된 차액
-      balance: database.users[userIndex].dividendCoins,
-      description: description || `배당코인 수정 - ${amount}개로 변경`,
-      createdAt: new Date().toISOString()
+      coin_type: 'DIVIDEND',
+      amount: amount - user.dividendCoins,
+      balance: amount,
+      description: description || '관리자 배당코인 설정',
+      created_at: new Date().toISOString()
     })
 
-    writeDB(database)
     return true
+  },
+
+  // 모든 사용자 조회
+  async getAllUsers(): Promise<User[]> {
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) return []
+    return data.map(convertFromSupabaseUser)
+  },
+
+  // 거래 내역 조회
+  async getTransactionsByUserId(userId: string): Promise<Transaction[]> {
+    const { data, error } = await supabaseAdmin
+      .from('transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+
+    if (error) return []
+    return data.map(convertFromSupabaseTransaction)
+  },
+
+  // 모든 거래 내역 조회
+  async getAllTransactions(): Promise<Transaction[]> {
+    const { data, error } = await supabaseAdmin
+      .from('transactions')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) return []
+    return data.map(convertFromSupabaseTransaction)
+  },
+
+  // 사용자 등급 변경
+  async setUserRole(userId: string, role: 'USER' | 'TEAM_LEADER'): Promise<User | null> {
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .update({ role })
+      .eq('id', userId)
+      .select()
+      .single()
+
+    if (error) return null
+    return convertFromSupabaseUser(data)
+  },
+
+  // 사용자 차단
+  async blockUser(userId: string): Promise<boolean> {
+    const user = await this.findUserById(userId)
+    if (!user || user.role === 'ADMIN') return false
+
+    const { error } = await supabaseAdmin
+      .from('users')
+      .update({ status: 'BLOCKED' })
+      .eq('id', userId)
+
+    return !error
+  },
+
+  // 사용자 차단 해제
+  async unblockUser(userId: string): Promise<boolean> {
+    const { error } = await supabaseAdmin
+      .from('users')
+      .update({ status: 'ACTIVE' })
+      .eq('id', userId)
+
+    return !error
+  },
+
+  // 사용자 탈퇴
+  async deleteUser(userId: string): Promise<boolean> {
+    const user = await this.findUserById(userId)
+    if (!user || user.role === 'ADMIN') return false
+
+    const { error } = await supabaseAdmin
+      .from('users')
+      .update({ status: 'DELETED' })
+      .eq('id', userId)
+
+    return !error
+  },
+
+  // 추천인 목록
+  async getReferredUsers(userId: string): Promise<User[]> {
+    const user = await this.findUserById(userId)
+    if (!user) return []
+
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('referred_by', user.referralCode)
+      .order('created_at', { ascending: false })
+
+    if (error) return []
+    return data.map(convertFromSupabaseUser)
+  },
+
+  // 시스템 설정 조회
+  async getSystemConfig(): Promise<SystemConfig> {
+    // 기본값 반환 (필요시 metadata 테이블에서 읽도록 확장 가능)
+    return {
+      securityCoinNewUser: 500,
+      securityCoinReferral: 1000,
+      dividendCoinPer100: 10000,
+      dividendCoinReferral: 1000
+    }
   },
 
   // 사용자 정보 업데이트
-  updateUser(userId: string, updateData: Partial<User>): User | null {
-    const database = readDB()
-    const userIndex = database.users.findIndex(u => u.id === userId)
+  async updateUser(userId: string, updates: Partial<User>): Promise<User | null> {
+    const supabaseUpdates: any = {}
 
-    if (userIndex === -1) return null
+    if (updates.name) supabaseUpdates.name = updates.name
+    if (updates.email) supabaseUpdates.email = updates.email
+    if (updates.phone) supabaseUpdates.phone = updates.phone
+    if (updates.password) supabaseUpdates.password = updates.password
 
-    database.users[userIndex] = {
-      ...database.users[userIndex],
-      ...updateData,
-      updatedAt: new Date().toISOString()
-    }
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .update(supabaseUpdates)
+      .eq('id', userId)
+      .select()
+      .single()
 
-    writeDB(database)
-    return database.users[userIndex]
-  },
-
-  // 모든 사용자 가져오기
-  getAllUsers(): User[] {
-    const database = readDB()
-    return database.users
-  },
-
-  // 회원 차단
-  blockUser(userId: string): boolean {
-    const database = readDB()
-    const userIndex = database.users.findIndex(u => u.id === userId)
-
-    if (userIndex === -1) return false
-
-    // 관리자는 차단할 수 없음
-    if (database.users[userIndex].role === 'ADMIN') return false
-
-    database.users[userIndex].status = 'BLOCKED'
-    database.users[userIndex].updatedAt = new Date().toISOString()
-
-    writeDB(database)
-    return true
-  },
-
-  // 회원 차단 해제
-  unblockUser(userId: string): boolean {
-    const database = readDB()
-    const userIndex = database.users.findIndex(u => u.id === userId)
-
-    if (userIndex === -1) return false
-
-    database.users[userIndex].status = 'ACTIVE'
-    database.users[userIndex].updatedAt = new Date().toISOString()
-
-    writeDB(database)
-    return true
-  },
-
-  // 회원 탈퇴 처리
-  deleteUser(userId: string): boolean {
-    const database = readDB()
-    const userIndex = database.users.findIndex(u => u.id === userId)
-
-    if (userIndex === -1) return false
-
-    // 관리자는 탈퇴 처리할 수 없음
-    if (database.users[userIndex].role === 'ADMIN') return false
-
-    database.users[userIndex].status = 'DELETED'
-    database.users[userIndex].updatedAt = new Date().toISOString()
-
-    writeDB(database)
-    return true
-  },
-  
-  // 거래 내역 가져오기
-  getTransactions(userId: string): Transaction[] {
-    const database = readDB()
-    return database.transactions.filter(t => t.userId === userId)
-  },
-  
-  // 기존 사용자 role 필드 마이그레이션
-  migrateUserRoles() {
-    const database = readDB()
-    let migrated = false
-
-    database.users = database.users.map(user => {
-      if (!user.role) {
-        migrated = true
-        return {
-          ...user,
-          role: user.isAdmin ? 'ADMIN' : 'USER'
-        }
-      }
-      return user
-    })
-
-    if (migrated) {
-      writeDB(database)
-      console.log('✅ User roles migrated successfully')
-    }
-  },
-
-  // 초기 데이터 설정
-  async initializeData() {
-    const database = readDB()
-
-    // 기존 사용자 role 마이그레이션
-    this.migrateUserRoles()
-
-    // 이미 데이터가 있으면 스킵
-    if (database.users.length > 0) {
-      console.log('Database already initialized')
-      return
-    }
-    
-    // 관리자 계정 생성
-    const adminPassword = await hashPassword('admin1234')
-    const admin: User = {
-      id: '1',
-      name: '관리자',
-      phone: '01000000000',
-      email: 'admin@3dvcoin.com',
-      password: adminPassword,
-      referralCode: 'ADMIN1',
-      securityCoins: 0,
-      dividendCoins: 0,
-      memberNumber: 0,
-      role: 'ADMIN',
-      isAdmin: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-
-    database.users.push(admin)
-
-    console.log('✅ Admin account created:')
-    console.log('Phone: 01000000000')
-    console.log('Email: admin@3dvcoin.com')
-    console.log('Password: admin1234')
-    
-    writeDB(database)
+    if (error) return null
+    return convertFromSupabaseUser(data)
   }
 }
 
-// 앱 시작 시 초기화
-db.initializeData()
+// Supabase 스네이크 케이스를 카멜 케이스로 변환
+function convertFromSupabaseUser(supabaseUser: any): User {
+  return {
+    id: supabaseUser.id,
+    name: supabaseUser.name,
+    phone: supabaseUser.phone,
+    email: supabaseUser.email,
+    password: supabaseUser.password,
+    referralCode: supabaseUser.referral_code,
+    referrerId: supabaseUser.referred_by,
+    securityCoins: supabaseUser.security_coins,
+    dividendCoins: supabaseUser.dividend_coins,
+    memberNumber: supabaseUser.member_number,
+    role: supabaseUser.role,
+    isAdmin: supabaseUser.is_admin,
+    status: supabaseUser.status,
+    createdAt: supabaseUser.created_at,
+    updatedAt: supabaseUser.updated_at
+  }
+}
+
+function convertFromSupabaseTransaction(supabaseTx: any): Transaction {
+  return {
+    id: supabaseTx.id,
+    userId: supabaseTx.user_id,
+    type: supabaseTx.type,
+    coinType: supabaseTx.coin_type,
+    amount: supabaseTx.amount,
+    balance: supabaseTx.balance,
+    description: supabaseTx.description,
+    referralId: supabaseTx.referral_id,
+    createdAt: supabaseTx.created_at
+  }
+}
