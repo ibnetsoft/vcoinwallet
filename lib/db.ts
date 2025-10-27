@@ -35,7 +35,7 @@ interface SystemConfig {
   securityCoinNewUser: number
   securityCoinReferral: number
   dividendCoinPer100: number
-  dividendCoinReferral: number
+  dividendCoinReferralPercentage: number  // 백분율 (기본값: 10 = 10%)
 }
 
 // Supabase 기반 데이터베이스 함수들
@@ -205,12 +205,13 @@ export const db = {
       created_at: new Date().toISOString()
     })
 
-    // 추천인에게 보너스 지급
+    // 추천인에게 보너스 지급 (백분율 계산)
     if (user.referrerId) {
       const referrer = await this.findUserById(user.referrerId)
       if (referrer) {
         const config = await this.getSystemConfig()
-        const referralBonus = config.dividendCoinReferral
+        // 추천받은 회원이 받은 금액의 X%를 추천인에게 지급
+        const referralBonus = Math.floor(amount * config.dividendCoinReferralPercentage / 100)
         const referrerNewBalance = referrer.dividendCoins + referralBonus
 
         await supabaseAdmin
@@ -225,7 +226,7 @@ export const db = {
           coin_type: 'DIVIDEND',
           amount: referralBonus,
           balance: referrerNewBalance,
-          description: `추천 보너스 - ${user.name}님 배당코인 구매`,
+          description: `추천 보너스 - ${user.name}님 배당코인 구매 (${config.dividendCoinReferralPercentage}%)`,
           created_at: new Date().toISOString()
         })
       }
@@ -366,7 +367,7 @@ export const db = {
       securityCoinNewUser: 500,
       securityCoinReferral: 1000,
       dividendCoinPer100: 10000,
-      dividendCoinReferral: 1000
+      dividendCoinReferralPercentage: 10  // 10% (추천받은 회원이 받은 배당코인의 10%)
     }
   },
 
