@@ -367,6 +367,42 @@ export default function AdminPage() {
     }
   }
 
+  const handlePermanentlyDeleteUser = async (userId: string) => {
+    const token = localStorage.getItem('token')
+
+    if (!confirm('⚠️ 경고: 이 회원의 모든 데이터를 영구적으로 삭제하시겠습니까?\n\n삭제되는 데이터:\n- 회원 정보\n- 모든 거래 내역\n- 코인 보유 내역\n\n이 작업은 되돌릴 수 없습니다!')) {
+      return
+    }
+
+    // 한 번 더 확인
+    if (!confirm('정말로 영구 삭제하시겠습니까? 이 작업은 복구가 불가능합니다!')) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/admin/permanently-delete-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '영구 삭제 실패')
+      }
+
+      toast.success(result.message)
+      await fetchUsers() // 목록 새로고침
+      closeDetailModal()
+    } catch (error: any) {
+      toast.error(error.message || '처리 중 오류가 발생했습니다.')
+    }
+  }
+
   const handleUpdateAdminProfile = async () => {
     const token = localStorage.getItem('token')
 
@@ -1755,6 +1791,13 @@ export default function AdminPage() {
                         회원 탈퇴 처리
                       </button>
                     )}
+
+                    <button
+                      onClick={() => handlePermanentlyDeleteUser(selectedUserDetail.id)}
+                      className="w-full px-4 py-3 bg-red-900 hover:bg-red-950 text-white rounded-lg font-medium transition border-2 border-red-500"
+                    >
+                      ⚠️ 영구 삭제 (모든 데이터 삭제)
+                    </button>
 
                     {selectedUserDetail.status === 'DELETED' && (
                       <div className="p-3 bg-gray-700 rounded-lg text-center text-gray-400">

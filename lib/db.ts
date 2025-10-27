@@ -332,7 +332,7 @@ export const db = {
     return !error
   },
 
-  // 사용자 탈퇴
+  // 사용자 탈퇴 (status만 변경)
   async deleteUser(userId: string): Promise<boolean> {
     const user = await this.findUserById(userId)
     if (!user || user.role === 'ADMIN') return false
@@ -343,6 +343,31 @@ export const db = {
       .eq('id', userId)
 
     return !error
+  },
+
+  // 사용자 완전 삭제 (데이터베이스에서 영구 삭제)
+  async permanentlyDeleteUser(userId: string): Promise<boolean> {
+    const user = await this.findUserById(userId)
+    if (!user || user.role === 'ADMIN') return false
+
+    try {
+      // 1. 먼저 거래 내역 삭제 (CASCADE로 자동 삭제되지만 명시적으로)
+      await supabaseAdmin
+        .from('transactions')
+        .delete()
+        .eq('user_id', userId)
+
+      // 2. 사용자 삭제
+      const { error } = await supabaseAdmin
+        .from('users')
+        .delete()
+        .eq('id', userId)
+
+      return !error
+    } catch (error) {
+      console.error('Permanently delete user error:', error)
+      return false
+    }
   },
 
   // 추천인 목록
