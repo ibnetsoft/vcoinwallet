@@ -1,0 +1,51 @@
+{
+  "name": "vcoin-wallet",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:init": "npx prisma generate && npx prisma db push",
+    "db:seed": "npx tsx prisma/seed.ts",
+    "db:reset": "npx prisma db push --force-reset && npm run db:seed",
+    "db:studio": "npx prisma studio"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.18.0",
+    "@supabase/supabase-js": "^2.76.1",
+    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-query-devtools": "^5.90.2",
+    "axios": "^1.12.2",
+    "bcryptjs": "^3.0.2",
+    "framer-motion": "^12.23.24",
+    "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.546.0",
+    "next": "16.0.0",
+    "prisma": "^6.18.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-hook-form": "^7.65.0",
+    "react-hot-toast": "^2.6.0",
+    "recharts": "^3.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.6",
+    "typescript": "^5"
+  }
+}

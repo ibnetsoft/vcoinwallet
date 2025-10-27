@@ -1,0 +1,1725 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Users, Coins, Gift, Search, ArrowLeft, Shield, Settings, Lock, Mail, Phone, X, ArrowUpDown } from 'lucide-react'
+import toast, { Toaster } from 'react-hot-toast'
+
+export default function AdminPage() {
+  const router = useRouter()
+  const [user, setUser] = useState<any>(null)
+  const [users, setUsers] = useState<any[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [grantSearchTerm, setGrantSearchTerm] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [grantAmount, setGrantAmount] = useState('10000') // 기본값 10000개 (100만원)
+  const [grantDescription, setGrantDescription] = useState('')
+  const [grantMode, setGrantMode] = useState<'add' | 'set'>('add') // 지급 모드: add(추가), set(수정)
+  const [selectedAmountOption, setSelectedAmountOption] = useState<string>('1000000') // 기본값: 100만원
+  const [roleChangeUserId, setRoleChangeUserId] = useState('')
+  const [newRole, setNewRole] = useState<'USER' | 'TEAM_LEADER'>('USER')
+  const [roleSearchTerm, setRoleSearchTerm] = useState('')
+  const [activeTab, setActiveTab] = useState<'users' | 'grant' | 'roles' | 'settings' | 'coin-settings'>('users')
+  const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'TEAM_LEADER' | 'USER'>('ALL')
+  const [selectedUserDetail, setSelectedUserDetail] = useState<any>(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+
+  // 페이지네이션
+  const [currentPage, setCurrentPage] = useState(1)
+  const usersPerPage = 30
+
+  // 기간 필터
+  const [periodFilter, setPeriodFilter] = useState<'all' | 'custom'>('all')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+
+  // 관리자 정보 수정 상태
+  const [isEditingAdmin, setIsEditingAdmin] = useState(false)
+  const [adminEditForm, setAdminEditForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+
+  // 코인지급 설정 상태
+  const [coinSettings, setCoinSettings] = useState({
+    dividendCoinRatio: 100, // 100원당 1개
+    referralBonus: 1000 // 추천인 보너스
+  })
+
+  // 회원번호별 특별 지급 설정
+  const [memberNumberRules, setMemberNumberRules] = useState<Array<{
+    id: string
+    memberNumberFrom: number
+    memberNumberTo: number
+    referralBonus: number
+    newMemberCoins: number
+  }>>([])
+
+  const [newRule, setNewRule] = useState({
+    memberNumberFrom: '',
+    memberNumberTo: '',
+    referralBonus: '',
+    newMemberCoins: ''
+  })
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    const userData = localStorage.getItem('user')
+
+    if (!token || !userData) {
+      router.push('/login')
+      return
+    }
+
+    const parsedUser = JSON.parse(userData)
+
+    // 관리자 권한 확인
+    if (!parsedUser.isAdmin) {
+      toast.error('관리자 권한이 없습니다.')
+      router.push('/')
+      return
+    }
+
+    setUser(parsedUser)
+
+    // 관리자 정보 수정 폼 초기화
+    setAdminEditForm({
+      name: parsedUser.name || '',
+      phone: parsedUser.phone || '',
+      email: parsedUser.email || '',
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    })
+
+    // 코인지급 설정 불러오기
+    const savedCoinSettings = localStorage.getItem('coinSettings')
+    if (savedCoinSettings) {
+      setCoinSettings(JSON.parse(savedCoinSettings))
+    }
+
+    // 회원번호별 규칙 불러오기
+    const savedRules = localStorage.getItem('memberNumberRules')
+    if (savedRules) {
+      setMemberNumberRules(JSON.parse(savedRules))
+    } else {
+      // 기본 규칙 세팅
+      const defaultRules = [
+        {
+          id: 'default-1',
+          memberNumberFrom: 1,
+          memberNumberTo: 10000,
+          referralBonus: 1000,
+          newMemberCoins: 500
+        },
+        {
+          id: 'default-2',
+          memberNumberFrom: 10001,
+          memberNumberTo: 20000,
+          referralBonus: 400,
+          newMemberCoins: 200
+        },
+        {
+          id: 'default-3',
+          memberNumberFrom: 20001,
+          memberNumberTo: 100000,
+          referralBonus: 200,
+          newMemberCoins: 100
+        },
+        {
+          id: 'default-4',
+          memberNumberFrom: 100001,
+          memberNumberTo: 999999,
+          referralBonus: 100,
+          newMemberCoins: 50
+        }
+      ]
+      setMemberNumberRules(defaultRules)
+      localStorage.setItem('memberNumberRules', JSON.stringify(defaultRules))
+    }
+
+    // 실제 사용자 목록 가져오기
+    fetchUsers()
+  }, [router])
+
+  // 검색 또는 필터 변경 시 페이지를 1로 리셋
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, userRoleFilter, sortOrder])
+
+  const fetchUsers = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch('/api/admin/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data.users || [])
+      }
+    } catch (error) {
+      console.error('사용자 목록 가져오기 실패:', error)
+      setUsers([])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGrantDividendCoins = async () => {
+    if (!selectedUser || !grantAmount) {
+      toast.error('사용자와 수량을 입력해주세요.')
+      return
+    }
+
+    const token = localStorage.getItem('token')
+
+    try {
+      const endpoint = grantMode === 'add' ? '/api/admin/grant-dividend' : '/api/admin/set-dividend'
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId: selectedUser.id,
+          amount: parseInt(grantAmount),
+          description: grantDescription || (grantMode === 'add' ? `100만원 입금 - 배당코인 ${grantAmount}개` : `배당코인 수정 - ${grantAmount}개로 변경`)
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || (grantMode === 'add' ? '지급 실패' : '수정 실패'))
+      }
+
+      if (grantMode === 'add') {
+        toast.success(`${selectedUser.name}님께 배당코인 ${grantAmount}개가 지급되었습니다!`)
+      } else {
+        toast.success(`${selectedUser.name}님의 배당코인이 ${grantAmount}개로 수정되었습니다!`)
+      }
+
+      // 목록 갱신
+      await fetchUsers()
+
+      // 폼 초기화
+      setSelectedUser(null)
+      setGrantAmount('')
+      setGrantDescription('')
+      setGrantSearchTerm('')
+
+    } catch (error: any) {
+      toast.error(error.message || '배당코인 처리 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleChangeRole = async () => {
+    if (!roleChangeUserId) {
+      toast.error('회원을 선택해주세요.')
+      return
+    }
+
+    const targetUser = users.find(u => u.id === roleChangeUserId)
+    if (!targetUser) return
+
+    const roleNames = {
+      'USER': '일반회원',
+      'TEAM_LEADER': '팀장'
+    }
+
+    const token = localStorage.getItem('token')
+
+    try {
+      const response = await fetch('/api/admin/set-role', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId: roleChangeUserId,
+          role: newRole
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '등급 변경 실패')
+      }
+
+      toast.success(`${targetUser.name}님의 등급이 ${roleNames[newRole]}(으)로 변경되었습니다!`)
+
+      // 목록 갱신
+      await fetchUsers()
+
+      // 폼 초기화
+      setRoleChangeUserId('')
+      setNewRole('USER')
+      setRoleSearchTerm('')
+
+    } catch (error: any) {
+      toast.error(error.message || '등급 변경 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleUserClick = (selectedUser: any) => {
+    setSelectedUserDetail(selectedUser)
+    setIsDetailModalOpen(true)
+  }
+
+  const closeDetailModal = () => {
+    setIsDetailModalOpen(false)
+    setSelectedUserDetail(null)
+  }
+
+  const handleBlockUser = async (userId: string, action: 'block' | 'unblock') => {
+    const token = localStorage.getItem('token')
+
+    const confirmMessage = action === 'block'
+      ? '이 회원을 차단하시겠습니까? 차단된 회원은 로그인할 수 없습니다.'
+      : '이 회원의 차단을 해제하시겠습니까?'
+
+    if (!confirm(confirmMessage)) return
+
+    try {
+      const response = await fetch('/api/admin/block-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId, action })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '처리 실패')
+      }
+
+      toast.success(result.message)
+      await fetchUsers() // 목록 새로고침
+      closeDetailModal()
+    } catch (error: any) {
+      toast.error(error.message || '처리 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleDeleteUser = async (userId: string) => {
+    const token = localStorage.getItem('token')
+
+    if (!confirm('정말로 이 회원을 탈퇴 처리하시겠습니까?\n탈퇴 처리된 회원은 로그인할 수 없으며, 복구가 어렵습니다.')) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/admin/delete-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '탈퇴 처리 실패')
+      }
+
+      toast.success(result.message)
+      await fetchUsers() // 목록 새로고침
+      closeDetailModal()
+    } catch (error: any) {
+      toast.error(error.message || '처리 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleUpdateAdminProfile = async () => {
+    const token = localStorage.getItem('token')
+
+    // 비밀번호 확인 검증
+    if (adminEditForm.newPassword && adminEditForm.newPassword !== adminEditForm.confirmPassword) {
+      toast.error('새 비밀번호가 일치하지 않습니다.')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/user/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: adminEditForm.name,
+          phone: adminEditForm.phone,
+          email: adminEditForm.email,
+          currentPassword: adminEditForm.currentPassword,
+          newPassword: adminEditForm.newPassword
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '정보 수정 실패')
+      }
+
+      // 로컬 스토리지 업데이트
+      const updatedUser = { ...user, ...result.user }
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+      setUser(updatedUser)
+
+      setIsEditingAdmin(false)
+      setAdminEditForm(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }))
+      toast.success('관리자 정보가 수정되었습니다!')
+
+    } catch (error: any) {
+      toast.error(error.message || '정보 수정 중 오류가 발생했습니다.')
+    }
+  }
+
+  // 기간 필터링된 사용자 (통계용)
+  const periodFilteredUsers = users.filter(u => {
+    if (periodFilter === 'all') {
+      return true
+    }
+
+    // custom 기간 필터
+    const userDate = new Date(u.createdAt)
+
+    if (startDate && endDate) {
+      const start = new Date(startDate)
+      const end = new Date(endDate)
+      end.setHours(23, 59, 59, 999) // 종료일 끝까지 포함
+      return userDate >= start && userDate <= end
+    } else if (startDate) {
+      const start = new Date(startDate)
+      return userDate >= start
+    } else if (endDate) {
+      const end = new Date(endDate)
+      end.setHours(23, 59, 59, 999)
+      return userDate <= end
+    }
+
+    return true
+  })
+
+  const filteredUsers = users.filter(u => {
+    // 검색 필터
+    const matchesSearch =
+      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.referralCode.toLowerCase().includes(searchTerm.toLowerCase())
+
+    // 등급 필터
+    const userRole = u.role || 'USER'
+    const matchesRole = userRoleFilter === 'ALL' || userRole === userRoleFilter
+
+    return matchesSearch && matchesRole
+  }).sort((a, b) => {
+    // 회원번호 정렬
+    if (sortOrder === 'asc') {
+      return a.memberNumber - b.memberNumber
+    } else {
+      return b.memberNumber - a.memberNumber
+    }
+  })
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage)
+  const indexOfLastUser = currentPage * usersPerPage
+  const indexOfFirstUser = indexOfLastUser - usersPerPage
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser)
+
+  const grantFilteredUsers = users.filter(u =>
+    u.name.toLowerCase().includes(grantSearchTerm.toLowerCase()) ||
+    u.phone?.toLowerCase().includes(grantSearchTerm.toLowerCase())
+  )
+
+  const roleFilteredUsers = users.filter(u =>
+    !u.isAdmin && (
+      u.name.toLowerCase().includes(roleSearchTerm.toLowerCase()) ||
+      u.phone?.toLowerCase().includes(roleSearchTerm.toLowerCase())
+    )
+  )
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <Toaster position="top-center" />
+      
+      {/* 헤더 */}
+      <header className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => router.push('/')}
+                className="p-2 hover:bg-gray-700 rounded-lg transition"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex items-center space-x-2">
+                <Shield className="w-6 h-6 text-purple-400" />
+                <h1 className="text-xl font-bold text-white">관리자 패널</h1>
+              </div>
+            </div>
+            <div className="text-sm text-gray-400">
+              관리자: {user?.name}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* 기간 필터 */}
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700 mb-6">
+          <div className="flex flex-wrap items-center gap-4">
+            <div>
+              <label className="text-sm text-gray-400 mr-3">조회 기간:</label>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setPeriodFilter('all')
+                  setStartDate('')
+                  setEndDate('')
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  periodFilter === 'all'
+                    ? 'bg-yellow-500 text-gray-900'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                전체
+              </button>
+              <button
+                onClick={() => {
+                  const now = new Date()
+                  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+                  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+                  setPeriodFilter('custom')
+                  setStartDate(firstDay.toISOString().split('T')[0])
+                  setEndDate(lastDay.toISOString().split('T')[0])
+                }}
+                className="px-4 py-2 bg-gray-700 text-gray-300 hover:bg-gray-600 rounded-lg text-sm font-medium transition"
+              >
+                이번 달
+              </button>
+              <button
+                onClick={() => {
+                  const now = new Date()
+                  const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+                  const lastDay = new Date(now.getFullYear(), now.getMonth(), 0)
+                  setPeriodFilter('custom')
+                  setStartDate(firstDay.toISOString().split('T')[0])
+                  setEndDate(lastDay.toISOString().split('T')[0])
+                }}
+                className="px-4 py-2 bg-gray-700 text-gray-300 hover:bg-gray-600 rounded-lg text-sm font-medium transition"
+              >
+                지난 달
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value)
+                  if (e.target.value || endDate) {
+                    setPeriodFilter('custom')
+                  }
+                }}
+                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+              />
+              <span className="text-gray-400">~</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value)
+                  if (startDate || e.target.value) {
+                    setPeriodFilter('custom')
+                  }
+                }}
+                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 통계 카드 */}
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">
+                  총 회원수
+                  {periodFilter === 'custom' && (startDate || endDate) && (
+                    <span className="block text-xs text-yellow-400 mt-1">
+                      {startDate && endDate ? `${startDate} ~ ${endDate}` :
+                       startDate ? `${startDate} 이후` :
+                       `${endDate} 이전`}
+                    </span>
+                  )}
+                </p>
+                <p className="text-2xl font-bold text-white">{periodFilteredUsers.length}명</p>
+              </div>
+              <Users className="w-8 h-8 text-blue-400" />
+            </div>
+          </div>
+
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">
+                  총 증권코인
+                  {periodFilter === 'custom' && (startDate || endDate) && (
+                    <span className="block text-xs text-yellow-400 mt-1">
+                      {startDate && endDate ? `${startDate} ~ ${endDate}` :
+                       startDate ? `${startDate} 이후` :
+                       `${endDate} 이전`}
+                    </span>
+                  )}
+                </p>
+                <p className="text-2xl font-bold text-white">
+                  {periodFilteredUsers.reduce((sum, u) => sum + u.securityCoins, 0).toLocaleString()}개
+                </p>
+              </div>
+              <Coins className="w-8 h-8 text-blue-400" />
+            </div>
+          </div>
+
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 relative">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">
+                  총 배당코인
+                  {periodFilter === 'custom' && (startDate || endDate) && (
+                    <span className="block text-xs text-yellow-400 mt-1">
+                      {startDate && endDate ? `${startDate} ~ ${endDate}` :
+                       startDate ? `${startDate} 이후` :
+                       `${endDate} 이전`}
+                    </span>
+                  )}
+                </p>
+                <p className="text-2xl font-bold text-white">
+                  {periodFilteredUsers.reduce((sum, u) => sum + u.dividendCoins, 0).toLocaleString()}개
+                </p>
+              </div>
+              <Coins className="w-8 h-8 text-yellow-400" />
+            </div>
+            <div className="absolute bottom-4 right-6">
+              <p className="text-xs text-gray-500">
+                {(periodFilteredUsers.reduce((sum, u) => sum + u.dividendCoins, 0) * 100).toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 탭 메뉴 */}
+        <div className="mb-8">
+          <div className="flex space-x-2 border-b border-gray-700">
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`px-6 py-3 font-semibold transition-colors relative ${
+                activeTab === 'users'
+                  ? 'text-yellow-400'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Users className="w-5 h-5" />
+                <span>회원 목록</span>
+              </div>
+              {activeTab === 'users' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('grant')}
+              className={`px-6 py-3 font-semibold transition-colors relative ${
+                activeTab === 'grant'
+                  ? 'text-yellow-400'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Gift className="w-5 h-5" />
+                <span>배당코인 지급</span>
+              </div>
+              {activeTab === 'grant' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('roles')}
+              className={`px-6 py-3 font-semibold transition-colors relative ${
+                activeTab === 'roles'
+                  ? 'text-yellow-400'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Shield className="w-5 h-5" />
+                <span>회원 등급 관리</span>
+              </div>
+              {activeTab === 'roles' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`px-6 py-3 font-semibold transition-colors relative ${
+                activeTab === 'settings'
+                  ? 'text-yellow-400'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Settings className="w-5 h-5" />
+                <span>관리자 설정</span>
+              </div>
+              {activeTab === 'settings' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('coin-settings')}
+              className={`px-6 py-3 font-semibold transition-colors relative ${
+                activeTab === 'coin-settings'
+                  ? 'text-yellow-400'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Coins className="w-5 h-5" />
+                <span>코인지급 설정</span>
+              </div>
+              {activeTab === 'coin-settings' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* 회원 목록 탭 */}
+        {activeTab === 'users' && (
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 min-h-[600px]">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white">회원 목록</h2>
+
+              <div className="flex items-center space-x-3">
+                {/* 등급 필터 */}
+                <select
+                  value={userRoleFilter}
+                  onChange={(e) => setUserRoleFilter(e.target.value as 'ALL' | 'ADMIN' | 'TEAM_LEADER' | 'USER')}
+                  className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                >
+                  <option value="ALL">전체 등급</option>
+                  <option value="ADMIN">관리자</option>
+                  <option value="TEAM_LEADER">팀장</option>
+                  <option value="USER">일반회원</option>
+                </select>
+
+                {/* 정렬 버튼 */}
+                <button
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                  className="flex items-center space-x-2 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white hover:bg-gray-600 transition"
+                >
+                  <ArrowUpDown className="w-4 h-4" />
+                  <span>{sortOrder === 'asc' ? '오래된 순' : '최신 순'}</span>
+                </button>
+
+                {/* 검색 */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="이름, 휴대폰, 추천코드 검색"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 w-64"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 테이블 */}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-700">
+                    <th className="text-left py-3 px-2 text-sm text-gray-400">회원번호</th>
+                    <th className="text-left py-3 px-2 text-sm text-gray-400">이름</th>
+                    <th className="text-left py-3 px-2 text-sm text-gray-400">등급</th>
+                    <th className="text-left py-3 px-2 text-sm text-gray-400">휴대폰</th>
+                    <th className="text-left py-3 px-2 text-sm text-gray-400">추천코드</th>
+                    <th className="text-right py-3 px-2 text-sm text-gray-400">증권코인</th>
+                    <th className="text-right py-3 px-2 text-sm text-gray-400">배당코인</th>
+                    <th className="text-left py-3 px-2 text-sm text-gray-400">가입일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentUsers.map(u => {
+                    const roleLabels = {
+                      'ADMIN': '관리자',
+                      'TEAM_LEADER': '팀장',
+                      'USER': '일반회원'
+                    }
+                    const roleColors = {
+                      'ADMIN': 'bg-red-500/20 text-red-400',
+                      'TEAM_LEADER': 'bg-blue-500/20 text-blue-400',
+                      'USER': 'bg-gray-500/20 text-gray-400'
+                    }
+                    const currentRole = u.role || 'USER'
+
+                    return (
+                      <tr key={u.id} className={`border-b border-gray-700/50 hover:bg-gray-700/20 ${
+                        u.status === 'BLOCKED' ? 'opacity-60' :
+                        u.status === 'DELETED' ? 'opacity-40' : ''
+                      }`}>
+                        <td className="py-3 px-2 text-sm text-white">#{u.memberNumber}</td>
+                        <td className="py-3 px-2 text-sm text-white">
+                          <button
+                            onClick={() => handleUserClick(u)}
+                            className="text-yellow-400 hover:text-yellow-300 hover:underline transition flex items-center gap-2"
+                          >
+                            {u.name}
+                            {u.status === 'BLOCKED' && <span className="text-red-400 text-xs">🚫</span>}
+                            {u.status === 'DELETED' && <span className="text-gray-500 text-xs">❌</span>}
+                          </button>
+                        </td>
+                        <td className="py-3 px-2">
+                          <span className={`text-xs px-2 py-1 rounded ${roleColors[currentRole]}`}>
+                            {roleLabels[currentRole]}
+                          </span>
+                        </td>
+                        <td className="py-3 px-2 text-sm text-gray-300">{u.phone}</td>
+                        <td className="py-3 px-2">
+                          <span className="text-sm font-mono text-yellow-400">{u.referralCode}</span>
+                        </td>
+                        <td className="py-3 px-2 text-sm text-right text-blue-400">
+                          {u.securityCoins.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-2 text-sm text-right text-yellow-400">
+                          {u.dividendCoins.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-2 text-sm text-gray-400">{u.createdAt}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 페이지네이션 */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center mt-6 space-x-2">
+                {/* 이전 버튼 */}
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                    currentPage === 1
+                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                      : 'bg-gray-700 text-white hover:bg-gray-600'
+                  }`}
+                >
+                  이전
+                </button>
+
+                {/* 페이지 번호 */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => {
+                  // 현재 페이지 주변 페이지만 표시 (1, 2, 3 ... 현재-1, 현재, 현재+1 ... 마지막-2, 마지막-1, 마지막)
+                  const showPage =
+                    pageNum === 1 ||
+                    pageNum === totalPages ||
+                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+
+                  if (!showPage) {
+                    // 생략 표시 (...)
+                    if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                      return (
+                        <span key={pageNum} className="px-2 text-gray-500">
+                          ...
+                        </span>
+                      )
+                    }
+                    return null
+                  }
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                        currentPage === pageNum
+                          ? 'bg-yellow-500 text-gray-900'
+                          : 'bg-gray-700 text-white hover:bg-gray-600'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  )
+                })}
+
+                {/* 다음 버튼 */}
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                    currentPage === totalPages
+                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                      : 'bg-gray-700 text-white hover:bg-gray-600'
+                  }`}
+                >
+                  다음
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 배당코인 지급 탭 */}
+        {activeTab === 'grant' && (
+        <div className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 rounded-2xl p-6 mb-8 border border-purple-500/30 min-h-[600px]">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-purple-400 flex items-center">
+              <Gift className="w-6 h-6 mr-2" />
+              배당코인 관리
+            </h2>
+
+            {/* 모드 선택 버튼 */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setGrantMode('add')
+                  setGrantAmount('')
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  grantMode === 'add'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                지급
+              </button>
+              <button
+                onClick={() => {
+                  setGrantMode('set')
+                  setGrantAmount(selectedUser ? selectedUser.dividendCoins.toString() : '')
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  grantMode === 'set'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                수정
+              </button>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-300 mb-2">회원 검색 (이름 또는 휴대폰 번호)</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="이름 또는 휴대폰 번호로 검색"
+                  value={grantSearchTerm}
+                  onChange={(e) => {
+                    setGrantSearchTerm(e.target.value)
+                    setSelectedUser(null)
+                  }}
+                  className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                />
+              </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-300 mb-2">
+                회원 선택 {grantSearchTerm && `(${grantFilteredUsers.length}명 검색됨)`}
+              </label>
+              <select
+                value={selectedUser?.id || ''}
+                onChange={(e) => setSelectedUser(users.find(u => u.id === e.target.value))}
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+              >
+                <option value="">회원을 선택하세요</option>
+                {(grantSearchTerm ? grantFilteredUsers : users).map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.phone}) - 회원번호: #{u.memberNumber}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {selectedUser && (() => {
+              const roleLabels = {
+                'ADMIN': '관리자',
+                'TEAM_LEADER': '팀장',
+                'USER': '일반회원'
+              }
+              const currentRole = selectedUser.role || 'USER'
+              const referrer = users.find(u => u.id === selectedUser.referrerId)
+              const referredCount = users.filter(u => u.referrerId === selectedUser.id).length
+              const joinDate = new Date(selectedUser.createdAt).toLocaleDateString('ko-KR')
+
+              return (
+                <div className="md:col-span-2 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                  <p className="text-sm text-gray-400 mb-3">선택된 회원 정보</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <p className="text-xs text-gray-500">이름</p>
+                      <p className="text-white font-medium">{selectedUser.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">휴대폰</p>
+                      <p className="text-white font-medium">{selectedUser.phone}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">회원번호</p>
+                      <p className="text-white font-medium">#{selectedUser.memberNumber}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">등급</p>
+                      <p className="text-blue-400 font-medium">{roleLabels[currentRole]}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">가입일</p>
+                      <p className="text-white font-medium">{joinDate}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">추천한 인원</p>
+                      <p className="text-green-400 font-medium">{referredCount}명</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">추천인</p>
+                      <p className="text-purple-400 font-medium">{referrer ? referrer.name : '없음'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">증권코인</p>
+                      <p className="text-blue-400 font-bold">{selectedUser.securityCoins.toLocaleString()}개</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">배당코인</p>
+                      <p className="text-yellow-400 font-bold">{selectedUser.dividendCoins.toLocaleString()}개</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
+            
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-300 mb-3">
+                {grantMode === 'add' ? '지급 수량' : '배당코인 수량 (현재: ' + (selectedUser?.dividendCoins.toLocaleString() || '0') + '개)'}
+              </label>
+
+              {grantMode === 'add' && (
+                <div className="flex items-center gap-6 mb-3">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="amountOption"
+                      value="1000000"
+                      checked={selectedAmountOption === '1000000'}
+                      onChange={(e) => {
+                        setSelectedAmountOption(e.target.value)
+                        setGrantAmount('10000')
+                      }}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                    <span className="ml-2 text-white">100만원 (10,000개)</span>
+                  </label>
+
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="amountOption"
+                      value="5000000"
+                      checked={selectedAmountOption === '5000000'}
+                      onChange={(e) => {
+                        setSelectedAmountOption(e.target.value)
+                        setGrantAmount('50000')
+                      }}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                    <span className="ml-2 text-white">500만원 (50,000개)</span>
+                  </label>
+
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="amountOption"
+                      value="10000000"
+                      checked={selectedAmountOption === '10000000'}
+                      onChange={(e) => {
+                        setSelectedAmountOption(e.target.value)
+                        setGrantAmount('100000')
+                      }}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                    <span className="ml-2 text-white">1,000만원 (100,000개)</span>
+                  </label>
+                </div>
+              )}
+
+              <input
+                type="number"
+                value={grantAmount}
+                onChange={(e) => {
+                  setGrantAmount(e.target.value)
+                  setSelectedAmountOption('') // 직접 입력 시 라디오 선택 해제
+                }}
+                placeholder={grantMode === 'add' ? '10000' : '변경할 수량'}
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-300 mb-2">설명 (선택)</label>
+              <input
+                type="text"
+                value={grantDescription}
+                onChange={(e) => setGrantDescription(e.target.value)}
+                placeholder={grantMode === 'add' ? '100만원 입금 확인' : '수정 사유'}
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+              />
+            </div>
+          </div>
+
+          {/* 안내 메시지 */}
+          {grantMode === 'add' ? (
+            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3">
+              <p className="text-sm text-green-300">
+                <strong>자동 지급:</strong> 배당코인 지급 시 추천인에게 자동으로 보너스가 지급됩니다. (현재 설정: {coinSettings.referralBonus.toLocaleString()}개)
+              </p>
+            </div>
+          ) : (
+            <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3">
+              <p className="text-sm text-orange-300">
+                <strong>주의:</strong> 수정 모드는 배당코인을 입력한 값으로 변경합니다. 추천인 보너스는 지급되지 않습니다.
+              </p>
+            </div>
+          )}
+
+          <button
+            onClick={handleGrantDividendCoins}
+            disabled={!selectedUser || !grantAmount}
+            className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {grantMode === 'add' ? '배당코인 지급' : '배당코인 수정'}
+          </button>
+        </div>
+        )}
+
+        {/* 회원 등급 관리 탭 */}
+        {activeTab === 'roles' && (
+        <div className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl p-6 mb-8 border border-blue-500/30 min-h-[600px]">
+          <h2 className="text-xl font-bold text-blue-400 mb-4 flex items-center">
+            <Shield className="w-6 h-6 mr-2" />
+            회원 등급 관리
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="md:col-span-3">
+              <label className="block text-sm text-gray-300 mb-2">회원 검색 (이름 또는 휴대폰 번호)</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="이름 또는 휴대폰 번호로 검색"
+                  value={roleSearchTerm}
+                  onChange={(e) => {
+                    setRoleSearchTerm(e.target.value)
+                    setRoleChangeUserId('')
+                  }}
+                  className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                />
+              </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-300 mb-2">
+                회원 선택 {roleSearchTerm && `(${roleFilteredUsers.length}명 검색됨)`}
+              </label>
+              <select
+                value={roleChangeUserId}
+                onChange={(e) => setRoleChangeUserId(e.target.value)}
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+              >
+                <option value="">회원을 선택하세요</option>
+                {(roleSearchTerm ? roleFilteredUsers : users.filter(u => !u.isAdmin)).map(u => {
+                  const roleLabels = {
+                    'ADMIN': '관리자',
+                    'TEAM_LEADER': '팀장',
+                    'USER': '일반회원'
+                  }
+                  const currentRole = u.role || 'USER'
+                  return (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.phone}) - 현재: {roleLabels[currentRole]}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-300 mb-2">변경할 등급</label>
+              <select
+                value={newRole}
+                onChange={(e) => setNewRole(e.target.value as 'USER' | 'TEAM_LEADER')}
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+              >
+                <option value="USER">일반회원</option>
+                <option value="TEAM_LEADER">팀장</option>
+              </select>
+            </div>
+          </div>
+
+          <button
+            onClick={handleChangeRole}
+            disabled={!roleChangeUserId}
+            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            등급 변경
+          </button>
+        </div>
+        )}
+
+        {/* 관리자 설정 탭 */}
+        {activeTab === 'settings' && (
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 min-h-[600px]">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white flex items-center">
+                <Settings className="w-6 h-6 mr-2 text-yellow-400" />
+                관리자 정보 관리
+              </h2>
+              {!isEditingAdmin && (
+                <button
+                  onClick={() => setIsEditingAdmin(true)}
+                  className="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-semibold"
+                >
+                  정보 수정
+                </button>
+              )}
+            </div>
+
+            {!isEditingAdmin ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-400">이름</label>
+                  <p className="text-white font-medium">{user?.name}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">휴대폰 번호</label>
+                  <p className="text-white font-medium">{user?.phone}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">이메일</label>
+                  <p className="text-white font-medium">{user?.email || '미등록'}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">권한</label>
+                  <p className="text-red-400 font-bold">관리자</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2 flex items-center">
+                    <Users className="w-4 h-4 mr-1" />
+                    이름 *
+                  </label>
+                  <input
+                    type="text"
+                    value={adminEditForm.name}
+                    onChange={(e) => setAdminEditForm({ ...adminEditForm, name: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2 flex items-center">
+                    <Phone className="w-4 h-4 mr-1" />
+                    휴대폰 번호 *
+                  </label>
+                  <input
+                    type="tel"
+                    value={adminEditForm.phone}
+                    onChange={(e) => setAdminEditForm({ ...adminEditForm, phone: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2 flex items-center">
+                    <Mail className="w-4 h-4 mr-1" />
+                    이메일
+                  </label>
+                  <input
+                    type="email"
+                    value={adminEditForm.email}
+                    onChange={(e) => setAdminEditForm({ ...adminEditForm, email: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    placeholder="선택사항"
+                  />
+                </div>
+
+                <div className="pt-4 border-t border-gray-700">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                    <Lock className="w-5 h-5 mr-2 text-yellow-400" />
+                    비밀번호 변경
+                  </h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">현재 비밀번호</label>
+                      <input
+                        type="password"
+                        value={adminEditForm.currentPassword}
+                        onChange={(e) => setAdminEditForm({ ...adminEditForm, currentPassword: e.target.value })}
+                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                        placeholder="비밀번호 변경 시 필수"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">새 비밀번호</label>
+                      <input
+                        type="password"
+                        value={adminEditForm.newPassword}
+                        onChange={(e) => setAdminEditForm({ ...adminEditForm, newPassword: e.target.value })}
+                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                        placeholder="6자 이상"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">새 비밀번호 확인</label>
+                      <input
+                        type="password"
+                        value={adminEditForm.confirmPassword}
+                        onChange={(e) => setAdminEditForm({ ...adminEditForm, confirmPassword: e.target.value })}
+                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                        placeholder="새 비밀번호 재입력"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    onClick={handleUpdateAdminProfile}
+                    className="flex-1 px-4 py-3 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-semibold"
+                  >
+                    저장
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsEditingAdmin(false)
+                      setAdminEditForm({
+                        name: user?.name || '',
+                        phone: user?.phone || '',
+                        email: user?.email || '',
+                        currentPassword: '',
+                        newPassword: '',
+                        confirmPassword: ''
+                      })
+                    }}
+                    className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
+                  >
+                    취소
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 코인지급 설정 탭 */}
+        {activeTab === 'coin-settings' && (
+          <div className="space-y-6 min-h-[600px]">
+            {/* 기본 설정 */}
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
+              <div className="flex items-center mb-6">
+                <Coins className="w-6 h-6 mr-2 text-yellow-400" />
+                <h2 className="text-xl font-bold text-white">기본 코인지급 설정</h2>
+              </div>
+
+              <div className="space-y-6">
+                {/* 배당코인 지급 비율 설정 */}
+                <div className="bg-gray-700/50 rounded-xl p-5 border border-gray-600">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                    <Gift className="w-5 h-5 mr-2 text-purple-400" />
+                    배당코인 지급 비율
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">입금액 대비 배당코인 비율</label>
+                      <div className="flex items-center space-x-3">
+                        <input
+                          type="number"
+                          value={coinSettings.dividendCoinRatio}
+                          onChange={(e) => setCoinSettings({...coinSettings, dividendCoinRatio: parseInt(e.target.value) || 100})}
+                          className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
+                          placeholder="100"
+                        />
+                        <span className="text-gray-400">원당 1개</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">예: 100만원 = {(1000000 / coinSettings.dividendCoinRatio).toLocaleString()}개 배당코인</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 기본 추천인 보너스 */}
+                <div className="bg-gray-700/50 rounded-xl p-5 border border-gray-600">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                    <Users className="w-5 h-5 mr-2 text-green-400" />
+                    추천인 보너스 설정
+                  </h3>
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-2">추천인 보너스 (배당코인)</label>
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="number"
+                        value={coinSettings.referralBonus}
+                        onChange={(e) => setCoinSettings({...coinSettings, referralBonus: parseInt(e.target.value) || 1000})}
+                        className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
+                        placeholder="1000"
+                      />
+                      <span className="text-gray-400">개</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">회원에게 배당코인 지급 시 추천인에게 자동 지급</p>
+                  </div>
+                </div>
+
+                {/* 저장 버튼 */}
+                <div className="flex justify-end pt-4">
+                  <button
+                    onClick={() => {
+                      localStorage.setItem('coinSettings', JSON.stringify(coinSettings))
+                      toast.success('기본 코인지급 설정이 저장되었습니다!')
+                    }}
+                    className="px-6 py-3 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-semibold"
+                  >
+                    기본 설정 저장
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 회원번호별 지급 설정 */}
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
+              <div className="flex items-center mb-6">
+                <Shield className="w-6 h-6 mr-2 text-blue-400" />
+                <h2 className="text-xl font-bold text-white">회원번호별 지급 설정</h2>
+              </div>
+              <p className="text-sm text-gray-400 mb-6">회원번호 범위에 따라 가입 시 지급되는 증권코인과 추천인 보너스를 설정합니다.</p>
+
+              {/* 설정된 규칙 목록 */}
+              {memberNumberRules.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-gray-300 mb-3">설정된 규칙</h3>
+                  <div className="space-y-3">
+                    {memberNumberRules.map((rule) => (
+                      <div key={rule.id} className="bg-gray-700/50 rounded-lg p-4 border border-gray-600 flex items-center justify-between">
+                        <div className="flex-1 grid grid-cols-4 gap-4">
+                          <div>
+                            <p className="text-xs text-gray-400">회원번호 범위</p>
+                            <p className="text-white font-medium">#{rule.memberNumberFrom} ~ #{rule.memberNumberTo}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-400">추천인 보너스</p>
+                            <p className="text-yellow-400 font-bold">{rule.referralBonus.toLocaleString()}개</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-400">가입회원</p>
+                            <p className="text-blue-400 font-bold">{rule.newMemberCoins.toLocaleString()}개</p>
+                          </div>
+                          <div className="flex items-center justify-end">
+                            <button
+                              onClick={() => {
+                                const updatedRules = memberNumberRules.filter(r => r.id !== rule.id)
+                                setMemberNumberRules(updatedRules)
+                                localStorage.setItem('memberNumberRules', JSON.stringify(updatedRules))
+                                toast.success('규칙이 삭제되었습니다.')
+                              }}
+                              className="px-3 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition text-sm"
+                            >
+                              삭제
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 새 규칙 추가 폼 */}
+              <div className="bg-gray-700/30 rounded-xl p-5 border border-gray-600">
+                <h3 className="text-sm font-semibold text-gray-300 mb-4">새 규칙 추가</h3>
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-2">회원번호 시작</label>
+                    <input
+                      type="number"
+                      value={newRule.memberNumberFrom}
+                      onChange={(e) => setNewRule({...newRule, memberNumberFrom: e.target.value})}
+                      placeholder="예: 1"
+                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-2">회원번호 끝</label>
+                    <input
+                      type="number"
+                      value={newRule.memberNumberTo}
+                      onChange={(e) => setNewRule({...newRule, memberNumberTo: e.target.value})}
+                      placeholder="예: 100"
+                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-2">추천인 보너스 (배당코인)</label>
+                    <input
+                      type="number"
+                      value={newRule.referralBonus}
+                      onChange={(e) => setNewRule({...newRule, referralBonus: e.target.value})}
+                      placeholder="예: 2000"
+                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-2">가입회원</label>
+                    <input
+                      type="number"
+                      value={newRule.newMemberCoins}
+                      onChange={(e) => setNewRule({...newRule, newMemberCoins: e.target.value})}
+                      placeholder="예: 200"
+                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    if (!newRule.memberNumberFrom || !newRule.memberNumberTo || !newRule.referralBonus || !newRule.newMemberCoins) {
+                      toast.error('모든 항목을 입력해주세요.')
+                      return
+                    }
+
+                    const from = parseInt(newRule.memberNumberFrom)
+                    const to = parseInt(newRule.memberNumberTo)
+
+                    if (from > to) {
+                      toast.error('시작 회원번호는 끝 회원번호보다 작아야 합니다.')
+                      return
+                    }
+
+                    const newRuleObj = {
+                      id: Date.now().toString(),
+                      memberNumberFrom: from,
+                      memberNumberTo: to,
+                      referralBonus: parseInt(newRule.referralBonus),
+                      newMemberCoins: parseInt(newRule.newMemberCoins)
+                    }
+
+                    const updatedRules = [...memberNumberRules, newRuleObj]
+                    setMemberNumberRules(updatedRules)
+                    localStorage.setItem('memberNumberRules', JSON.stringify(updatedRules))
+
+                    setNewRule({
+                      memberNumberFrom: '',
+                      memberNumberTo: '',
+                      referralBonus: '',
+                      newMemberCoins: ''
+                    })
+
+                    toast.success('회원번호별 규칙이 추가되었습니다!')
+                  }}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                >
+                  규칙 추가
+                </button>
+              </div>
+
+              {/* 안내 메시지 */}
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mt-6">
+                <p className="text-sm text-blue-300 mb-2">
+                  <strong>참고:</strong> 회원가입 시 회원번호에 따라 자동으로 증권코인이 지급됩니다.
+                </p>
+                <ul className="text-xs text-blue-300 list-disc list-inside space-y-1">
+                  <li><strong>가입회원</strong>: 신규 회원이 가입할 때 받는 증권코인</li>
+                  <li><strong>추천인 보너스</strong>: 신규 회원을 추천한 회원이 받는 증권코인</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 회원 상세 정보 모달 */}
+        {isDetailModalOpen && selectedUserDetail && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-2xl p-6 max-w-md w-full border border-gray-700 relative">
+              {/* 닫기 버튼 */}
+              <button
+                onClick={closeDetailModal}
+                className="absolute top-4 right-4 p-2 hover:bg-gray-700 rounded-lg transition"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+
+              {/* 제목 */}
+              <h2 className="text-xl font-bold text-white mb-6">선택된 회원 정보</h2>
+
+              {/* 회원 정보 */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-400">이름</p>
+                    <p className="text-lg font-semibold text-white">{selectedUserDetail.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">회원번호</p>
+                    <p className="text-lg font-semibold text-yellow-400">#{selectedUserDetail.memberNumber}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-400">등급</p>
+                  <p className="text-lg font-semibold text-blue-400">
+                    {selectedUserDetail.role === 'ADMIN' ? '관리자' :
+                     selectedUserDetail.role === 'TEAM_LEADER' ? '팀장' : '일반회원'}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-400">계정 상태</p>
+                  <p className={`text-lg font-semibold ${
+                    selectedUserDetail.status === 'BLOCKED' ? 'text-red-400' :
+                    selectedUserDetail.status === 'DELETED' ? 'text-gray-500' :
+                    'text-green-400'
+                  }`}>
+                    {selectedUserDetail.status === 'BLOCKED' ? '🚫 차단됨' :
+                     selectedUserDetail.status === 'DELETED' ? '❌ 탈퇴' :
+                     '✅ 정상'}
+                  </p>
+                </div>
+
+                <div className="border-t border-gray-700 pt-4">
+                  <p className="text-sm text-gray-400">휴대폰</p>
+                  <p className="text-base font-medium text-white">{selectedUserDetail.phone}</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-400">가입일</p>
+                  <p className="text-base font-medium text-white">
+                    {selectedUserDetail.createdAt}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-400">추천인</p>
+                  <p className="text-base font-medium text-white">
+                    {(() => {
+                      const referrer = users.find(u => u.id === selectedUserDetail.referrerId)
+                      return referrer ? referrer.name : '없음'
+                    })()}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-400">추천한 인원</p>
+                  <p className="text-base font-medium text-green-400">
+                    {users.filter(u => u.referrerId === selectedUserDetail.id).length}명
+                  </p>
+                </div>
+
+                <div className="border-t border-gray-700 pt-4 grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-400">증권코인</p>
+                    <p className="text-2xl font-bold text-blue-400">
+                      {selectedUserDetail.securityCoins.toLocaleString()}개
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">배당코인</p>
+                    <p className="text-2xl font-bold text-yellow-400">
+                      {selectedUserDetail.dividendCoins.toLocaleString()}개
+                    </p>
+                  </div>
+                </div>
+
+                {/* 관리 버튼 */}
+                {selectedUserDetail.role !== 'ADMIN' && (
+                  <div className="border-t border-gray-700 pt-4 mt-4 space-y-3">
+                    {selectedUserDetail.status !== 'DELETED' && (
+                      <>
+                        {selectedUserDetail.status === 'BLOCKED' ? (
+                          <button
+                            onClick={() => handleBlockUser(selectedUserDetail.id, 'unblock')}
+                            className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition"
+                          >
+                            차단 해제
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleBlockUser(selectedUserDetail.id, 'block')}
+                            className="w-full px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition"
+                          >
+                            회원 차단
+                          </button>
+                        )}
+                      </>
+                    )}
+
+                    {selectedUserDetail.status !== 'DELETED' && (
+                      <button
+                        onClick={() => handleDeleteUser(selectedUserDetail.id)}
+                        className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition"
+                      >
+                        회원 탈퇴 처리
+                      </button>
+                    )}
+
+                    {selectedUserDetail.status === 'DELETED' && (
+                      <div className="p-3 bg-gray-700 rounded-lg text-center text-gray-400">
+                        탈퇴 처리된 회원입니다
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
