@@ -126,7 +126,7 @@ export const db = {
       email: data.email || '',
       password: data.password, // 평문 저장
       referral_code: generateReferralCode(),
-      referred_by: referrer?.referralCode,
+      referred_by: referrer?.id,  // 추천인의 ID 저장 (추천코드가 아님)
       security_coins: securityCoins,
       dividend_coins: 0,
       member_number: memberNumber,
