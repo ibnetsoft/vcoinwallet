@@ -362,12 +362,74 @@ export const db = {
 
   // 시스템 설정 조회
   async getSystemConfig(): Promise<SystemConfig> {
-    // 기본값 반환 (필요시 metadata 테이블에서 읽도록 확장 가능)
-    return {
-      securityCoinNewUser: 500,
-      securityCoinReferral: 1000,
-      dividendCoinPer100: 10000,
-      dividendCoinReferralPercentage: 10  // 10% (추천받은 회원이 받은 배당코인의 10%)
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('metadata')
+        .select('key, value')
+        .in('key', [
+          'security_coin_new_user',
+          'security_coin_referral',
+          'dividend_coin_per_100',
+          'dividend_coin_referral_percentage'
+        ])
+
+      if (error || !data) {
+        // 에러 시 기본값 반환
+        return {
+          securityCoinNewUser: 500,
+          securityCoinReferral: 1000,
+          dividendCoinPer100: 10000,
+          dividendCoinReferralPercentage: 10
+        }
+      }
+
+      // metadata 배열을 객체로 변환
+      const config: any = {}
+      data.forEach(item => {
+        config[item.key] = item.value
+      })
+
+      return {
+        securityCoinNewUser: config.security_coin_new_user || 500,
+        securityCoinReferral: config.security_coin_referral || 1000,
+        dividendCoinPer100: config.dividend_coin_per_100 || 10000,
+        dividendCoinReferralPercentage: config.dividend_coin_referral_percentage || 10
+      }
+    } catch (error) {
+      // 에러 시 기본값 반환
+      return {
+        securityCoinNewUser: 500,
+        securityCoinReferral: 1000,
+        dividendCoinPer100: 10000,
+        dividendCoinReferralPercentage: 10
+      }
+    }
+  },
+
+  // 시스템 설정 저장
+  async saveSystemConfig(config: SystemConfig): Promise<boolean> {
+    try {
+      const updates = [
+        { key: 'security_coin_new_user', value: config.securityCoinNewUser },
+        { key: 'security_coin_referral', value: config.securityCoinReferral },
+        { key: 'dividend_coin_per_100', value: config.dividendCoinPer100 },
+        { key: 'dividend_coin_referral_percentage', value: config.dividendCoinReferralPercentage }
+      ]
+
+      for (const update of updates) {
+        await supabaseAdmin
+          .from('metadata')
+          .upsert({
+            key: update.key,
+            value: update.value,
+            updated_at: new Date().toISOString()
+          })
+      }
+
+      return true
+    } catch (error) {
+      console.error('Save system config error:', error)
+      return false
     }
   },
 

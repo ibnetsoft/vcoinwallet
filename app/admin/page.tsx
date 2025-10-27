@@ -66,8 +66,10 @@ export default function AdminPage() {
 
   // 코인지급 설정 상태
   const [coinSettings, setCoinSettings] = useState({
-    dividendCoinRatio: 100, // 100원당 1개
-    referralBonus: 1000 // 추천인 보너스
+    newUserReward: 500, // 신규 가입 보너스
+    referralBonus: 1000, // 추천인 보너스 (안전코인)
+    dividendCoinPer100: 10000, // 100만원당 배당코인
+    referralBonusPercentage: 10 // 배당코인 추천 보너스 비율 (%)
   })
 
   // 회원번호별 특별 지급 설정
@@ -1403,14 +1405,14 @@ export default function AdminPage() {
                       <div className="flex items-center space-x-3">
                         <input
                           type="number"
-                          value={coinSettings.dividendCoinRatio}
-                          onChange={(e) => setCoinSettings({...coinSettings, dividendCoinRatio: parseInt(e.target.value) || 100})}
+                          value={coinSettings.dividendCoinPer100}
+                          onChange={(e) => setCoinSettings({...coinSettings, dividendCoinPer100: parseInt(e.target.value) || 10000})}
                           className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
-                          placeholder="100"
+                          placeholder="10000"
                         />
-                        <span className="text-gray-400">원당 1개</span>
+                        <span className="text-gray-400">개 / 100만원</span>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">예: 100만원 = {(1000000 / coinSettings.dividendCoinRatio).toLocaleString()}개 배당코인</p>
+                      <p className="text-xs text-gray-500 mt-2">예: 100만원 = {coinSettings.dividendCoinPer100.toLocaleString()}개 배당코인</p>
                     </div>
                   </div>
                 </div>
@@ -1422,31 +1424,59 @@ export default function AdminPage() {
                     추천인 보너스 설정
                   </h3>
                   <div>
-                    <label className="block text-sm text-gray-300 mb-2">추천인 보너스 (배당코인)</label>
+                    <label className="block text-sm text-gray-300 mb-2">배당코인 추천 보너스 (백분율)</label>
                     <div className="flex items-center space-x-3">
                       <input
                         type="number"
-                        value={coinSettings.referralBonus}
-                        onChange={(e) => setCoinSettings({...coinSettings, referralBonus: parseInt(e.target.value) || 1000})}
+                        value={coinSettings.referralBonusPercentage}
+                        onChange={(e) => setCoinSettings({...coinSettings, referralBonusPercentage: parseInt(e.target.value) || 10})}
                         className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
-                        placeholder="1000"
+                        placeholder="10"
+                        min="0"
+                        max="100"
                       />
-                      <span className="text-gray-400">개</span>
+                      <span className="text-gray-400">%</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">회원에게 배당코인 지급 시 추천인에게 자동 지급</p>
+                    <p className="text-xs text-gray-500 mt-2">회원에게 배당코인 지급 시 추천인에게 지급 금액의 {coinSettings.referralBonusPercentage}%를 자동 지급</p>
                   </div>
                 </div>
 
                 {/* 저장 버튼 */}
                 <div className="flex justify-end pt-4">
                   <button
-                    onClick={() => {
-                      localStorage.setItem('coinSettings', JSON.stringify(coinSettings))
-                      toast.success('기본 코인지급 설정이 저장되었습니다!')
+                    onClick={async () => {
+                      const token = localStorage.getItem('token')
+                      try {
+                        const response = await fetch('/api/admin/system-config', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                          },
+                          body: JSON.stringify({
+                            config: {
+                              securityCoinNewUser: coinSettings.newUserReward,
+                              securityCoinReferral: coinSettings.referralBonus,
+                              dividendCoinPer100: coinSettings.dividendCoinPer100,
+                              dividendCoinReferralPercentage: coinSettings.referralBonusPercentage || 10
+                            }
+                          })
+                        })
+
+                        const result = await response.json()
+
+                        if (!response.ok) {
+                          throw new Error(result.error || '설정 저장 실패')
+                        }
+
+                        toast.success('기본 코인지급 설정이 Supabase에 저장되었습니다! 모든 사용자에게 적용됩니다.')
+                      } catch (error: any) {
+                        toast.error(error.message || '설정 저장 중 오류가 발생했습니다.')
+                      }
                     }}
                     className="px-6 py-3 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-semibold"
                   >
-                    기본 설정 저장
+                    기본 설정 저장 (온라인 DB)
                   </button>
                 </div>
               </div>
