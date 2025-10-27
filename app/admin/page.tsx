@@ -788,12 +788,12 @@ export default function AdminPage() {
                 </thead>
                 <tbody>
                   {currentUsers.map(u => {
-                    const roleLabels = {
+                    const roleLabels: Record<string, string> = {
                       'ADMIN': '관리자',
                       'TEAM_LEADER': '팀장',
                       'USER': '일반회원'
                     }
-                    const roleColors = {
+                    const roleColors: Record<string, string> = {
                       'ADMIN': 'bg-red-500/20 text-red-400',
                       'TEAM_LEADER': 'bg-blue-500/20 text-blue-400',
                       'USER': 'bg-gray-500/20 text-gray-400'
