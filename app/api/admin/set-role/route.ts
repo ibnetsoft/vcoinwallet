@@ -79,14 +79,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const roleNames = {
+    const roleNames: Record<string, string> = {
       'ADMIN': '관리자',
       'TEAM_LEADER': '팀장',
       'USER': '일반회원'
     }
 
     return NextResponse.json({
-      message: `${targetUser.name}님의 등급이 ${roleNames[role]}(으)로 변경되었습니다.`,
+      message: `${targetUser.name}님의 등급이 ${roleNames[role as string]}(으)로 변경되었습니다.`,
       user: {
         id: updatedUser.id,
         name: updatedUser.name,

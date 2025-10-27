@@ -668,17 +668,17 @@ export default function WalletPage() {
               {referredUsers.length > 0 ? (
                 <div className="space-y-3">
                   {referredUsers.map((referredUser, index) => {
-                    const roleLabels = {
+                    const roleLabels: Record<string, string> = {
                       'ADMIN': '관리자',
                       'TEAM_LEADER': '팀장',
                       'USER': '일반회원'
                     }
-                    const roleColors = {
+                    const roleColors: Record<string, string> = {
                       'ADMIN': 'bg-red-500/20 text-red-400',
                       'TEAM_LEADER': 'bg-blue-500/20 text-blue-400',
                       'USER': 'bg-gray-500/20 text-gray-400'
                     }
-                    const currentRole = referredUser.role || 'USER'
+                    const currentRole: string = referredUser.role || 'USER'
 
                     return (
                       <div key={referredUser.id || index} className="flex items-center justify-between py-4 border-b border-gray-700 last:border-b-0">

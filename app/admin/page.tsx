@@ -232,7 +232,7 @@ export default function AdminPage() {
     const targetUser = users.find(u => u.id === roleChangeUserId)
     if (!targetUser) return
 
-    const roleNames = {
+    const roleNames: Record<string, string> = {
       'USER': '일반회원',
       'TEAM_LEADER': '팀장'
     }
