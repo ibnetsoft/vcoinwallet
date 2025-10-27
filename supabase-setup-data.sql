@@ -42,7 +42,7 @@ INSERT INTO public.users (
 ) VALUES (
   '1761536398367',
   1,
-  '',
+  'taeyang@3dvcoin.com',
   'test1234',  -- 평문 비밀번호
   '태양광',
   '01012345678',
@@ -62,7 +62,7 @@ INSERT INTO public.users (
 ) VALUES (
   '1761548090741',
   2,
-  '',
+  'test@3dvcoin.com',
   'test1234',  -- 평문 비밀번호
   '테스트',
   '01012341234',
