@@ -58,7 +58,7 @@ INSERT INTO public.users (
 INSERT INTO public.users (
   id, member_number, email, password, name, phone,
   referral_code, referred_by, security_coins, dividend_coins,
-  role, is_admin, status, created_at
+  role, is_admin, created_at
 ) VALUES (
   '1761548090741',
   2,
@@ -72,7 +72,6 @@ INSERT INTO public.users (
   10000,
   'USER',
   false,
-  'ACTIVE',
   '2025-10-27T06:54:51.032Z'
 );
 
