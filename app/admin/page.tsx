@@ -984,7 +984,7 @@ export default function AdminPage() {
             </div>
 
             {selectedUser && (() => {
-              const roleLabels = {
+              const roleLabels: Record<string, string> = {
                 'ADMIN': '관리자',
                 'TEAM_LEADER': '팀장',
                 'USER': '일반회원'
@@ -1179,7 +1179,7 @@ export default function AdminPage() {
               >
                 <option value="">회원을 선택하세요</option>
                 {(roleSearchTerm ? roleFilteredUsers : users.filter(u => !u.isAdmin)).map(u => {
-                  const roleLabels = {
+                  const roleLabels: Record<string, string> = {
                     'ADMIN': '관리자',
                     'TEAM_LEADER': '팀장',
                     'USER': '일반회원'
