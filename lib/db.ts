@@ -110,13 +110,13 @@ export const db = {
   },
   
   // 사용자 생성
-  async createUser(data: {
+  createUser(data: {
     name: string
     phone: string
     email?: string
     password: string
     referralCode?: string
-  }): Promise<User> {
+  }): User {
     const database = readDB()
 
     // 회원 번호 증가
@@ -138,7 +138,7 @@ export const db = {
       name: data.name,
       phone: data.phone,
       email: data.email,
-      password: await hashPassword(data.password),
+      password: data.password,  // 평문 비밀번호 저장 (암호화하지 않음)
       referralCode: generateReferralCode(),
       referrerId: referrer?.id,
       securityCoins,

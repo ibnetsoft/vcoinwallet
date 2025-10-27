@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 사용자 생성
-    const user = await db.createUser({
+    const user = db.createUser({
       name,
       phone,
       email: email || undefined,

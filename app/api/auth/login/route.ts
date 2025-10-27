@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { comparePassword, createToken } from '@/lib/auth'
+import { createToken } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,10 +17,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 비밀번호 확인
-    const isValidPassword = await comparePassword(password, user.password)
-
-    if (!isValidPassword) {
+    // 비밀번호 확인 (평문 비교)
+    if (password !== user.password) {
       return NextResponse.json(
         { error: '휴대폰 번호 또는 비밀번호가 올바르지 않습니다.' },
         { status: 401 }
