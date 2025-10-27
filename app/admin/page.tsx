@@ -798,7 +798,7 @@ export default function AdminPage() {
                       'TEAM_LEADER': 'bg-blue-500/20 text-blue-400',
                       'USER': 'bg-gray-500/20 text-gray-400'
                     }
-                    const currentRole = u.role || 'USER'
+                    const currentRole: string = u.role || 'USER'
 
                     return (
                       <tr key={u.id} className={`border-b border-gray-700/50 hover:bg-gray-700/20 ${
@@ -989,7 +989,7 @@ export default function AdminPage() {
                 'TEAM_LEADER': '팀장',
                 'USER': '일반회원'
               }
-              const currentRole = selectedUser.role || 'USER'
+              const currentRole: string = selectedUser.role || 'USER'
               const referrer = users.find(u => u.id === selectedUser.referrerId)
               const referredCount = users.filter(u => u.referrerId === selectedUser.id).length
               const joinDate = new Date(selectedUser.createdAt).toLocaleDateString('ko-KR')
@@ -1184,7 +1184,7 @@ export default function AdminPage() {
                     'TEAM_LEADER': '팀장',
                     'USER': '일반회원'
                   }
-                  const currentRole = u.role || 'USER'
+                  const currentRole: string = u.role || 'USER'
                   return (
                     <option key={u.id} value={u.id}>
                       {u.name} ({u.phone}) - 현재: {roleLabels[currentRole]}
