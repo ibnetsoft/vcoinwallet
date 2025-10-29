@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Coins, TrendingUp, Users, Wallet, X, Sparkles, Power, WalletIcon } from 'lucide-react'
+import { Coins, TrendingUp, Users, Wallet, X, Sparkles, Power, WalletIcon, Bell } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import CoinValueChart from '@/components/CoinValueChart'
 
@@ -11,6 +11,9 @@ export default function HomePage() {
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [showNotifications, setShowNotifications] = useState(false)
 
   useEffect(() => {
     // 로컬 스토리지에서 토큰 확인
@@ -19,6 +22,16 @@ export default function HomePage() {
 
     if (token && userData) {
       setUser(JSON.parse(userData))
+
+      // 알림 개수 가져오기
+      fetchUnreadCount(token)
+
+      // 10초마다 알림 개수 업데이트
+      const interval = setInterval(() => {
+        fetchUnreadCount(token)
+      }, 10000)
+
+      return () => clearInterval(interval)
     }
     setIsLoading(false)
 
@@ -42,6 +55,23 @@ export default function HomePage() {
       }, 500)
     }
   }, [])
+
+  const fetchUnreadCount = async (token: string) => {
+    try {
+      const response = await fetch('/api/notifications', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUnreadCount(data.unreadCount || 0)
+      }
+    } catch (error) {
+      // 알림 가져오기 실패해도 무시 (사용자 경험에 영향 없음)
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -86,6 +116,21 @@ export default function HomePage() {
                   <div className="text-right mr-4">
                     <p className="text-sm text-gray-400">안녕하세요,</p>
                     <p className="text-white font-semibold">{user.name}님</p>
+                  </div>
+                  {/* 알림 벨 아이콘 */}
+                  <div className="relative">
+                    <button
+                      onClick={() => router.push('/wallet')}
+                      className="p-2 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition shadow-lg"
+                      title="알림"
+                    >
+                      <Bell className="w-6 h-6" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
+                    </button>
                   </div>
                   <button
                     onClick={() => router.push('/wallet')}
