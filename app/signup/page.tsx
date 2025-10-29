@@ -65,6 +65,7 @@ export default function SignupPage() {
       // 로컬 스토리지에 토큰과 사용자 정보 저장
       localStorage.setItem('token', result.token)
       localStorage.setItem('user', JSON.stringify(result.user))
+      localStorage.setItem('justSignedUp', 'true') // 회원가입 완료 플래그
 
       toast.success(
         <div>
@@ -73,10 +74,10 @@ export default function SignupPage() {
         </div>
       )
 
-      // 2초 후 메인 페이지로 이동
+      // 1초 후 메인 페이지로 이동
       setTimeout(() => {
-        router.push('/')
-      }, 2000)
+        router.push('/?welcome=true')
+      }, 1000)
 
     } catch (error: any) {
       toast.error(error.message || '회원가입 중 오류가 발생했습니다.')

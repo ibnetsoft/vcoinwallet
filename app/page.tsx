@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Coins, TrendingUp, Users, Wallet } from 'lucide-react'
+import { Coins, TrendingUp, Users, Wallet, X, Sparkles } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import CoinValueChart from '@/components/CoinValueChart'
 
@@ -10,16 +10,37 @@ export default function HomePage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false)
 
   useEffect(() => {
     // 로컬 스토리지에서 토큰 확인
     const token = localStorage.getItem('token')
     const userData = localStorage.getItem('user')
-    
+
     if (token && userData) {
       setUser(JSON.parse(userData))
     }
     setIsLoading(false)
+
+    // 회원가입 완료 시 환영 팝업 표시
+    const urlParams = new URLSearchParams(window.location.search)
+    const welcomeParam = urlParams.get('welcome')
+    const justSignedUp = localStorage.getItem('justSignedUp')
+
+    if (welcomeParam === 'true' && justSignedUp === 'true') {
+      // 플래그 제거 (한 번만 표시)
+      localStorage.removeItem('justSignedUp')
+
+      // 축하 사운드 재생
+      const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjeJ0/POfjQGJ3vG7+GXSA0RVbHm77BfEgpCpd7zw2AfCTSM0O7Ogy8HKX3D7+SVQAwPUK3k8bBgFApCo93zxF8gBzOKz+/Ngi4HKHzC8OGYRw0OT6rl8bJjEwtDot3yxGAhBjCIzu3PgTAHKH3C7+KZRg0NTqrm8bJjFQpBod/txWEgBjCLze/NhC0GKoC/7+OXRQwQUK7j8bBjEQo+nd3yw2IhBi+Jz+/MhSsGKoK+7+OZRAsQTK/i8LFkEQo+n93yw2IiBjCJze/NhCsGK4G+7+KaRQsRT6/i8LBjEQo9n97yw2EhBjCJze/Ngy0FK4G/7+KaRQoRT7Dj8LBjEAo9n93xw2EgBi+Kze/OhCwGKoK+7+KYRwoQT6/j8LBiEAo+nt3yw2EhBjCIzu7Ngy4FK4G/7+KYRwoQT6/j8LBiEAo9nt7yw2EhBjCJze7Ngy0FK4G/7+KZRQoQTq/j8LBiEAo9nt3yw2IhBjCJze7Ngy0FK4C/7+KZRQoQTrDi8LBjEAo9nt3yw2EhBjCKze7MhC0FK4G+7+KZRQoQTa/j8LBhEAo9nt3yw2EhBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9')
+      audio.volume = 0.3
+      audio.play().catch(() => {}) // 사운드 재생 실패 시 무시
+
+      // 0.5초 후 모달 표시
+      setTimeout(() => {
+        setShowWelcomeModal(true)
+      }, 500)
+    }
   }, [])
 
   const handleLogout = () => {
@@ -274,6 +295,82 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* 회원가입 환영 모달 */}
+      {showWelcomeModal && user && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-8 max-w-md w-full border-2 border-yellow-500 shadow-2xl animate-scaleIn relative overflow-hidden">
+            {/* 배경 효과 */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute -top-12 -right-12 w-48 h-48 bg-yellow-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-yellow-500/10 rounded-full blur-3xl"></div>
+            </div>
+
+            {/* 닫기 버튼 */}
+            <button
+              onClick={() => setShowWelcomeModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition z-10"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {/* 콘텐츠 */}
+            <div className="relative z-10">
+              {/* 아이콘 */}
+              <div className="flex justify-center mb-6">
+                <div className="relative">
+                  <Sparkles className="w-20 h-20 text-yellow-400 animate-pulse" />
+                  <div className="absolute inset-0 w-20 h-20 bg-yellow-400/20 rounded-full blur-xl animate-pulse"></div>
+                </div>
+              </div>
+
+              {/* 환영 메시지 */}
+              <h2 className="text-3xl font-bold text-white text-center mb-2">
+                환영합니다! 🎉
+              </h2>
+              <p className="text-xl text-yellow-400 text-center font-semibold mb-6">
+                {user.name}님
+              </p>
+
+              {/* 정보 카드 */}
+              <div className="bg-gray-700/50 rounded-2xl p-6 mb-6 border border-gray-600">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">회원번호</span>
+                    <span className="text-white font-bold text-lg">#{user.memberNumber}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">추천코드</span>
+                    <span className="text-yellow-400 font-mono font-bold text-lg">{user.referralCode}</span>
+                  </div>
+                  <div className="border-t border-gray-600 pt-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">가입 보너스</span>
+                      <span className="text-green-400 font-bold text-xl">
+                        🎁 {user.securityCoins?.toLocaleString()}개
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-400 mt-2 text-center">
+                      증권코인이 지급되었습니다!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 버튼 */}
+              <button
+                onClick={() => {
+                  setShowWelcomeModal(false)
+                  router.push('/wallet')
+                }}
+                className="w-full py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 font-bold rounded-xl hover:from-yellow-400 hover:to-yellow-500 transition transform hover:scale-105 shadow-lg"
+              >
+                내 지갑 보러가기 →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
