@@ -96,7 +96,7 @@ export default function SignupPage() {
             <img src="/vcoin_logo.png" alt="V COIN Logo" className="w-32 h-32 object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-white">V COIN 회원가입</h1>
-          <p className="text-gray-400 mt-2">3D SOLAR 포인트지갑 시스템</p>
+          <p className="text-gray-400 mt-2">3D SOLAR 투자 플랫폼</p>
         </div>
 
         {/* 보너스 안내 */}
