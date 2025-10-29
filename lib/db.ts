@@ -386,13 +386,25 @@ export const db = {
     if (!user || user.role === 'ADMIN') return false
 
     try {
-      // 1. 먼저 거래 내역 삭제 (CASCADE로 자동 삭제되지만 명시적으로)
+      // 1. 알림 삭제
+      await supabaseAdmin
+        .from('notifications')
+        .delete()
+        .eq('user_id', userId)
+
+      // 2. 푸시 구독 삭제
+      await supabaseAdmin
+        .from('push_subscriptions')
+        .delete()
+        .eq('user_id', userId)
+
+      // 3. 거래 내역 삭제
       await supabaseAdmin
         .from('transactions')
         .delete()
         .eq('user_id', userId)
 
-      // 2. 사용자 삭제
+      // 4. 사용자 삭제
       const { error } = await supabaseAdmin
         .from('users')
         .delete()
