@@ -52,16 +52,16 @@ export default function CoinValueChart() {
       // 배경 클리어
       ctx.clearRect(0, 0, width, height)
 
-      // P/E Ratio 랜덤 변동 (10~20 사이) - 속도 1/5로 감소
-      const change = (Math.random() - 0.5) * 0.1
+      // P/E Ratio 랜덤 변동 (10~20 사이) - 속도 1/25로 감소
+      const change = (Math.random() - 0.5) * 0.02
       peRatio.current = Math.max(10, Math.min(20, peRatio.current + change))
 
       // 코인 가치 계산
       const coinValue = calculateCoinValue(peRatio.current)
 
-      // 데이터 포인트 추가 (5프레임당 1번만)
+      // 데이터 포인트 추가 (25프레임당 1번만)
       time.current += 1
-      if (time.current % 5 === 0) {
+      if (time.current % 25 === 0) {
         dataPoints.current.push({ time: time.current, value: coinValue })
 
         // 최대 100개 데이터 포인트 유지
@@ -126,10 +126,6 @@ export default function CoinValueChart() {
         ctx.font = 'bold 24px sans-serif'
         ctx.textAlign = 'left'
         ctx.fillText(`₩${Math.round(currentValue).toLocaleString()}`, 20, 40)
-
-        ctx.font = '14px sans-serif'
-        ctx.fillStyle = '#9ca3af'
-        ctx.fillText('1코인당 실시간 가치', 20, 65)
       }
 
       animationRef.current = requestAnimationFrame(animate)
