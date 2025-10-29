@@ -437,7 +437,7 @@ export default function WalletPage() {
 
                 {/* 알림 드롭다운 */}
                 {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
+                  <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-20 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
                     <div className="p-4 border-b border-gray-700 flex items-center justify-between">
                       <h3 className="text-white font-semibold">알림</h3>
                       {unreadCount > 0 && (
