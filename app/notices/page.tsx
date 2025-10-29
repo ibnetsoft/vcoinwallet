@@ -67,11 +67,30 @@ export default function NoticesPage() {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
             </div>
           ) : (
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
-              <div className="flex items-center mb-6">
-                <Bell className="w-6 h-6 text-yellow-400 mr-2" />
-                <h2 className="text-xl font-bold text-white">공지사항</h2>
-              </div>
+            <>
+              {/* 사업계획서 배너 */}
+              <a
+                href="https://docs.google.com/presentation/d/e/2PACX-1vRdoZ99RmXsk0iSKlrrXkC65izzrsNsmfZ5h6EMfDvgrhWEuqVE7uvso516aT9xtlTsUrVdfO0hJI4S/pub?start=true&loop=false&delayms=5000"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-2xl p-6 border border-blue-500/30 mb-6 hover:from-blue-500/30 hover:to-blue-600/30 transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">📊 3D SUN 사업계획서</h3>
+                    <p className="text-gray-300 text-sm">클릭하여 자세한 사업계획을 확인하세요</p>
+                  </div>
+                  <div className="text-blue-400 text-sm">
+                    새 창에서 열기 →
+                  </div>
+                </div>
+              </a>
+
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
+                <div className="flex items-center mb-6">
+                  <Bell className="w-6 h-6 text-yellow-400 mr-2" />
+                  <h2 className="text-xl font-bold text-white">공지사항</h2>
+                </div>
 
               {/* 공지사항 목록 */}
               <div className="space-y-4">
@@ -118,6 +137,7 @@ export default function NoticesPage() {
                 )}
               </div>
             </div>
+            </>
           )}
         </div>
       </main>
