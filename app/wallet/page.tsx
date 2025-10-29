@@ -500,18 +500,18 @@ export default function WalletPage() {
 
       {/* 탭 메뉴 */}
       <div className="container mx-auto px-4 pt-6 max-w-4xl">
-        <div className="flex space-x-2 border-b border-gray-700">
+        <div className="flex overflow-x-auto border-b border-gray-700 scrollbar-hide">
           <button
             onClick={() => setActiveTab('wallet')}
-            className={`px-6 py-3 font-semibold transition-colors relative ${
+            className={`flex-shrink-0 px-3 sm:px-6 py-3 font-semibold transition-colors relative ${
               activeTab === 'wallet'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
             }`}
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <Wallet className="w-5 h-5" />
-              <span>지갑</span>
+              <span className="text-xs sm:text-base mt-1 sm:mt-0">지갑</span>
             </div>
             {activeTab === 'wallet' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -520,15 +520,15 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('transactions')}
-            className={`px-6 py-3 font-semibold transition-colors relative ${
+            className={`flex-shrink-0 px-3 sm:px-6 py-3 font-semibold transition-colors relative ${
               activeTab === 'transactions'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
             }`}
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <History className="w-5 h-5" />
-              <span>거래내역</span>
+              <span className="text-xs sm:text-base mt-1 sm:mt-0">거래<span className="hidden sm:inline">내역</span></span>
             </div>
             {activeTab === 'transactions' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -537,15 +537,15 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('referral')}
-            className={`px-6 py-3 font-semibold transition-colors relative ${
+            className={`flex-shrink-0 px-3 sm:px-6 py-3 font-semibold transition-colors relative ${
               activeTab === 'referral'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
             }`}
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <Users className="w-5 h-5" />
-              <span>추천</span>
+              <span className="text-xs sm:text-base mt-1 sm:mt-0">추천</span>
             </div>
             {activeTab === 'referral' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -554,15 +554,15 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('notice')}
-            className={`px-6 py-3 font-semibold transition-colors relative ${
+            className={`flex-shrink-0 px-3 sm:px-6 py-3 font-semibold transition-colors relative ${
               activeTab === 'notice'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
             }`}
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <Bell className="w-5 h-5" />
-              <span>공지사항</span>
+              <span className="text-xs sm:text-base mt-1 sm:mt-0">공지<span className="hidden sm:inline">사항</span></span>
             </div>
             {activeTab === 'notice' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -571,15 +571,15 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('mypage')}
-            className={`px-6 py-3 font-semibold transition-colors relative ${
+            className={`flex-shrink-0 px-3 sm:px-6 py-3 font-semibold transition-colors relative ${
               activeTab === 'mypage'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
             }`}
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <UserIcon className="w-5 h-5" />
-              <span>마이페이지</span>
+              <span className="text-xs sm:text-base mt-1 sm:mt-0">마이<span className="hidden sm:inline">페이지</span></span>
             </div>
             {activeTab === 'mypage' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
