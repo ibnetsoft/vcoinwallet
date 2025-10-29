@@ -500,10 +500,10 @@ export default function WalletPage() {
 
       {/* 탭 메뉴 */}
       <div className="container mx-auto px-4 pt-6 max-w-4xl">
-        <div className="flex overflow-x-auto border-b border-gray-700 scrollbar-hide">
+        <div className="flex justify-center items-center gap-2 sm:gap-4 border-b border-gray-700">
           <button
             onClick={() => setActiveTab('wallet')}
-            className={`flex-shrink-0 px-3 sm:px-6 py-3 font-semibold transition-colors relative ${
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${
               activeTab === 'wallet'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
@@ -520,7 +520,7 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('transactions')}
-            className={`flex-shrink-0 px-3 sm:px-6 py-3 font-semibold transition-colors relative ${
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${
               activeTab === 'transactions'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
@@ -537,7 +537,7 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('referral')}
-            className={`flex-shrink-0 px-3 sm:px-6 py-3 font-semibold transition-colors relative ${
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${
               activeTab === 'referral'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
@@ -554,7 +554,7 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('notice')}
-            className={`flex-shrink-0 px-3 sm:px-6 py-3 font-semibold transition-colors relative ${
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${
               activeTab === 'notice'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
@@ -571,7 +571,7 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('mypage')}
-            className={`flex-shrink-0 px-3 sm:px-6 py-3 font-semibold transition-colors relative ${
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${
               activeTab === 'mypage'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
