@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, ArrowLeft } from 'lucide-react'
+import { Bell, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 
 export default function NoticesPage() {
   const router = useRouter()
   const [notices, setNotices] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [expandedNoticeId, setExpandedNoticeId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchNotices()
@@ -117,20 +118,36 @@ export default function NoticesPage() {
                       day: '2-digit'
                     })
 
+                    const isExpanded = expandedNoticeId === notice.id
+
                     return (
-                      <div key={notice.id} className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center space-x-2">
+                      <div key={notice.id} className="bg-gray-900/50 rounded-lg border border-gray-700 hover:border-yellow-500/50 transition">
+                        <div
+                          className="flex items-start justify-between p-5 cursor-pointer"
+                          onClick={() => setExpandedNoticeId(isExpanded ? null : notice.id)}
+                        >
+                          <div className="flex items-center space-x-2 flex-1">
                             <span className={`px-3 py-1 ${typeColor.bg} ${typeColor.text} text-xs font-semibold rounded-full border ${typeColor.border}`}>
                               {typeColor.label}
                             </span>
                             <h3 className="text-lg font-semibold text-white">{notice.title}</h3>
                           </div>
-                          <span className="text-sm text-gray-500">{formattedDate}</span>
+                          <div className="flex items-center space-x-3 ml-4">
+                            <span className="text-sm text-gray-500">{formattedDate}</span>
+                            {isExpanded ? (
+                              <ChevronUp className="w-5 h-5 text-gray-400" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5 text-gray-400" />
+                            )}
+                          </div>
                         </div>
-                        <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
-                          {notice.content}
-                        </p>
+                        {isExpanded && (
+                          <div className="px-5 pb-5 border-t border-gray-700 pt-4">
+                            <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                              {notice.content}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )
                   })
