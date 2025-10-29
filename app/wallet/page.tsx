@@ -597,7 +597,14 @@ export default function WalletPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-sm opacity-80">안녕하세요!</p>
-              <h2 className="text-2xl font-bold">{user?.name}님</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl font-bold">{user?.name}님</h2>
+                {user?.role === 'TEAM_LEADER' && (
+                  <span className="flex items-center gap-1 px-2 py-1 bg-yellow-600 rounded-lg text-sm font-semibold">
+                    ⭐ 팀장
+                  </span>
+                )}
+              </div>
               <p className="text-sm opacity-80">{user?.email}</p>
             </div>
             <Wallet className="w-12 h-12 opacity-20" />
