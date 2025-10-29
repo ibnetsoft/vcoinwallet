@@ -122,13 +122,25 @@ export const db = {
       .eq('key', 'next_member_number')
       .single()
 
-    const memberNumber = metaData?.value || 1
+    let memberNumber = metaData?.value || 1
 
-    // 회원번호 증가
-    await supabaseAdmin
-      .from('metadata')
-      .update({ value: memberNumber + 1, updated_at: new Date().toISOString() })
-      .eq('key', 'next_member_number')
+    // metadata에 next_member_number가 없으면 생성
+    if (!metaData) {
+      await supabaseAdmin
+        .from('metadata')
+        .insert({
+          key: 'next_member_number',
+          value: 2,
+          updated_at: new Date().toISOString()
+        })
+      memberNumber = 1
+    } else {
+      // 회원번호 증가
+      await supabaseAdmin
+        .from('metadata')
+        .update({ value: memberNumber + 1, updated_at: new Date().toISOString() })
+        .eq('key', 'next_member_number')
+    }
 
     // 보너스 계산
     const { securityCoins, referralBonus } = calculateSignupBonus(memberNumber)
@@ -149,7 +161,7 @@ export const db = {
       email: data.email || '',
       password: data.password, // 평문 저장
       referral_code: generateReferralCode(),
-      referred_by: referrer?.id,  // 추천인의 ID 저장 (추천코드가 아님)
+      referred_by: referrer?.referralCode || null,  // 추천인의 추천코드 저장
       security_coins: securityCoins,
       dividend_coins: 0,
       member_number: memberNumber,
