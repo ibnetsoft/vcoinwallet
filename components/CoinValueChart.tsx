@@ -52,20 +52,22 @@ export default function CoinValueChart() {
       // 배경 클리어
       ctx.clearRect(0, 0, width, height)
 
-      // P/E Ratio 랜덤 변동 (10~20 사이)
-      const change = (Math.random() - 0.5) * 0.5
+      // P/E Ratio 랜덤 변동 (10~20 사이) - 속도 1/5로 감소
+      const change = (Math.random() - 0.5) * 0.1
       peRatio.current = Math.max(10, Math.min(20, peRatio.current + change))
 
       // 코인 가치 계산
       const coinValue = calculateCoinValue(peRatio.current)
 
-      // 데이터 포인트 추가
+      // 데이터 포인트 추가 (5프레임당 1번만)
       time.current += 1
-      dataPoints.current.push({ time: time.current, value: coinValue })
+      if (time.current % 5 === 0) {
+        dataPoints.current.push({ time: time.current, value: coinValue })
 
-      // 최대 100개 데이터 포인트 유지
-      if (dataPoints.current.length > 100) {
-        dataPoints.current.shift()
+        // 최대 100개 데이터 포인트 유지
+        if (dataPoints.current.length > 100) {
+          dataPoints.current.shift()
+        }
       }
 
       // 그래프 그리기
