@@ -53,6 +53,12 @@ export default function HomePage() {
             </div>
             
             <nav className="flex items-center space-x-4">
+              <button
+                onClick={() => router.push('/notices')}
+                className="px-4 py-2 text-white hover:text-yellow-400 transition"
+              >
+                공지사항
+              </button>
               {user ? (
                 <>
                   <div className="text-right mr-4">

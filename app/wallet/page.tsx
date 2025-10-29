@@ -73,10 +73,7 @@ export default function WalletPage() {
   // 공지사항 탭이 활성화될 때 공지사항 가져오기
   useEffect(() => {
     if (activeTab === 'notice') {
-      const token = localStorage.getItem('token')
-      if (token) {
-        fetchNotices(token)
-      }
+      fetchNotices()
     }
   }, [activeTab])
 
@@ -309,13 +306,9 @@ export default function WalletPage() {
   }
 
   // 공지사항 가져오기
-  const fetchNotices = async (token: string) => {
+  const fetchNotices = async () => {
     try {
-      const response = await fetch('/api/notices', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await fetch('/api/notices')
 
       if (response.ok) {
         const data = await response.json()
