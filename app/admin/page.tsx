@@ -2017,7 +2017,8 @@ export default function AdminPage() {
                 {/* 관리 버튼 */}
                 {selectedUserDetail.role !== 'ADMIN' && (
                   <div className="border-t border-gray-700 pt-4 mt-4 space-y-3">
-                    {selectedUserDetail.status !== 'DELETED' && (
+                    {/* 회원 관리 기능 임시 비활성화 */}
+                    {/* {selectedUserDetail.status !== 'DELETED' && (
                       <>
                         {selectedUserDetail.status === 'BLOCKED' ? (
                           <button
@@ -2057,7 +2058,7 @@ export default function AdminPage() {
                       <div className="p-3 bg-gray-700 rounded-lg text-center text-gray-400">
                         탈퇴 처리된 회원입니다
                       </div>
-                    )}
+                    )} */}
                   </div>
                 )}
               </div>
