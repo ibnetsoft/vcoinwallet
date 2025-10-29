@@ -386,31 +386,48 @@ export const db = {
     if (!user || user.role === 'ADMIN') return false
 
     try {
-      // 1. 알림 삭제
+      // 1. 이 회원과 관련된 알림 삭제 (user_id)
       await supabaseAdmin
         .from('notifications')
         .delete()
         .eq('user_id', userId)
 
-      // 2. 푸시 구독 삭제
+      // 2. 이 회원이 related_user_id로 연결된 알림 삭제
+      await supabaseAdmin
+        .from('notifications')
+        .delete()
+        .eq('related_user_id', userId)
+
+      // 3. 푸시 구독 삭제
       await supabaseAdmin
         .from('push_subscriptions')
         .delete()
         .eq('user_id', userId)
 
-      // 3. 거래 내역 삭제
+      // 4. 거래 내역 삭제
       await supabaseAdmin
         .from('transactions')
         .delete()
         .eq('user_id', userId)
 
-      // 4. 사용자 삭제
+      // 5. 이 회원을 추천인으로 가진 다른 회원들의 referred_by를 null로 설정
+      await supabaseAdmin
+        .from('users')
+        .update({ referred_by: null })
+        .eq('referred_by', user.referralCode)
+
+      // 6. 사용자 삭제
       const { error } = await supabaseAdmin
         .from('users')
         .delete()
         .eq('id', userId)
 
-      return !error
+      if (error) {
+        console.error('User delete error:', error)
+        return false
+      }
+
+      return true
     } catch (error) {
       console.error('Permanently delete user error:', error)
       return false
