@@ -158,7 +158,7 @@ export const db = {
       name: data.name,
       phone: data.phone,
       id_number: data.idNumber || null,
-      email: data.email || '',
+      email: data.email || null,
       password: data.password, // 평문 저장
       referral_code: generateReferralCode(),
       referred_by: referrer?.referralCode || null,  // 추천인의 추천코드 저장
