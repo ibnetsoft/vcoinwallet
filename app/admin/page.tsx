@@ -36,10 +36,17 @@ export default function AdminPage() {
   const [grantDescription, setGrantDescription] = useState('')
   const [grantMode, setGrantMode] = useState<'add' | 'set'>('add') // 지급 모드: add(추가), set(수정)
   const [selectedAmountOption, setSelectedAmountOption] = useState<string>('1000000') // 기본값: 100만원
+
+  // 증권코인 지급용 상태
+  const [securitySearchTerm, setSecuritySearchTerm] = useState('')
+  const [securitySelectedUser, setSecuritySelectedUser] = useState<User | null>(null)
+  const [securityGrantAmount, setSecurityGrantAmount] = useState('')
+  const [securityGrantDescription, setSecurityGrantDescription] = useState('')
+  const [securityGrantMode, setSecurityGrantMode] = useState<'add' | 'set'>('add')
   const [roleChangeUserId, setRoleChangeUserId] = useState('')
   const [newRole, setNewRole] = useState<'USER' | 'TEAM_LEADER'>('USER')
   const [roleSearchTerm, setRoleSearchTerm] = useState('')
-  const [activeTab, setActiveTab] = useState<'users' | 'grant' | 'roles' | 'notice' | 'settings' | 'coin-settings'>('users')
+  const [activeTab, setActiveTab] = useState<'users' | 'grant' | 'security-grant' | 'roles' | 'notice' | 'settings' | 'coin-settings'>('users')
   const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'TEAM_LEADER' | 'USER'>('ALL')
   const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -342,6 +349,54 @@ export default function AdminPage() {
       setNoticeForm({ type: 'NOTICE', title: '', content: '' })
     } catch (error: any) {
       toast.error(error.message || '공지사항 수정 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleGrantSecurityCoins = async () => {
+    if (!securitySelectedUser || !securityGrantAmount) {
+      toast.error('사용자와 수량을 입력해주세요.')
+      return
+    }
+
+    const token = localStorage.getItem('token')
+
+    try {
+      const endpoint = securityGrantMode === 'add' ? '/api/admin/grant-security' : '/api/admin/set-security'
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId: securitySelectedUser.id,
+          amount: parseInt(securityGrantAmount),
+          description: securityGrantDescription || (securityGrantMode === 'add' ? `증권코인 ${securityGrantAmount}개 지급` : `증권코인 수정 - ${securityGrantAmount}개로 변경`)
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || (securityGrantMode === 'add' ? '지급 실패' : '수정 실패'))
+      }
+
+      if (securityGrantMode === 'add') {
+        toast.success(`${securitySelectedUser.name}님께 증권코인 ${securityGrantAmount}개가 지급되었습니다!`)
+      } else {
+        toast.success(`${securitySelectedUser.name}님의 증권코인이 ${securityGrantAmount}개로 변경되었습니다!`)
+      }
+
+      // 폼 초기화
+      setSecurityGrantAmount('')
+      setSecurityGrantDescription('')
+      setSecuritySearchTerm('')
+      setSecuritySelectedUser(null)
+
+      // 사용자 목록 새로고침
+      await fetchUsers()
+    } catch (error: any) {
+      toast.error(error.message || (securityGrantMode === 'add' ? '증권코인 지급 중 오류가 발생했습니다.' : '증권코인 수정 중 오류가 발생했습니다.'))
     }
   }
 
@@ -748,6 +803,11 @@ export default function AdminPage() {
     (u.phone || '').toLowerCase().includes(grantSearchTerm.toLowerCase())
   )
 
+  const securityFilteredUsers = users.filter(u =>
+    u.name.toLowerCase().includes(securitySearchTerm.toLowerCase()) ||
+    (u.phone || '').toLowerCase().includes(securitySearchTerm.toLowerCase())
+  )
+
   const roleFilteredUsers = users.filter(u =>
     !u.isAdmin && (
       u.name.toLowerCase().includes(roleSearchTerm.toLowerCase()) ||
@@ -969,6 +1029,23 @@ export default function AdminPage() {
                 <span>배당코인 지급</span>
               </div>
               {activeTab === 'grant' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('security-grant')}
+              className={`px-6 py-3 font-semibold transition-colors relative ${
+                activeTab === 'security-grant'
+                  ? 'text-yellow-400'
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Coins className="w-5 h-5" />
+                <span>증권코인 지급</span>
+              </div>
+              {activeTab === 'security-grant' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
               )}
             </button>
@@ -1462,6 +1539,189 @@ export default function AdminPage() {
             className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             {grantMode === 'add' ? '배당코인 지급' : '배당코인 수정'}
+          </button>
+        </div>
+        )}
+
+        {/* 증권코인 지급 탭 */}
+        {activeTab === 'security-grant' && (
+        <div className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl p-6 mb-8 border border-blue-500/30 min-h-[600px]">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-blue-400 flex items-center">
+              <Coins className="w-6 h-6 mr-2" />
+              증권코인 관리
+            </h2>
+
+            {/* 모드 선택 버튼 */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setSecurityGrantMode('add')
+                  setSecurityGrantAmount('')
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  securityGrantMode === 'add'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                지급
+              </button>
+              <button
+                onClick={() => {
+                  setSecurityGrantMode('set')
+                  setSecurityGrantAmount(securitySelectedUser ? securitySelectedUser.securityCoins.toString() : '')
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  securityGrantMode === 'set'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                수정
+              </button>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-300 mb-2">회원 검색 (이름 또는 휴대폰 번호)</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="이름 또는 휴대폰 번호로 검색"
+                  value={securitySearchTerm}
+                  onChange={(e) => {
+                    setSecuritySearchTerm(e.target.value)
+                    setSecuritySelectedUser(null)
+                  }}
+                  className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                />
+              </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-300 mb-2">
+                회원 선택 {securitySearchTerm && `(${securityFilteredUsers.length}명 검색됨)`}
+              </label>
+              <select
+                value={securitySelectedUser?.id || ''}
+                onChange={(e) => setSecuritySelectedUser(users.find(u => u.id === e.target.value) || null)}
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+              >
+                <option value="">회원을 선택하세요</option>
+                {(securitySearchTerm ? securityFilteredUsers : users).map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.phone}) - 회원번호: #{u.memberNumber}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {securitySelectedUser && (() => {
+              const roleLabels: Record<string, string> = {
+                'ADMIN': '관리자',
+                'TEAM_LEADER': '팀장',
+                'USER': '일반회원'
+              }
+              const currentRole: string = securitySelectedUser.role || 'USER'
+              const referrer = users.find(u => u.id === securitySelectedUser.referrerId)
+              const referredCount = users.filter(u => u.referrerId === securitySelectedUser.id).length
+              const joinDate = new Date(securitySelectedUser.createdAt).toLocaleDateString('ko-KR')
+
+              return (
+                <div className="md:col-span-2 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                  <p className="text-sm text-gray-400 mb-3">선택된 회원 정보</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <p className="text-xs text-gray-500">이름</p>
+                      <p className="text-white font-medium">{securitySelectedUser.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">휴대폰</p>
+                      <p className="text-white font-medium">{securitySelectedUser.phone}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">회원번호</p>
+                      <p className="text-white font-medium">#{securitySelectedUser.memberNumber}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">등급</p>
+                      <p className="text-blue-400 font-medium">{roleLabels[currentRole]}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">가입일</p>
+                      <p className="text-white font-medium">{joinDate}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">추천한 인원</p>
+                      <p className="text-green-400 font-medium">{referredCount}명</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">추천인</p>
+                      <p className="text-purple-400 font-medium">{referrer ? referrer.name : '없음'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">증권코인</p>
+                      <p className="text-blue-400 font-bold">{securitySelectedUser.securityCoins.toLocaleString()}개</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">배당코인</p>
+                      <p className="text-yellow-400 font-bold">{securitySelectedUser.dividendCoins.toLocaleString()}개</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
+
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-300 mb-3">
+                {securityGrantMode === 'add' ? '지급 수량' : '증권코인 수량 (현재: ' + (securitySelectedUser?.securityCoins.toLocaleString() || '0') + '개)'}
+              </label>
+
+              <input
+                type="number"
+                value={securityGrantAmount}
+                onChange={(e) => setSecurityGrantAmount(e.target.value)}
+                placeholder={securityGrantMode === 'add' ? '지급할 수량 입력' : '변경할 수량'}
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-300 mb-2">설명 (선택)</label>
+              <input
+                type="text"
+                value={securityGrantDescription}
+                onChange={(e) => setSecurityGrantDescription(e.target.value)}
+                placeholder={securityGrantMode === 'add' ? '증권코인 지급 사유' : '수정 사유'}
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+              />
+            </div>
+          </div>
+
+          {/* 안내 메시지 */}
+          {securityGrantMode === 'add' ? (
+            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3 mt-4">
+              <p className="text-sm text-green-300">
+                <strong>자동 알림:</strong> 증권코인 지급 시 해당 회원에게 자동으로 알림이 발송됩니다.
+              </p>
+            </div>
+          ) : (
+            <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3 mt-4">
+              <p className="text-sm text-orange-300">
+                <strong>주의:</strong> 수정 모드는 증권코인을 입력한 값으로 변경합니다.
+              </p>
+            </div>
+          )}
+
+          <button
+            onClick={handleGrantSecurityCoins}
+            disabled={!securitySelectedUser || !securityGrantAmount}
+            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {securityGrantMode === 'add' ? '증권코인 지급' : '증권코인 수정'}
           </button>
         </div>
         )}

@@ -378,6 +378,33 @@ export const db = {
     return true
   },
 
+  // 증권코인 설정 (덮어쓰기)
+  async setSecurityCoins(userId: string, amount: number, description?: string): Promise<boolean> {
+    const user = await this.findUserById(userId)
+    if (!user) return false
+
+    const { error } = await supabaseAdmin
+      .from('users')
+      .update({ security_coins: amount })
+      .eq('id', userId)
+
+    if (error) return false
+
+    // 거래 기록
+    await supabaseAdmin.from('transactions').insert({
+      id: Date.now().toString(),
+      user_id: userId,
+      type: 'ADMIN_GRANT',
+      coin_type: 'SECURITY',
+      amount: amount - user.securityCoins,
+      balance: amount,
+      description: description || '관리자 증권코인 설정',
+      created_at: new Date().toISOString()
+    })
+
+    return true
+  },
+
   // 모든 사용자 조회
   async getAllUsers(): Promise<User[]> {
     const { data, error } = await supabaseAdmin
