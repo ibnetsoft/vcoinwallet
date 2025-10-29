@@ -104,7 +104,7 @@ export default function HomePage() {
                   )}
                   <button
                     onClick={handleLogout}
-                    className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition shadow-lg"
+                    className="p-2 bg-gray-700 text-gray-300 rounded-full hover:bg-gray-600 hover:text-white transition shadow-lg"
                     title="로그아웃"
                   >
                     <Power className="w-6 h-6" />
