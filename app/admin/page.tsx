@@ -254,9 +254,12 @@ export default function AdminPage() {
       }
 
       toast.success(result.message || '공지사항이 작성되었습니다.')
+
+      // 모달 닫기 전에 목록 새로고침
+      await fetchNotices()
+
       setIsNoticeModalOpen(false)
       setNoticeForm({ type: 'NOTICE', title: '', content: '' })
-      await fetchNotices()
     } catch (error: any) {
       toast.error(error.message || '공지사항 작성 중 오류가 발생했습니다.')
     }
@@ -330,10 +333,13 @@ export default function AdminPage() {
       }
 
       toast.success(result.message || '공지사항이 수정되었습니다.')
+
+      // 모달 닫기 전에 목록 새로고침
+      await fetchNotices()
+
       setIsNoticeModalOpen(false)
       setEditingNoticeId(null)
       setNoticeForm({ type: 'NOTICE', title: '', content: '' })
-      await fetchNotices()
     } catch (error: any) {
       toast.error(error.message || '공지사항 수정 중 오류가 발생했습니다.')
     }
