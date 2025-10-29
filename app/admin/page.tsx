@@ -212,8 +212,13 @@ export default function AdminPage() {
   }
 
   const fetchNotices = async () => {
+    const token = localStorage.getItem('token')
     try {
-      const response = await fetch('/api/admin/notices')
+      const response = await fetch('/api/admin/notices', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       if (response.ok) {
         const data = await response.json()
         setNotices(data.notices || [])
