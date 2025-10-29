@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Coins, TrendingUp, Users, Wallet, X, Sparkles } from 'lucide-react'
+import { Coins, TrendingUp, Users, Wallet, X, Sparkles, Power, WalletIcon } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import CoinValueChart from '@/components/CoinValueChart'
 
@@ -89,9 +89,10 @@ export default function HomePage() {
                   </div>
                   <button
                     onClick={() => router.push('/wallet')}
-                    className="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg font-semibold hover:bg-yellow-400 transition"
+                    className="p-2 bg-yellow-500 text-gray-900 rounded-full font-semibold hover:bg-yellow-400 transition shadow-lg"
+                    title="내 지갑"
                   >
-                    내 지갑
+                    <Wallet className="w-6 h-6" />
                   </button>
                   {user.isAdmin && (
                     <button
@@ -103,9 +104,10 @@ export default function HomePage() {
                   )}
                   <button
                     onClick={handleLogout}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition"
+                    className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition shadow-lg"
+                    title="로그아웃"
                   >
-                    로그아웃
+                    <Power className="w-6 h-6" />
                   </button>
                 </>
               ) : (
