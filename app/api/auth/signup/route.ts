@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { createToken } from '@/lib/auth'
+import { sendReferralSignupNotification } from '@/lib/push-notification'
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,8 +35,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 추천인 확인
+    let referrer = null
     if (referralCode) {
-      const referrer = await db.findUserByReferralCode(referralCode)
+      referrer = await db.findUserByReferralCode(referralCode)
       if (!referrer) {
         return NextResponse.json(
           { error: '유효하지 않은 추천 코드입니다.' },
@@ -52,6 +54,20 @@ export async function POST(request: NextRequest) {
       password,
       referralCode
     })
+
+    // 추천인에게 알림 전송
+    if (referrer) {
+      try {
+        await sendReferralSignupNotification(
+          referrer.id,
+          user.name,
+          user.memberNumber
+        )
+      } catch (error) {
+        console.error('Failed to send referral notification:', error)
+        // 알림 전송 실패는 회원가입 프로세스를 막지 않음
+      }
+    }
 
     // JWT 토큰 생성
     const token = createToken({

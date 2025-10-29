@@ -42,7 +42,7 @@ export default function AdminPage() {
   const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'TEAM_LEADER' | 'USER'>('ALL')
   const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   // 페이지네이션
   const [currentPage, setCurrentPage] = useState(1)

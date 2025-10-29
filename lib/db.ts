@@ -38,6 +38,26 @@ interface SystemConfig {
   dividendCoinReferralPercentage: number  // 백분율 (기본값: 10 = 10%)
 }
 
+interface Notification {
+  id: string
+  userId: string
+  type: 'REFERRAL_SIGNUP' | 'COIN_GRANTED' | 'SYSTEM'
+  title: string
+  message: string
+  isRead: boolean
+  relatedUserId?: string
+  createdAt: string
+}
+
+interface PushSubscription {
+  id: string
+  userId: string
+  endpoint: string
+  p256dh: string
+  auth: string
+  createdAt: string
+}
+
 // Supabase 기반 데이터베이스 함수들
 export const db = {
   // 사용자 찾기
@@ -476,7 +496,188 @@ export const db = {
 
     if (error) return null
     return convertFromSupabaseUser(data)
-  }
+  },
+
+  // ========== 알림 관련 함수들 ==========
+
+  // 알림 생성
+  async createNotification(
+    userId: string,
+    type: 'REFERRAL_SIGNUP' | 'COIN_GRANTED' | 'SYSTEM',
+    title: string,
+    message: string,
+    relatedUserId?: string
+  ): Promise<Notification | null> {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('notifications')
+        .insert({
+          user_id: userId,
+          type,
+          title,
+          message,
+          is_read: false,
+          related_user_id: relatedUserId,
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Create notification error:', error)
+        return null
+      }
+
+      return {
+        id: data.id,
+        userId: data.user_id,
+        type: data.type,
+        title: data.title,
+        message: data.message,
+        isRead: data.is_read,
+        relatedUserId: data.related_user_id,
+        createdAt: data.created_at
+      }
+    } catch (error) {
+      console.error('Create notification error:', error)
+      return null
+    }
+  },
+
+  // 사용자의 알림 목록 조회
+  async getNotifications(userId: string, limit: number = 50): Promise<Notification[]> {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('notifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limit)
+
+      if (error) {
+        console.error('Get notifications error:', error)
+        return []
+      }
+
+      return data.map(n => ({
+        id: n.id,
+        userId: n.user_id,
+        type: n.type,
+        title: n.title,
+        message: n.message,
+        isRead: n.is_read,
+        relatedUserId: n.related_user_id,
+        createdAt: n.created_at
+      }))
+    } catch (error) {
+      console.error('Get notifications error:', error)
+      return []
+    }
+  },
+
+  // 읽지 않은 알림 개수 조회
+  async getUnreadNotificationCount(userId: string): Promise<number> {
+    try {
+      const { count, error } = await supabaseAdmin
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('is_read', false)
+
+      if (error) {
+        console.error('Get unread count error:', error)
+        return 0
+      }
+
+      return count || 0
+    } catch (error) {
+      console.error('Get unread count error:', error)
+      return 0
+    }
+  },
+
+  // 알림 읽음 처리
+  async markNotificationAsRead(notificationId: string): Promise<boolean> {
+    try {
+      const { error } = await supabaseAdmin
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notificationId)
+
+      return !error
+    } catch (error) {
+      console.error('Mark notification as read error:', error)
+      return false
+    }
+  },
+
+  // 모든 알림 읽음 처리
+  async markAllNotificationsAsRead(userId: string): Promise<boolean> {
+    try {
+      const { error } = await supabaseAdmin
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', userId)
+        .eq('is_read', false)
+
+      return !error
+    } catch (error) {
+      console.error('Mark all notifications as read error:', error)
+      return false
+    }
+  },
+
+  // 푸시 구독 저장
+  async savePushSubscription(
+    userId: string,
+    subscription: { endpoint: string; keys: { p256dh: string; auth: string } }
+  ): Promise<boolean> {
+    try {
+      const { error } = await supabaseAdmin
+        .from('push_subscriptions')
+        .upsert({
+          user_id: userId,
+          endpoint: subscription.endpoint,
+          p256dh: subscription.keys.p256dh,
+          auth: subscription.keys.auth,
+          created_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,endpoint'
+        })
+
+      return !error
+    } catch (error) {
+      console.error('Save push subscription error:', error)
+      return false
+    }
+  },
+
+  // 사용자의 푸시 구독 조회
+  async getPushSubscriptions(userId: string): Promise<PushSubscription[]> {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('push_subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+
+      if (error) {
+        console.error('Get push subscriptions error:', error)
+        return []
+      }
+
+      return data.map(s => ({
+        id: s.id,
+        userId: s.user_id,
+        endpoint: s.endpoint,
+        p256dh: s.p256dh,
+        auth: s.auth,
+        createdAt: s.created_at
+      }))
+    } catch (error) {
+      console.error('Get push subscriptions error:', error)
+      return []
+    }
+  },
 }
 
 // Supabase 스네이크 케이스를 카멜 케이스로 변환

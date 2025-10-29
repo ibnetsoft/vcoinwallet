@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Wallet, Coins, TrendingUp, History, Copy, Share2, ArrowLeft, User as UserIcon, Lock, Mail, Phone, Users } from 'lucide-react'
+import { Wallet, Coins, TrendingUp, History, Copy, Share2, ArrowLeft, User as UserIcon, Lock, Mail, Phone, Users, Bell } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 
 export default function WalletPage() {
@@ -14,6 +14,11 @@ export default function WalletPage() {
   const [teamStats, setTeamStats] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'wallet' | 'transactions' | 'referral' | 'mypage'>('wallet')
+
+  // 알림 관련 상태
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [showNotifications, setShowNotifications] = useState(false)
 
   // 마이페이지 수정 상태
   const [isEditing, setIsEditing] = useState(false)
@@ -46,7 +51,20 @@ export default function WalletPage() {
     // 추천한 회원 목록 가져오기
     fetchReferredUsers(token)
 
+    // 알림 가져오기
+    fetchNotifications(token)
+
+    // 푸시 알림 구독 요청
+    requestPushNotificationPermission(token)
+
     setIsLoading(false)
+
+    // 10초마다 알림 업데이트
+    const notificationInterval = setInterval(() => {
+      fetchNotifications(token)
+    }, 10000)
+
+    return () => clearInterval(notificationInterval)
   }, [router])
 
   const fetchUserInfo = async (userId: string, token: string) => {
@@ -130,6 +148,151 @@ export default function WalletPage() {
     } catch (error) {
       console.error('추천 회원 목록 가져오기 실패:', error)
     }
+  }
+
+  const fetchNotifications = async (token: string) => {
+    try {
+      const response = await fetch('/api/notifications', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setNotifications(data.notifications || [])
+        setUnreadCount(data.unreadCount || 0)
+      }
+    } catch (error) {
+      console.error('알림 가져오기 실패:', error)
+    }
+  }
+
+  const markNotificationAsRead = async (notificationId: string) => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ notificationId })
+      })
+
+      if (response.ok) {
+        await fetchNotifications(token!)
+      }
+    } catch (error) {
+      console.error('알림 읽음 처리 실패:', error)
+    }
+  }
+
+  const markAllNotificationsAsRead = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ markAllAsRead: true })
+      })
+
+      if (response.ok) {
+        await fetchNotifications(token!)
+        toast.success('모든 알림을 읽음 처리했습니다.')
+      }
+    } catch (error) {
+      console.error('알림 읽음 처리 실패:', error)
+    }
+  }
+
+  const requestPushNotificationPermission = async (token: string) => {
+    try {
+      // 브라우저가 푸시 알림을 지원하는지 확인
+      if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+        console.log('이 브라우저는 푸시 알림을 지원하지 않습니다.')
+        return
+      }
+
+      // 이미 권한이 거부된 경우
+      if (Notification.permission === 'denied') {
+        console.log('푸시 알림 권한이 거부되었습니다.')
+        return
+      }
+
+      // 이미 권한이 허용된 경우, 구독 진행
+      if (Notification.permission === 'granted') {
+        await subscribeToPushNotifications(token)
+        return
+      }
+
+      // 권한 요청
+      const permission = await Notification.requestPermission()
+
+      if (permission === 'granted') {
+        await subscribeToPushNotifications(token)
+      }
+    } catch (error) {
+      console.error('푸시 알림 권한 요청 실패:', error)
+    }
+  }
+
+  const subscribeToPushNotifications = async (token: string) => {
+    try {
+      // Service Worker 등록
+      const registration = await navigator.serviceWorker.register('/service-worker.js')
+
+      // 구독 확인
+      let subscription = await registration.pushManager.getSubscription()
+
+      if (!subscription) {
+        // 새로운 구독 생성
+        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+
+        if (!vapidPublicKey) {
+          console.error('VAPID public key가 설정되지 않았습니다.')
+          return
+        }
+
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+        })
+      }
+
+      // 서버에 구독 정보 저장
+      await fetch('/api/notifications/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ subscription })
+      })
+
+      console.log('푸시 알림 구독 완료')
+    } catch (error) {
+      console.error('푸시 알림 구독 실패:', error)
+    }
+  }
+
+  // VAPID public key를 Uint8Array로 변환
+  const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4)
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/')
+
+    const rawData = window.atob(base64)
+    const outputArray = new Uint8Array(rawData.length)
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i)
+    }
+    return outputArray
   }
 
   const copyReferralCode = () => {
@@ -232,9 +395,79 @@ export default function WalletPage() {
               </button>
               <h1 className="text-xl font-bold text-white">내 지갑</h1>
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-400">회원번호:</span>
-              <span className="text-sm font-semibold text-yellow-400">#{user?.memberNumber}</span>
+            <div className="flex items-center space-x-4">
+              {/* 알림 아이콘 */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="p-2 hover:bg-gray-700 rounded-lg transition relative"
+                >
+                  <Bell className="w-5 h-5 text-white" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* 알림 드롭다운 */}
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
+                    <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+                      <h3 className="text-white font-semibold">알림</h3>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={markAllNotificationsAsRead}
+                          className="text-xs text-yellow-400 hover:text-yellow-300"
+                        >
+                          모두 읽음
+                        </button>
+                      )}
+                    </div>
+
+                    {notifications.length === 0 ? (
+                      <div className="p-8 text-center text-gray-400">
+                        알림이 없습니다.
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-gray-700">
+                        {notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            onClick={() => {
+                              if (!notification.isRead) {
+                                markNotificationAsRead(notification.id)
+                              }
+                            }}
+                            className={`p-4 hover:bg-gray-700/50 cursor-pointer transition ${
+                              !notification.isRead ? 'bg-gray-700/30' : ''
+                            }`}
+                          >
+                            <div className="flex items-start space-x-3">
+                              <div className={`w-2 h-2 rounded-full mt-2 ${
+                                !notification.isRead ? 'bg-yellow-400' : 'bg-gray-600'
+                              }`}></div>
+                              <div className="flex-1">
+                                <h4 className="text-white font-medium text-sm">{notification.title}</h4>
+                                <p className="text-gray-300 text-sm mt-1">{notification.message}</p>
+                                <p className="text-gray-500 text-xs mt-2">
+                                  {new Date(notification.createdAt).toLocaleString('ko-KR')}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* 회원번호 */}
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-400">회원번호:</span>
+                <span className="text-sm font-semibold text-yellow-400">#{user?.memberNumber}</span>
+              </div>
             </div>
           </div>
         </div>
