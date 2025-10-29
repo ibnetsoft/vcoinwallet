@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Users, Coins, Gift, Search, ArrowLeft, Shield, Settings, Lock, Mail, Phone, X, ArrowUpDown, Bell } from 'lucide-react'
+import { Users, Coins, Gift, Search, ArrowLeft, Shield, Settings, Lock, Mail, Phone, X, ArrowUpDown, Bell, RefreshCw } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 
 interface User {
@@ -965,6 +965,16 @@ export default function AdminPage() {
                   <option value="TEAM_LEADER">팀장</option>
                   <option value="USER">일반회원</option>
                 </select>
+
+                {/* 새로고침 버튼 */}
+                <button
+                  onClick={() => fetchUsers()}
+                  className="flex items-center space-x-2 px-4 py-2 bg-yellow-600 border border-yellow-500 rounded-lg text-white hover:bg-yellow-500 transition"
+                  title="회원 목록 새로고침"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  <span>새로고침</span>
+                </button>
 
                 {/* 정렬 버튼 */}
                 <button
