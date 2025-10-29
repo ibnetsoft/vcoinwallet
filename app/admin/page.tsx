@@ -554,6 +554,52 @@ export default function AdminPage() {
     }
   }
 
+  const handleFixReferralData = async () => {
+    const token = localStorage.getItem('token')
+
+    if (!confirm('추천 데이터를 수정하시겠습니까?\n\n이 작업은 referred_by 필드를 user ID에서 referralCode로 변경합니다.')) {
+      return
+    }
+
+    try {
+      toast.loading('데이터 수정 중...')
+
+      const response = await fetch('/api/admin/fix-referrals', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      const result = await response.json()
+
+      toast.dismiss()
+
+      if (!response.ok) {
+        throw new Error(result.error || '데이터 수정 실패')
+      }
+
+      toast.success(
+        `수정 완료!\n수정됨: ${result.updated}명\n스킵됨: ${result.skipped}명`,
+        { duration: 5000 }
+      )
+
+      console.log('=== 추천 데이터 수정 결과 ===')
+      console.log('총 사용자:', result.totalUsers)
+      console.log('수정됨:', result.updated)
+      console.log('스킵됨:', result.skipped)
+      console.log('에러:', result.errors)
+      if (result.updates) {
+        console.log('\n상세 내역:')
+        result.updates.forEach((u: string) => console.log(u))
+      }
+
+    } catch (error: any) {
+      toast.dismiss()
+      toast.error(error.message || '데이터 수정 중 오류가 발생했습니다.')
+    }
+  }
+
   const handleUpdateAdminProfile = async () => {
     const token = localStorage.getItem('token')
 
@@ -1545,22 +1591,41 @@ export default function AdminPage() {
             </div>
 
             {!isEditingAdmin ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm text-gray-400">이름</label>
-                  <p className="text-white font-medium">{user?.name}</p>
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm text-gray-400">이름</label>
+                    <p className="text-white font-medium">{user?.name}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-400">휴대폰 번호</label>
+                    <p className="text-white font-medium">{user?.phone}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-400">이메일</label>
+                    <p className="text-white font-medium">{user?.email || '미등록'}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-400">권한</label>
+                    <p className="text-red-400 font-bold">관리자</p>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-sm text-gray-400">휴대폰 번호</label>
-                  <p className="text-white font-medium">{user?.phone}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-400">이메일</label>
-                  <p className="text-white font-medium">{user?.email || '미등록'}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-400">권한</label>
-                  <p className="text-red-400 font-bold">관리자</p>
+
+                {/* 데이터 수정 도구 */}
+                <div className="pt-6 border-t border-gray-700">
+                  <h3 className="text-lg font-semibold text-white mb-4">데이터 관리 도구</h3>
+                  <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+                    <h4 className="text-orange-400 font-semibold mb-2">추천 데이터 수정</h4>
+                    <p className="text-sm text-gray-300 mb-4">
+                      추천 데이터가 0으로 표시되는 경우, referred_by 필드를 user ID에서 referralCode로 변경합니다.
+                    </p>
+                    <button
+                      onClick={handleFixReferralData}
+                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-400 transition font-semibold"
+                    >
+                      추천 데이터 수정 실행
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
