@@ -209,6 +209,19 @@ export const db = {
         description: `추천 보너스 - ${newUser.name}님 가입`,
         created_at: new Date().toISOString()
       })
+
+      // 추천인에게 알림 전송
+      try {
+        await this.createNotification(
+          referrer.id,
+          'REFERRAL_SIGNUP',
+          '🎉 새로운 회원이 가입했습니다!',
+          `${newUser.name}님(회원번호: ${memberNumber})이 회원님의 추천으로 가입했습니다. 증권코인 ${referralBonus}개가 지급되었습니다.`,
+          newUserId
+        )
+      } catch (notifError) {
+        console.error('추천인 알림 전송 실패:', notifError)
+      }
     }
 
     return convertFromSupabaseUser(insertedUser)
@@ -240,6 +253,19 @@ export const db = {
       created_at: new Date().toISOString()
     })
 
+    // 본인에게 배당코인 지급 알림
+    try {
+      await this.createNotification(
+        userId,
+        'COIN_GRANTED',
+        '💰 배당코인이 지급되었습니다!',
+        `배당코인 ${amount.toLocaleString()}개가 지급되었습니다. ${description || '관리자 지급'}`,
+        undefined
+      )
+    } catch (notifError) {
+      console.error('배당코인 지급 알림 전송 실패:', notifError)
+    }
+
     // 추천인에게 보너스 지급 (백분율 계산)
     if (user.referrerId) {
       const referrer = await this.findUserById(user.referrerId)
@@ -264,7 +290,62 @@ export const db = {
           description: `추천 보너스 - ${user.name}님 배당코인 구매 (${config.dividendCoinReferralPercentage}%)`,
           created_at: new Date().toISOString()
         })
+
+        // 추천인에게 추천 보너스 알림
+        try {
+          await this.createNotification(
+            referrer.id,
+            'COIN_GRANTED',
+            '💎 추천 보너스가 지급되었습니다!',
+            `${user.name}님의 배당코인 구매로 추천 보너스 ${referralBonus.toLocaleString()}개(${config.dividendCoinReferralPercentage}%)가 지급되었습니다.`,
+            userId
+          )
+        } catch (notifError) {
+          console.error('추천 보너스 알림 전송 실패:', notifError)
+        }
       }
+    }
+
+    return true
+  },
+
+  // 증권코인 지급
+  async grantSecurityCoins(userId: string, amount: number, description?: string): Promise<boolean> {
+    const user = await this.findUserById(userId)
+    if (!user) return false
+
+    const newBalance = user.securityCoins + amount
+
+    const { error: updateError } = await supabaseAdmin
+      .from('users')
+      .update({ security_coins: newBalance })
+      .eq('id', userId)
+
+    if (updateError) return false
+
+    // 거래 기록
+    await supabaseAdmin.from('transactions').insert({
+      id: Date.now().toString(),
+      user_id: userId,
+      type: 'ADMIN_GRANT',
+      coin_type: 'SECURITY',
+      amount: amount,
+      balance: newBalance,
+      description: description || '관리자 지급',
+      created_at: new Date().toISOString()
+    })
+
+    // 본인에게 증권코인 지급 알림
+    try {
+      await this.createNotification(
+        userId,
+        'COIN_GRANTED',
+        '💎 증권코인이 지급되었습니다!',
+        `증권코인 ${amount.toLocaleString()}개가 지급되었습니다. ${description || '관리자 지급'}`,
+        undefined
+      )
+    } catch (notifError) {
+      console.error('증권코인 지급 알림 전송 실패:', notifError)
     }
 
     return true
