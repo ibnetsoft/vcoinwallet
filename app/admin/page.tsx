@@ -1001,15 +1001,15 @@ export default function AdminPage() {
           <div className="flex space-x-2 border-b border-gray-700">
             <button
               onClick={() => setActiveTab('users')}
-              className={`px-6 py-3 font-semibold transition-colors relative ${
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
                 activeTab === 'users'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
               }`}
             >
               <div className="flex items-center space-x-2">
-                <Users className="w-5 h-5" />
-                <span>회원 목록</span>
+                <Users className="w-4 h-4" />
+                <span>회원</span>
               </div>
               {activeTab === 'users' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -1018,15 +1018,15 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('grant')}
-              className={`px-6 py-3 font-semibold transition-colors relative ${
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
                 activeTab === 'grant'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
               }`}
             >
               <div className="flex items-center space-x-2">
-                <Gift className="w-5 h-5" />
-                <span>배당코인 지급</span>
+                <Gift className="w-4 h-4" />
+                <span>배당코인</span>
               </div>
               {activeTab === 'grant' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -1035,15 +1035,15 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('security-grant')}
-              className={`px-6 py-3 font-semibold transition-colors relative ${
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
                 activeTab === 'security-grant'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
               }`}
             >
               <div className="flex items-center space-x-2">
-                <Coins className="w-5 h-5" />
-                <span>증권코인 지급</span>
+                <Coins className="w-4 h-4" />
+                <span>증권코인</span>
               </div>
               {activeTab === 'security-grant' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -1052,15 +1052,15 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('roles')}
-              className={`px-6 py-3 font-semibold transition-colors relative ${
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
                 activeTab === 'roles'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
               }`}
             >
               <div className="flex items-center space-x-2">
-                <Shield className="w-5 h-5" />
-                <span>회원 등급 관리</span>
+                <Shield className="w-4 h-4" />
+                <span>등급관리</span>
               </div>
               {activeTab === 'roles' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -1069,15 +1069,15 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('notice')}
-              className={`px-6 py-3 font-semibold transition-colors relative ${
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
                 activeTab === 'notice'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
               }`}
             >
               <div className="flex items-center space-x-2">
-                <Bell className="w-5 h-5" />
-                <span>공지사항 관리</span>
+                <Bell className="w-4 h-4" />
+                <span>공지사항</span>
               </div>
               {activeTab === 'notice' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -1086,15 +1086,15 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('settings')}
-              className={`px-6 py-3 font-semibold transition-colors relative ${
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
                 activeTab === 'settings'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
               }`}
             >
               <div className="flex items-center space-x-2">
-                <Settings className="w-5 h-5" />
-                <span>관리자 설정</span>
+                <Settings className="w-4 h-4" />
+                <span>관리자설정</span>
               </div>
               {activeTab === 'settings' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -1103,15 +1103,15 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('coin-settings')}
-              className={`px-6 py-3 font-semibold transition-colors relative ${
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
                 activeTab === 'coin-settings'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
               }`}
             >
               <div className="flex items-center space-x-2">
-                <Coins className="w-5 h-5" />
-                <span>코인지급 설정</span>
+                <Coins className="w-4 h-4" />
+                <span>코인지급설정</span>
               </div>
               {activeTab === 'coin-settings' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
