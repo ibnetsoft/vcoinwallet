@@ -450,28 +450,22 @@ export default function WalletPage() {
                       )}
                     </div>
 
-                    {notifications.length === 0 ? (
+                    {notifications.filter(n => !n.isRead).length === 0 ? (
                       <div className="p-8 text-center text-gray-400">
-                        알림이 없습니다.
+                        읽지 않은 알림이 없습니다.
                       </div>
                     ) : (
                       <div className="divide-y divide-gray-700">
-                        {notifications.map((notification) => (
+                        {notifications.filter(n => !n.isRead).map((notification) => (
                           <div
                             key={notification.id}
                             onClick={() => {
-                              if (!notification.isRead) {
-                                markNotificationAsRead(notification.id)
-                              }
+                              markNotificationAsRead(notification.id)
                             }}
-                            className={`p-4 hover:bg-gray-700/50 cursor-pointer transition ${
-                              !notification.isRead ? 'bg-gray-700/30' : ''
-                            }`}
+                            className="p-4 hover:bg-gray-700/50 cursor-pointer transition bg-gray-700/30"
                           >
                             <div className="flex items-start space-x-3">
-                              <div className={`w-2 h-2 rounded-full mt-2 ${
-                                !notification.isRead ? 'bg-yellow-400' : 'bg-gray-600'
-                              }`}></div>
+                              <div className="w-2 h-2 rounded-full mt-2 bg-yellow-400"></div>
                               <div className="flex-1">
                                 <h4 className="text-white font-medium text-sm">{notification.title}</h4>
                                 <p className="text-gray-300 text-sm mt-1">{notification.message}</p>
