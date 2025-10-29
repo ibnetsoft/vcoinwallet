@@ -1,0 +1,52 @@
+{
+  "name": "V COIN - 3D SOLAR 투자 플랫폼",
+  "short_name": "V COIN",
+  "description": "3배 효율 태양광 발전 투자 플랫폼",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#eab308",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/vcoin_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/vcoin_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "business"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "내 지갑",
+      "short_name": "지갑",
+      "description": "내 지갑 보기",
+      "url": "/wallet",
+      "icons": [
+        {
+          "src": "/vcoin_logo.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "공지사항",
+      "short_name": "공지",
+      "description": "공지사항 보기",
+      "url": "/notices",
+      "icons": [
+        {
+          "src": "/vcoin_logo.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
