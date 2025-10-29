@@ -20,6 +20,9 @@ export default function WalletPage() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [showNotifications, setShowNotifications] = useState(false)
 
+  // 공지사항 관련 상태
+  const [notices, setNotices] = useState<any[]>([])
+
   // 마이페이지 수정 상태
   const [isEditing, setIsEditing] = useState(false)
   const [editForm, setEditForm] = useState({
@@ -66,6 +69,16 @@ export default function WalletPage() {
 
     return () => clearInterval(notificationInterval)
   }, [router])
+
+  // 공지사항 탭이 활성화될 때 공지사항 가져오기
+  useEffect(() => {
+    if (activeTab === 'notice') {
+      const token = localStorage.getItem('token')
+      if (token) {
+        fetchNotices(token)
+      }
+    }
+  }, [activeTab])
 
   const fetchUserInfo = async (userId: string, token: string) => {
     try {
@@ -293,6 +306,24 @@ export default function WalletPage() {
       outputArray[i] = rawData.charCodeAt(i)
     }
     return outputArray
+  }
+
+  // 공지사항 가져오기
+  const fetchNotices = async (token: string) => {
+    try {
+      const response = await fetch('/api/notices', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setNotices(data.notices || [])
+      }
+    } catch (error) {
+      console.error('공지사항 가져오기 실패:', error)
+    }
   }
 
   const copyReferralCode = () => {
@@ -990,90 +1021,47 @@ export default function WalletPage() {
 
               {/* 공지사항 목록 */}
               <div className="space-y-4">
-                {/* 공지사항 1 */}
-                <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <span className="px-3 py-1 bg-red-500/20 text-red-400 text-xs font-semibold rounded-full border border-red-500/30">
-                        중요
-                      </span>
-                      <h3 className="text-lg font-semibold text-white">V COIN 서비스 오픈 안내</h3>
-                    </div>
-                    <span className="text-sm text-gray-500">2025-01-26</span>
+                {notices.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500">작성된 공지사항이 없습니다.</p>
                   </div>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    V COIN 3D 태양광 투자 플랫폼이 정식 오픈되었습니다.
-                    신규 회원 가입 시 증권코인 500개를 무료로 지급해드립니다.
-                  </p>
-                </div>
+                ) : (
+                  notices.map((notice) => {
+                    const typeColors: any = {
+                      IMPORTANT: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30', label: '중요' },
+                      NOTICE: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', border: 'border-yellow-500/30', label: '공지' },
+                      INFO: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30', label: '안내' },
+                      EVENT: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/30', label: '이벤트' },
+                      UPDATE: { bg: 'bg-purple-500/20', text: 'text-purple-400', border: 'border-purple-500/30', label: '업데이트' }
+                    }
 
-                {/* 공지사항 2 */}
-                <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-semibold rounded-full border border-yellow-500/30">
-                        공지
-                      </span>
-                      <h3 className="text-lg font-semibold text-white">추천인 제도 안내</h3>
-                    </div>
-                    <span className="text-sm text-gray-500">2025-01-26</span>
-                  </div>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    친구를 초대하고 증권코인 1,000개를 받으세요.
-                    추천받은 친구가 배당코인을 구매하면 구매 금액의 10%를 추가 보너스로 드립니다.
-                  </p>
-                </div>
+                    const typeColor = typeColors[notice.type] || typeColors.NOTICE
 
-                {/* 공지사항 3 */}
-                <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-semibold rounded-full border border-blue-500/30">
-                        안내
-                      </span>
-                      <h3 className="text-lg font-semibold text-white">배당코인 지급 일정 안내</h3>
-                    </div>
-                    <span className="text-sm text-gray-500">2025-01-25</span>
-                  </div>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    배당코인은 매월 15일에 정산되어 지급됩니다.
-                    100만원당 10,000개의 배당코인이 지급되며, 연 15%의 수익률이 보장됩니다.
-                  </p>
-                </div>
+                    const date = new Date(notice.created_at)
+                    const formattedDate = date.toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit'
+                    })
 
-                {/* 공지사항 4 */}
-                <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <span className="px-3 py-1 bg-green-500/20 text-green-400 text-xs font-semibold rounded-full border border-green-500/30">
-                        이벤트
-                      </span>
-                      <h3 className="text-lg font-semibold text-white">초기 회원 특별 혜택</h3>
-                    </div>
-                    <span className="text-sm text-gray-500">2025-01-24</span>
-                  </div>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    2025년 2월 말까지 가입하시는 모든 회원님께 증권코인을 추가 지급해드립니다.
-                    지금 바로 가입하고 혜택을 받아가세요!
-                  </p>
-                </div>
-
-                {/* 공지사항 5 */}
-                <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <span className="px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-semibold rounded-full border border-purple-500/30">
-                        업데이트
-                      </span>
-                      <h3 className="text-lg font-semibold text-white">실시간 알림 기능 추가</h3>
-                    </div>
-                    <span className="text-sm text-gray-500">2025-01-23</span>
-                  </div>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    추천한 회원이 가입하면 실시간으로 알림을 받을 수 있는 기능이 추가되었습니다.
-                    웹 브라우저의 알림 권한을 허용해주세요.
-                  </p>
-                </div>
+                    return (
+                      <div key={notice.id} className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <span className={`px-3 py-1 ${typeColor.bg} ${typeColor.text} text-xs font-semibold rounded-full border ${typeColor.border}`}>
+                              {typeColor.label}
+                            </span>
+                            <h3 className="text-lg font-semibold text-white">{notice.title}</h3>
+                          </div>
+                          <span className="text-sm text-gray-500">{formattedDate}</span>
+                        </div>
+                        <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                          {notice.content}
+                        </p>
+                      </div>
+                    )
+                  })
+                )}
               </div>
             </div>
           </div>
