@@ -623,8 +623,8 @@ export default function AdminPage() {
     // 검색 필터
     const matchesSearch =
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (u.phone || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (u.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.referralCode.toLowerCase().includes(searchTerm.toLowerCase())
 
     // 등급 필터
@@ -649,13 +649,13 @@ export default function AdminPage() {
 
   const grantFilteredUsers = users.filter(u =>
     u.name.toLowerCase().includes(grantSearchTerm.toLowerCase()) ||
-    u.phone?.toLowerCase().includes(grantSearchTerm.toLowerCase())
+    (u.phone || '').toLowerCase().includes(grantSearchTerm.toLowerCase())
   )
 
   const roleFilteredUsers = users.filter(u =>
     !u.isAdmin && (
       u.name.toLowerCase().includes(roleSearchTerm.toLowerCase()) ||
-      u.phone?.toLowerCase().includes(roleSearchTerm.toLowerCase())
+      (u.phone || '').toLowerCase().includes(roleSearchTerm.toLowerCase())
     )
   )
 
