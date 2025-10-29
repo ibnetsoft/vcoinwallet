@@ -3,13 +3,13 @@ import { db } from '@/lib/db'
 import { verifyToken } from '@/lib/auth'
 
 // 재귀적으로 모든 하위 회원을 찾는 함수
-function getAllDownlineUsers(userId: string, allUsers: any[]): any[] {
-  const directReferrals = allUsers.filter(u => u.referrerId === userId)
+function getAllDownlineUsers(userReferralCode: string, allUsers: any[]): any[] {
+  const directReferrals = allUsers.filter(u => u.referrerId === userReferralCode)
   let allDownline = [...directReferrals]
 
   // 각 직접 추천인의 하위 라인도 재귀적으로 추가
   for (const referral of directReferrals) {
-    const subDownline = getAllDownlineUsers(referral.id, allUsers)
+    const subDownline = getAllDownlineUsers(referral.referralCode, allUsers)
     allDownline = [...allDownline, ...subDownline]
   }
 
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     // 해당 사용자가 추천한 회원 목록 가져오기
     const allUsers = await db.getAllUsers()
-    const referredUsers = allUsers.filter(u => u.referrerId === user.id)
+    const referredUsers = allUsers.filter(u => u.referrerId === user.referralCode)
 
     // 가입일 기준 최신순 정렬 (최신이 먼저)
     const sortedReferredUsers = referredUsers.sort((a, b) =>
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     let teamStats = null
     if (user.role === 'TEAM_LEADER') {
       // 모든 산하 회원 (직접 + 간접 추천)
-      const allDownline = getAllDownlineUsers(user.id, allUsers)
+      const allDownline = getAllDownlineUsers(user.referralCode, allUsers)
 
       // 산하 총 인원
       const totalMembers = allDownline.length
