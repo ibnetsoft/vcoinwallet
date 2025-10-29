@@ -191,3 +191,67 @@ export async function DELETE(request: NextRequest) {
     )
   }
 }
+
+// PUT: 공지사항 수정 (관리자 전용)
+export async function PUT(request: NextRequest) {
+  try {
+    const token = request.headers.get('authorization')?.replace('Bearer ', '')
+
+    if (!token) {
+      return NextResponse.json(
+        { error: '인증이 필요합니다.' },
+        { status: 401 }
+      )
+    }
+
+    const payload = jwt.verify(token, JWT_SECRET) as any
+
+    if (!payload.isAdmin) {
+      return NextResponse.json(
+        { error: '관리자 권한이 필요합니다.' },
+        { status: 403 }
+      )
+    }
+
+    const { noticeId, type, title, content } = await request.json()
+
+    if (!noticeId || !type || !title || !content) {
+      return NextResponse.json(
+        { error: '모든 필드를 입력해주세요.' },
+        { status: 400 }
+      )
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('notices')
+      .update({
+        type,
+        title,
+        content,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', noticeId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Update notice error:', error)
+      return NextResponse.json(
+        { error: '공지사항 수정 실패' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: '공지사항이 수정되었습니다.',
+      notice: data
+    })
+  } catch (error) {
+    console.error('Update notice error:', error)
+    return NextResponse.json(
+      { error: '공지사항 수정 중 오류가 발생했습니다.' },
+      { status: 500 }
+    )
+  }
+}

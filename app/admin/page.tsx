@@ -57,6 +57,7 @@ export default function AdminPage() {
   // 공지사항 관련 상태
   const [notices, setNotices] = useState<any[]>([])
   const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false)
+  const [editingNoticeId, setEditingNoticeId] = useState<string | null>(null)
   const [noticeForm, setNoticeForm] = useState({
     type: 'NOTICE',
     title: '',
@@ -288,6 +289,53 @@ export default function AdminPage() {
       await fetchNotices()
     } catch (error: any) {
       toast.error(error.message || '공지사항 삭제 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleEditNotice = (notice: any) => {
+    setEditingNoticeId(notice.id)
+    setNoticeForm({
+      type: notice.type,
+      title: notice.title,
+      content: notice.content
+    })
+    setIsNoticeModalOpen(true)
+  }
+
+  const handleUpdateNotice = async () => {
+    if (!noticeForm.title || !noticeForm.content || !editingNoticeId) {
+      toast.error('제목과 내용을 입력해주세요.')
+      return
+    }
+
+    const token = localStorage.getItem('token')
+
+    try {
+      const response = await fetch('/api/admin/notices', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          noticeId: editingNoticeId,
+          ...noticeForm
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '공지사항 수정 실패')
+      }
+
+      toast.success(result.message || '공지사항이 수정되었습니다.')
+      setIsNoticeModalOpen(false)
+      setEditingNoticeId(null)
+      setNoticeForm({ type: 'NOTICE', title: '', content: '' })
+      await fetchNotices()
+    } catch (error: any) {
+      toast.error(error.message || '공지사항 수정 중 오류가 발생했습니다.')
     }
   }
 
@@ -1436,6 +1484,12 @@ export default function AdminPage() {
                             {new Date(notice.created_at).toLocaleDateString('ko-KR')}
                           </span>
                           <button
+                            onClick={() => handleEditNotice(notice)}
+                            className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs rounded hover:bg-blue-500/30 transition"
+                          >
+                            수정
+                          </button>
+                          <button
                             onClick={() => handleDeleteNotice(notice.id)}
                             className="px-3 py-1 bg-red-500/20 text-red-400 text-xs rounded hover:bg-red-500/30 transition"
                           >
@@ -2081,16 +2135,20 @@ export default function AdminPage() {
               {/* 버튼 */}
               <div className="flex space-x-3">
                 <button
-                  onClick={() => setIsNoticeModalOpen(false)}
+                  onClick={() => {
+                    setIsNoticeModalOpen(false)
+                    setEditingNoticeId(null)
+                    setNoticeForm({ type: 'NOTICE', title: '', content: '' })
+                  }}
                   className="flex-1 px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition"
                 >
                   취소
                 </button>
                 <button
-                  onClick={handleCreateNotice}
+                  onClick={editingNoticeId ? handleUpdateNotice : handleCreateNotice}
                   className="flex-1 px-6 py-3 bg-yellow-500 text-gray-900 rounded-lg font-semibold hover:bg-yellow-400 transition"
                 >
-                  작성하고 알림 전송
+                  {editingNoticeId ? '수정 완료' : '작성하고 알림 전송'}
                 </button>
               </div>
             </div>
