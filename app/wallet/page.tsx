@@ -1102,6 +1102,15 @@ export default function WalletPage() {
                     <p className="text-white font-medium">{user?.email || '미등록'}</p>
                   </div>
                   <div>
+                    <label className="text-sm text-gray-400">주민등록번호</label>
+                    <p className="text-white font-medium font-mono">
+                      {user?.idNumber
+                        ? `${user.idNumber.substring(0, 6)}-${user.idNumber.substring(7, 8)}******`
+                        : '미등록'
+                      }
+                    </p>
+                  </div>
+                  <div>
                     <label className="text-sm text-gray-400">추천 코드</label>
                     <p className="text-yellow-400 font-mono font-bold text-lg">{user?.referralCode}</p>
                   </div>
