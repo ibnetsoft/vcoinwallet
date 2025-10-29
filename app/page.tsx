@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Coins, TrendingUp, Users, Wallet } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
+import CoinValueChart from '@/components/CoinValueChart'
 
 export default function HomePage() {
   const router = useRouter()
@@ -106,6 +107,11 @@ export default function HomePage() {
           </div>
         </div>
       </header>
+
+      {/* 실시간 코인 가치 차트 */}
+      <section className="container mx-auto px-4 pt-8 pb-4">
+        <CoinValueChart />
+      </section>
 
       {/* 히어로 섹션 */}
       <section className="container mx-auto px-4 py-20">

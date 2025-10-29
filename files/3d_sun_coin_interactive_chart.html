@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D SUN TECH 코인 P/E Ratio 인터랙티브 차트</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        input[type="number"] {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        input[type="number"]:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .value-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 5px;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-title {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .animation-toggle {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 3D SUN TECH 코인 가치 분석 대시보드</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="peRatio">P/E Ratio (주가수익비율)</label>
+                <input type="range" id="peRatio" min="5" max="30" step="0.5" value="10">
+                <div class="value-display" id="peValue">10</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="members">회원 수 (명)</label>
+                <input type="number" id="members" min="1000" max="1000000" step="1000" value="10000">
+            </div>
+            
+            <div class="control-group">
+                <label for="revenue">연간 매출 (억원)</label>
+                <input type="number" id="revenue" min="100" max="50000" step="100" value="10000">
+            </div>
+            
+            <div class="control-group">
+                <label for="profitMargin">순이익률 (%)</label>
+                <input type="range" id="profitMargin" min="5" max="30" step="1" value="15">
+                <div class="value-display" id="profitValue">15%</div>
+            </div>
+            
+            <div class="control-group">
+                <label for="coinShare">코인 보유자 지분 (%)</label>
+                <input type="range" id="coinShare" min="5" max="30" step="1" value="15">
+                <div class="value-display" id="shareValue">15%</div>
+            </div>
+        </div>
+
+        <div class="preset-buttons">
+            <button onclick="setPreset('conservative')">보수적 시나리오 (P/E 8)</button>
+            <button onclick="setPreset('moderate')">중립 시나리오 (P/E 12)</button>
+            <button onclick="setPreset('optimistic')">낙관적 시나리오 (P/E 15)</button>
+            <button onclick="setPreset('aggressive')">공격적 시나리오 (P/E 20)</button>
+        </div>
+
+        <div class="animation-toggle">
+            <label class="switch">
+                <input type="checkbox" id="animateToggle">
+                <span class="slider"></span>
+            </label>
+            <span>실시간 변동 시뮬레이션</span>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="coinChart"></canvas>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-title">회사 전체 가치</div>
+                <div class="stat-value" id="companyValue">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">1코인당 가치</div>
+                <div class="stat-value" id="coinValue">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">1코인당 배당액</div>
+                <div class="stat-value" id="dividendValue">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">배당 수익률</div>
+                <div class="stat-value" id="yieldValue">-</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h2>📊 시나리오별 상세 분석</h2>
+            <table id="analysisTable">
+                <thead>
+                    <tr>
+                        <th>P/E Ratio</th>
+                        <th>회사 가치</th>
+                        <th>코인 지분 가치</th>
+                        <th>1코인당 가치</th>
+                        <th>연간 배당액</th>
+                        <th>수익률</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 차트 설정
+        const ctx = document.getElementById('coinChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: '1코인당 가치 (원)',
+                        data: [],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '배당 수익률 (%)',
+                        data: [],
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    if (context.datasetIndex === 0) {
+                                        label += new Intl.NumberFormat('ko-KR').format(context.parsed.y) + '원';
+                                    } else {
+                                        label += context.parsed.y.toFixed(2) + '%';
+                                    }
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: '1코인당 가치 (원)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('ko-KR').format(value);
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: '배당 수익률 (%)'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(1) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 코인 발행량 계산 함수
+        function calculateTotalCoins(members) {
+            let totalCoins = 0;
+            
+            // 1~10,000명: 신규 500 + 추천 1,000 = 1,500코인/인
+            const first10k = Math.min(members, 10000);
+            totalCoins += first10k * 1500;
+            
+            // 10,001~20,000명: 신규 200 + 추천 400 = 600코인/인
+            if (members > 10000) {
+                const next10k = Math.min(members - 10000, 10000);
+                totalCoins += next10k * 600;
+            }
+            
+            // 20,001~100,000명: 신규 100 + 추천 200 = 300코인/인
+            if (members > 20000) {
+                const remaining = members - 20000;
+                totalCoins += remaining * 300;
+            }
+            
+            return totalCoins;
+        }
+
+        // 계산 및 업데이트 함수
+        function updateCalculations() {
+            const peRatio = parseFloat(document.getElementById('peRatio').value);
+            const members = parseInt(document.getElementById('members').value);
+            const revenue = parseFloat(document.getElementById('revenue').value) * 100000000; // 억원을 원으로 변환
+            const profitMargin = parseFloat(document.getElementById('profitMargin').value) / 100;
+            const coinShare = parseFloat(document.getElementById('coinShare').value) / 100;
+            
+            // 계산
+            const profit = revenue * profitMargin;
+            const companyValue = profit * peRatio;
+            const coinHolderValue = companyValue * coinShare;
+            const totalCoins = calculateTotalCoins(members);
+            const coinValue = coinHolderValue / totalCoins;
+            const dividendPerCoin = (profit * coinShare) / totalCoins;
+            const dividendYield = (dividendPerCoin / coinValue) * 100;
+            
+            // 화면 업데이트
+            document.getElementById('peValue').textContent = peRatio;
+            document.getElementById('profitValue').textContent = (profitMargin * 100).toFixed(0) + '%';
+            document.getElementById('shareValue').textContent = (coinShare * 100).toFixed(0) + '%';
+            
+            document.getElementById('companyValue').textContent = formatKoreanWon(companyValue);
+            document.getElementById('coinValue').textContent = Math.round(coinValue).toLocaleString('ko-KR') + '원';
+            document.getElementById('dividendValue').textContent = Math.round(dividendPerCoin).toLocaleString('ko-KR') + '원';
+            document.getElementById('yieldValue').textContent = dividendYield.toFixed(2) + '%';
+            
+            return { coinValue, dividendYield, totalCoins };
+        }
+
+        // 한국 원화 포맷팅 함수
+        function formatKoreanWon(value) {
+            if (value >= 1000000000000) {
+                return (value / 1000000000000).toFixed(1) + '조원';
+            } else if (value >= 100000000) {
+                return (value / 100000000).toFixed(0) + '억원';
+            } else {
+                return (value / 10000).toFixed(0) + '만원';
+            }
+        }
+
+        // 차트 업데이트
+        let chartData = [];
+        let maxDataPoints = 50;
+        
+        function updateChart() {
+            const result = updateCalculations();
+            const peRatio = parseFloat(document.getElementById('peRatio').value);
+            
+            // 데이터 추가
+            chartData.push({
+                pe: peRatio,
+                coinValue: result.coinValue,
+                yield: result.dividendYield
+            });
+            
+            // 최대 데이터 포인트 유지
+            if (chartData.length > maxDataPoints) {
+                chartData.shift();
+            }
+            
+            // 차트 업데이트
+            chart.data.labels = chartData.map((d, i) => `P/E ${d.pe.toFixed(1)}`);
+            chart.data.datasets[0].data = chartData.map(d => d.coinValue);
+            chart.data.datasets[1].data = chartData.map(d => d.yield);
+            chart.update();
+            
+            updateTable();
+        }
+
+        // 테이블 업데이트
+        function updateTable() {
+            const members = parseInt(document.getElementById('members').value);
+            const revenue = parseFloat(document.getElementById('revenue').value) * 100000000;
+            const profitMargin = parseFloat(document.getElementById('profitMargin').value) / 100;
+            const coinShare = parseFloat(document.getElementById('coinShare').value) / 100;
+            
+            const scenarios = [8, 10, 12, 15, 20, 25];
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            scenarios.forEach(pe => {
+                const profit = revenue * profitMargin;
+                const companyValue = profit * pe;
+                const coinHolderValue = companyValue * coinShare;
+                const totalCoins = calculateTotalCoins(members);
+                const coinValue = coinHolderValue / totalCoins;
+                const dividendPerCoin = (profit * coinShare) / totalCoins;
+                const dividendYield = (dividendPerCoin / coinValue) * 100;
+                
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${pe}</td>
+                    <td>${formatKoreanWon(companyValue)}</td>
+                    <td>${formatKoreanWon(coinHolderValue)}</td>
+                    <td>${Math.round(coinValue).toLocaleString('ko-KR')}원</td>
+                    <td>${Math.round(dividendPerCoin).toLocaleString('ko-KR')}원</td>
+                    <td>${dividendYield.toFixed(2)}%</td>
+                `;
+            });
+        }
+
+        // 프리셋 설정
+        function setPreset(type) {
+            const presets = {
+                conservative: { pe: 8, profit: 10 },
+                moderate: { pe: 12, profit: 15 },
+                optimistic: { pe: 15, profit: 20 },
+                aggressive: { pe: 20, profit: 25 }
+            };
+            
+            const preset = presets[type];
+            document.getElementById('peRatio').value = preset.pe;
+            document.getElementById('profitMargin').value = preset.profit;
+            
+            updateChart();
+        }
+
+        // 애니메이션
+        let animationInterval;
+        document.getElementById('animateToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                let direction = 1;
+                animationInterval = setInterval(() => {
+                    const peSlider = document.getElementById('peRatio');
+                    let currentPE = parseFloat(peSlider.value);
+                    
+                    // 랜덤한 변동 추가
+                    const randomChange = (Math.random() - 0.5) * 2;
+                    currentPE += randomChange;
+                    
+                    // 범위 확인
+                    if (currentPE >= 30) {
+                        currentPE = 30;
+                        direction = -1;
+                    } else if (currentPE <= 5) {
+                        currentPE = 5;
+                        direction = 1;
+                    }
+                    
+                    peSlider.value = currentPE;
+                    updateChart();
+                }, 500);
+            } else {
+                clearInterval(animationInterval);
+            }
+        });
+
+        // 이벤트 리스너
+        document.getElementById('peRatio').addEventListener('input', updateChart);
+        document.getElementById('members').addEventListener('input', updateChart);
+        document.getElementById('revenue').addEventListener('input', updateChart);
+        document.getElementById('profitMargin').addEventListener('input', updateChart);
+        document.getElementById('coinShare').addEventListener('input', updateChart);
+
+        // 초기화
+        updateChart();
+    </script>
+</body>
+</html>
