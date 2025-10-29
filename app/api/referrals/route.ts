@@ -47,7 +47,16 @@ export async function GET(request: NextRequest) {
 
     // 해당 사용자가 추천한 회원 목록 가져오기
     const allUsers = await db.getAllUsers()
+
+    // 디버깅: 현재 사용자 정보와 모든 사용자의 referrerId 확인
+    console.log('=== 추천 데이터 디버깅 ===')
+    console.log('현재 사용자 referralCode:', user.referralCode)
+    console.log('전체 사용자 수:', allUsers.length)
+    console.log('각 사용자의 referrerId:', allUsers.map(u => ({ name: u.name, referrerId: u.referrerId })))
+
     const referredUsers = allUsers.filter(u => u.referrerId === user.referralCode)
+    console.log('필터링된 추천 회원 수:', referredUsers.length)
+    console.log('=== 디버깅 끝 ===')
 
     // 가입일 기준 최신순 정렬 (최신이 먼저)
     const sortedReferredUsers = referredUsers.sort((a, b) =>

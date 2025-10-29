@@ -1236,9 +1236,21 @@ export default function WalletPage() {
             {/* 로그아웃 버튼 */}
             <button
               onClick={handleLogout}
-              className="w-full px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+              className="w-full px-4 py-3 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-semibold flex items-center justify-center space-x-2"
+              title="로그아웃"
             >
-              로그아웃
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round"/>
+                <polyline points="16 17 21 12 16 7" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="21" y1="12" x2="9" y2="12" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span>로그아웃</span>
             </button>
           </div>
         )}
