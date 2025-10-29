@@ -210,6 +210,29 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* YouTube 영상 섹션 */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-4xl font-bold text-center text-white mb-4">
+            3D 태양광 기술 소개
+          </h2>
+          <p className="text-center text-gray-400 mb-12">
+            V COIN의 혁신적인 3배 효율 태양광 발전 시스템을 영상으로 확인하세요
+          </p>
+
+          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+            <iframe
+              className="absolute top-0 left-0 w-full h-full rounded-2xl shadow-2xl border border-gray-700"
+              src="https://www.youtube.com/embed/yfh_WrfOatE"
+              title="3D 태양광 기술 소개"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+      </section>
+
       {/* CTA 섹션 */}
       {!user && (
         <section className="container mx-auto px-4 py-20">

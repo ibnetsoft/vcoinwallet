@@ -10,6 +10,7 @@ import Link from 'next/link'
 type SignupForm = {
   name: string
   phone: string
+  idNumber: string
   email?: string
   password: string
   confirmPassword: string
@@ -48,6 +49,7 @@ export default function SignupPage() {
         body: JSON.stringify({
           name: data.name,
           phone: data.phone,
+          idNumber: data.idNumber,
           email: data.email || undefined,
           password: data.password,
           referralCode: data.referralCode
@@ -157,6 +159,32 @@ export default function SignupPage() {
             </div>
             {errors.phone && (
               <p className="mt-1 text-sm text-red-400">{errors.phone.message}</p>
+            )}
+          </div>
+
+          {/* 주민등록번호 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              주민등록번호 *
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+              <input
+                type="text"
+                {...register('idNumber', {
+                  required: '주민등록번호를 입력해주세요.',
+                  pattern: {
+                    value: /^[0-9]{6}-[0-9]{7}$/,
+                    message: '올바른 주민등록번호 형식이 아닙니다. (예: 900101-1234567)'
+                  }
+                })}
+                className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-white placeholder-gray-500"
+                placeholder="900101-1234567"
+                maxLength={14}
+              />
+            </div>
+            {errors.idNumber && (
+              <p className="mt-1 text-sm text-red-400">{errors.idNumber.message}</p>
             )}
           </div>
 

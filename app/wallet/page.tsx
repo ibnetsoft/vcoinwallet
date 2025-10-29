@@ -13,7 +13,7 @@ export default function WalletPage() {
   const [isTeamLeader, setIsTeamLeader] = useState(false)
   const [teamStats, setTeamStats] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'wallet' | 'transactions' | 'referral' | 'mypage'>('wallet')
+  const [activeTab, setActiveTab] = useState<'wallet' | 'transactions' | 'referral' | 'notice' | 'mypage'>('wallet')
 
   // 알림 관련 상태
   const [notifications, setNotifications] = useState<any[]>([])
@@ -528,6 +528,23 @@ export default function WalletPage() {
           </button>
 
           <button
+            onClick={() => setActiveTab('notice')}
+            className={`px-6 py-3 font-semibold transition-colors relative ${
+              activeTab === 'notice'
+                ? 'text-yellow-400'
+                : 'text-gray-400 hover:text-gray-300'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <Bell className="w-5 h-5" />
+              <span>공지사항</span>
+            </div>
+            {activeTab === 'notice' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
+            )}
+          </button>
+
+          <button
             onClick={() => setActiveTab('mypage')}
             className={`px-6 py-3 font-semibold transition-colors relative ${
               activeTab === 'mypage'
@@ -958,6 +975,106 @@ export default function WalletPage() {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* 공지사항 탭 내용 */}
+        {activeTab === 'notice' && (
+          <div className="min-h-[800px]">
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
+              <div className="flex items-center mb-6">
+                <Bell className="w-6 h-6 text-yellow-400 mr-2" />
+                <h2 className="text-xl font-bold text-white">공지사항</h2>
+              </div>
+
+              {/* 공지사항 목록 */}
+              <div className="space-y-4">
+                {/* 공지사항 1 */}
+                <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <span className="px-3 py-1 bg-red-500/20 text-red-400 text-xs font-semibold rounded-full border border-red-500/30">
+                        중요
+                      </span>
+                      <h3 className="text-lg font-semibold text-white">V COIN 서비스 오픈 안내</h3>
+                    </div>
+                    <span className="text-sm text-gray-500">2025-01-26</span>
+                  </div>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    V COIN 3D 태양광 투자 플랫폼이 정식 오픈되었습니다.
+                    신규 회원 가입 시 증권코인 500개를 무료로 지급해드립니다.
+                  </p>
+                </div>
+
+                {/* 공지사항 2 */}
+                <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-semibold rounded-full border border-yellow-500/30">
+                        공지
+                      </span>
+                      <h3 className="text-lg font-semibold text-white">추천인 제도 안내</h3>
+                    </div>
+                    <span className="text-sm text-gray-500">2025-01-26</span>
+                  </div>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    친구를 초대하고 증권코인 1,000개를 받으세요.
+                    추천받은 친구가 배당코인을 구매하면 구매 금액의 10%를 추가 보너스로 드립니다.
+                  </p>
+                </div>
+
+                {/* 공지사항 3 */}
+                <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-semibold rounded-full border border-blue-500/30">
+                        안내
+                      </span>
+                      <h3 className="text-lg font-semibold text-white">배당코인 지급 일정 안내</h3>
+                    </div>
+                    <span className="text-sm text-gray-500">2025-01-25</span>
+                  </div>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    배당코인은 매월 15일에 정산되어 지급됩니다.
+                    100만원당 10,000개의 배당코인이 지급되며, 연 15%의 수익률이 보장됩니다.
+                  </p>
+                </div>
+
+                {/* 공지사항 4 */}
+                <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <span className="px-3 py-1 bg-green-500/20 text-green-400 text-xs font-semibold rounded-full border border-green-500/30">
+                        이벤트
+                      </span>
+                      <h3 className="text-lg font-semibold text-white">초기 회원 특별 혜택</h3>
+                    </div>
+                    <span className="text-sm text-gray-500">2025-01-24</span>
+                  </div>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    2025년 2월 말까지 가입하시는 모든 회원님께 증권코인을 추가 지급해드립니다.
+                    지금 바로 가입하고 혜택을 받아가세요!
+                  </p>
+                </div>
+
+                {/* 공지사항 5 */}
+                <div className="bg-gray-900/50 rounded-lg p-5 border border-gray-700 hover:border-yellow-500/50 transition cursor-pointer">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <span className="px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-semibold rounded-full border border-purple-500/30">
+                        업데이트
+                      </span>
+                      <h3 className="text-lg font-semibold text-white">실시간 알림 기능 추가</h3>
+                    </div>
+                    <span className="text-sm text-gray-500">2025-01-23</span>
+                  </div>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    추천한 회원이 가입하면 실시간으로 알림을 받을 수 있는 기능이 추가되었습니다.
+                    웹 브라우저의 알림 권한을 허용해주세요.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}

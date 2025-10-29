@@ -6,12 +6,12 @@ import { sendReferralSignupNotification } from '@/lib/push-notification'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, phone, email, password, referralCode } = body
+    const { name, phone, idNumber, email, password, referralCode } = body
 
     // 필수 필드 검증
-    if (!name || !phone || !password) {
+    if (!name || !phone || !idNumber || !password) {
       return NextResponse.json(
-        { error: '이름, 휴대폰 번호, 비밀번호는 필수 항목입니다.' },
+        { error: '이름, 휴대폰 번호, 주민등록번호, 비밀번호는 필수 항목입니다.' },
         { status: 400 }
       )
     }
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
     const user = await db.createUser({
       name,
       phone,
+      idNumber,
       email: email || undefined,
       password,
       referralCode

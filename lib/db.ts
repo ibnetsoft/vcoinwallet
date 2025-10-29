@@ -5,6 +5,7 @@ interface User {
   id: string
   name: string
   phone: string
+  idNumber?: string
   email?: string
   password: string
   referralCode: string
@@ -109,6 +110,7 @@ export const db = {
   async createUser(data: {
     name: string
     phone: string
+    idNumber?: string
     email?: string
     password: string
     referralCode?: string
@@ -143,6 +145,7 @@ export const db = {
       id: newUserId,
       name: data.name,
       phone: data.phone,
+      id_number: data.idNumber || null,
       email: data.email || '',
       password: data.password, // 평문 저장
       referral_code: generateReferralCode(),
@@ -686,6 +689,7 @@ function convertFromSupabaseUser(supabaseUser: any): User {
     id: supabaseUser.id,
     name: supabaseUser.name,
     phone: supabaseUser.phone,
+    idNumber: supabaseUser.id_number,
     email: supabaseUser.email,
     password: supabaseUser.password,
     referralCode: supabaseUser.referral_code,
