@@ -96,29 +96,20 @@ export default function HomePage() {
       
       {/* 헤더 */}
       <header className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3">
+          {/* 첫 번째 줄: 로고 + 아이콘들 */}
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-3">
-              <img src="/vcoin_logo.png" alt="V COIN Logo" className="w-12 h-12 object-contain" />
+              <img src="/vcoin_logo.png" alt="V COIN Logo" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
               <div>
-                <h1 className="text-2xl font-bold text-white">V COIN</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-white">V COIN</h1>
                 <p className="text-xs text-gray-400">3D SOLAR</p>
               </div>
             </div>
-            
-            <nav className="flex items-center space-x-4">
-              <button
-                onClick={() => router.push('/notices')}
-                className="px-4 py-2 text-white hover:text-yellow-400 transition"
-              >
-                공지사항
-              </button>
+
+            <nav className="flex items-center space-x-2 sm:space-x-4">
               {user ? (
                 <>
-                  <div className="text-right mr-4">
-                    <p className="text-sm text-gray-400">안녕하세요,</p>
-                    <p className="text-white font-semibold">{user.name}님</p>
-                  </div>
                   {/* 알림 벨 아이콘 */}
                   <div className="relative">
                     <button
@@ -126,7 +117,7 @@ export default function HomePage() {
                       className="p-2 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition shadow-lg"
                       title="알림"
                     >
-                      <Bell className="w-6 h-6" />
+                      <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
                       {unreadCount > 0 && (
                         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                           {unreadCount > 9 ? '9+' : unreadCount}
@@ -139,12 +130,12 @@ export default function HomePage() {
                     className="p-2 bg-yellow-500 text-gray-900 rounded-full font-semibold hover:bg-yellow-400 transition shadow-lg"
                     title="내 지갑"
                   >
-                    <Wallet className="w-6 h-6" />
+                    <Wallet className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                   {user.isAdmin && (
                     <button
                       onClick={() => router.push('/admin')}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                      className="hidden sm:block px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
                     >
                       관리자
                     </button>
@@ -155,7 +146,7 @@ export default function HomePage() {
                     title="로그아웃"
                   >
                     <svg
-                      className="w-6 h-6"
+                      className="w-5 h-5 sm:w-6 sm:h-6"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -171,13 +162,13 @@ export default function HomePage() {
                 <>
                   <button
                     onClick={() => router.push('/login')}
-                    className="px-4 py-2 text-white hover:text-yellow-400 transition"
+                    className="px-3 py-2 sm:px-4 text-sm sm:text-base text-white hover:text-yellow-400 transition"
                   >
                     로그인
                   </button>
                   <button
                     onClick={() => router.push('/signup')}
-                    className="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg font-semibold hover:bg-yellow-400 transition"
+                    className="px-3 py-2 sm:px-4 text-sm sm:text-base bg-yellow-500 text-gray-900 rounded-lg font-semibold hover:bg-yellow-400 transition"
                   >
                     회원가입
                   </button>
@@ -185,6 +176,33 @@ export default function HomePage() {
               )}
             </nav>
           </div>
+
+          {/* 두 번째 줄: 공지사항 + 사용자 이름 */}
+          {user && (
+            <div className="flex items-center justify-between text-sm">
+              <button
+                onClick={() => router.push('/notices')}
+                className="text-gray-300 hover:text-yellow-400 transition"
+              >
+                공지사항
+              </button>
+              <div className="text-gray-300">
+                안녕하세요, <span className="text-white font-semibold">{user.name}</span>님
+              </div>
+            </div>
+          )}
+
+          {/* 로그인 안한 경우 공지사항만 표시 */}
+          {!user && (
+            <div className="flex items-center justify-center text-sm">
+              <button
+                onClick={() => router.push('/notices')}
+                className="text-gray-300 hover:text-yellow-400 transition"
+              >
+                공지사항
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
