@@ -130,16 +130,10 @@ export const db = {
         .from('metadata')
         .insert({
           key: 'next_member_number',
-          value: 2,
+          value: 1,
           updated_at: new Date().toISOString()
         })
       memberNumber = 1
-    } else {
-      // 회원번호 증가
-      await supabaseAdmin
-        .from('metadata')
-        .update({ value: memberNumber + 1, updated_at: new Date().toISOString() })
-        .eq('key', 'next_member_number')
     }
 
     // 보너스 계산
@@ -177,6 +171,12 @@ export const db = {
       .single()
 
     if (error) throw new Error('사용자 생성 실패: ' + error.message)
+
+    // 사용자 생성 성공 후 회원번호 증가
+    await supabaseAdmin
+      .from('metadata')
+      .update({ value: memberNumber + 1, updated_at: new Date().toISOString() })
+      .eq('key', 'next_member_number')
 
     // 가입 보너스 거래 기록
     await supabaseAdmin.from('transactions').insert({
