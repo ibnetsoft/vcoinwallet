@@ -22,6 +22,7 @@ export default function HomePage() {
 
     if (token && userData) {
       setUser(JSON.parse(userData))
+      setIsLoading(false) // 토큰이 있으면 즉시 로딩 종료
 
       // 알림 개수 가져오기
       fetchUnreadCount(token)
@@ -33,7 +34,8 @@ export default function HomePage() {
 
       return () => clearInterval(interval)
     }
-    setIsLoading(false)
+
+    setIsLoading(false) // 토큰이 없어도 로딩 종료
 
     // 회원가입 완료 시 환영 팝업 표시
     const urlParams = new URLSearchParams(window.location.search)
