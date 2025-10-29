@@ -1914,41 +1914,6 @@ export default function AdminPage() {
                     <p className="text-red-400 font-bold">관리자</p>
                   </div>
                 </div>
-
-                {/* 데이터 수정 도구 */}
-                <div className="pt-6 border-t border-gray-700">
-                  <h3 className="text-lg font-semibold text-white mb-4">데이터 관리 도구</h3>
-
-                  <div className="space-y-4">
-                    {/* 알림 테이블 생성 */}
-                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                      <h4 className="text-blue-400 font-semibold mb-2">알림 테이블 생성</h4>
-                      <p className="text-sm text-gray-300 mb-4">
-                        공지사항 알림이 안 가는 경우, notifications 테이블을 생성합니다.
-                      </p>
-                      <button
-                        onClick={handleSetupNotifications}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-400 transition font-semibold"
-                      >
-                        알림 테이블 생성 실행
-                      </button>
-                    </div>
-
-                    {/* 추천 데이터 수정 */}
-                    <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
-                      <h4 className="text-orange-400 font-semibold mb-2">추천 데이터 수정</h4>
-                      <p className="text-sm text-gray-300 mb-4">
-                        추천 데이터가 0으로 표시되는 경우, referred_by 필드를 user ID에서 referralCode로 변경합니다.
-                      </p>
-                      <button
-                        onClick={handleFixReferralData}
-                        className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-400 transition font-semibold"
-                      >
-                        추천 데이터 수정 실행
-                      </button>
-                    </div>
-                  </div>
-                </div>
               </div>
             ) : (
               <div className="space-y-4">
