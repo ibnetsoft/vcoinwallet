@@ -110,6 +110,13 @@ export default function HomePage() {
             <nav className="flex items-center space-x-2 sm:space-x-4">
               {user ? (
                 <>
+                  {/* PC에서만 공지사항 버튼 표시 */}
+                  <button
+                    onClick={() => router.push('/notices')}
+                    className="hidden sm:block px-4 py-2 text-white hover:text-yellow-400 transition"
+                  >
+                    공지사항
+                  </button>
                   {/* 알림 벨 아이콘 */}
                   <div className="relative">
                     <button
@@ -160,6 +167,13 @@ export default function HomePage() {
                 </>
               ) : (
                 <>
+                  {/* 로그인 안한 경우 PC에서 공지사항 표시 */}
+                  <button
+                    onClick={() => router.push('/notices')}
+                    className="hidden sm:block px-4 py-2 text-white hover:text-yellow-400 transition"
+                  >
+                    공지사항
+                  </button>
                   <button
                     onClick={() => router.push('/login')}
                     className="px-3 py-2 sm:px-4 text-sm sm:text-base text-white hover:text-yellow-400 transition"
@@ -177,9 +191,9 @@ export default function HomePage() {
             </nav>
           </div>
 
-          {/* 두 번째 줄: 공지사항 + 사용자 이름 */}
+          {/* 두 번째 줄: 모바일에서만 공지사항 + 사용자 이름 */}
           {user && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex sm:hidden items-center justify-between text-sm">
               <button
                 onClick={() => router.push('/notices')}
                 className="text-gray-300 hover:text-yellow-400 transition"
@@ -192,9 +206,18 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* 로그인 안한 경우 공지사항만 표시 */}
+          {/* PC에서만 사용자 이름 표시 */}
+          {user && (
+            <div className="hidden sm:flex items-center justify-end text-sm">
+              <div className="text-gray-300">
+                안녕하세요, <span className="text-white font-semibold">{user.name}</span>님
+              </div>
+            </div>
+          )}
+
+          {/* 로그인 안한 경우 모바일에서만 공지사항 표시 */}
           {!user && (
-            <div className="flex items-center justify-center text-sm">
+            <div className="flex sm:hidden items-center justify-center text-sm">
               <button
                 onClick={() => router.push('/notices')}
                 className="text-gray-300 hover:text-yellow-400 transition"
@@ -333,7 +356,7 @@ export default function HomePage() {
           <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
             <iframe
               className="absolute top-0 left-0 w-full h-full rounded-2xl shadow-2xl border border-gray-700"
-              src="https://www.youtube.com/embed/yfh_WrfOatE"
+              src="https://www.youtube.com/embed/mJPAA9OzoPI"
               title="3D 태양광 기술 소개"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
