@@ -437,7 +437,7 @@ export default function WalletPage() {
 
                 {/* 알림 드롭다운 */}
                 {showNotifications && (
-                  <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-20 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
+                  <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-20 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto opacity-100">
                     <div className="p-4 border-b border-gray-700 flex items-center justify-between">
                       <h3 className="text-white font-semibold">알림</h3>
                       {unreadCount > 0 && (
@@ -462,7 +462,7 @@ export default function WalletPage() {
                             onClick={() => {
                               markNotificationAsRead(notification.id)
                             }}
-                            className="p-4 hover:bg-gray-700/50 cursor-pointer transition bg-gray-700/30"
+                            className="p-4 hover:bg-gray-700 cursor-pointer transition bg-gray-750"
                           >
                             <div className="flex items-start space-x-3">
                               <div className="w-2 h-2 rounded-full mt-2 bg-yellow-400"></div>
