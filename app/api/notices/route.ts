@@ -21,7 +21,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: '공지사항 조회에 실패했습니다.' }, { status: 500 })
     }
 
-    return NextResponse.json({ notices: notices || [] })
+    // PWA 캐시 방지 헤더 추가
+    return NextResponse.json(
+      { notices: notices || [] },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      }
+    )
   } catch (error) {
     console.error('공지사항 조회 오류:', error)
     return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
