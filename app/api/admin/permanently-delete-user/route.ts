@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
 import { db } from '@/lib/db'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
-const OLD_JWT_SECRET = 'your-secret-key-change-in-production'
+import { verifyToken } from '@/lib/jwt'
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,16 +13,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 })
     }
 
-    // 새 JWT_SECRET으로 시도, 실패하면 구 JWT_SECRET으로 시도
-    let payload: any
-    try {
-      payload = jwt.verify(token, JWT_SECRET) as any
-      console.log('Token verified with new secret, isAdmin:', payload.isAdmin)
-    } catch (error) {
-      console.log('New secret failed, trying old secret...')
-      payload = jwt.verify(token, OLD_JWT_SECRET) as any
-      console.log('Token verified with old secret, isAdmin:', payload.isAdmin)
-    }
+    const payload = verifyToken(token) as any
+    console.log('Token verified, isAdmin:', payload.isAdmin)
 
     if (!payload.isAdmin) {
       return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 })
