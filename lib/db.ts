@@ -492,50 +492,66 @@ export const db = {
   // 사용자 완전 삭제 (데이터베이스에서 영구 삭제)
   async permanentlyDeleteUser(userId: string): Promise<boolean> {
     const user = await this.findUserById(userId)
-    if (!user || user.role === 'ADMIN') return false
+    if (!user || user.role === 'ADMIN') {
+      console.log('Cannot delete: user not found or is admin')
+      return false
+    }
 
     try {
+      console.log('Starting permanent delete for user:', userId)
+
       // 1. 이 회원과 관련된 알림 삭제 (user_id)
-      await supabaseAdmin
+      const { error: notifError1 } = await supabaseAdmin
         .from('notifications')
         .delete()
         .eq('user_id', userId)
 
+      if (notifError1) console.log('Notification delete error 1:', notifError1)
+
       // 2. 이 회원이 related_user_id로 연결된 알림 삭제
-      await supabaseAdmin
+      const { error: notifError2 } = await supabaseAdmin
         .from('notifications')
         .delete()
         .eq('related_user_id', userId)
 
+      if (notifError2) console.log('Notification delete error 2:', notifError2)
+
       // 3. 푸시 구독 삭제
-      await supabaseAdmin
+      const { error: pushError } = await supabaseAdmin
         .from('push_subscriptions')
         .delete()
         .eq('user_id', userId)
 
+      if (pushError) console.log('Push subscription delete error:', pushError)
+
       // 4. 거래 내역 삭제
-      await supabaseAdmin
+      const { error: txError } = await supabaseAdmin
         .from('transactions')
         .delete()
         .eq('user_id', userId)
 
+      if (txError) console.log('Transaction delete error:', txError)
+
       // 5. 이 회원을 추천인으로 가진 다른 회원들의 referred_by를 null로 설정
-      await supabaseAdmin
+      const { error: refError } = await supabaseAdmin
         .from('users')
         .update({ referred_by: null })
         .eq('referred_by', user.referralCode)
 
+      if (refError) console.log('Referral update error:', refError)
+
       // 6. 사용자 삭제
-      const { error } = await supabaseAdmin
+      const { error: userError } = await supabaseAdmin
         .from('users')
         .delete()
         .eq('id', userId)
 
-      if (error) {
-        console.error('User delete error:', error)
+      if (userError) {
+        console.error('User delete error:', userError)
         return false
       }
 
+      console.log('User successfully deleted:', userId)
       return true
     } catch (error) {
       console.error('Permanently delete user error:', error)
