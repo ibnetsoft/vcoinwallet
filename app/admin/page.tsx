@@ -2375,48 +2375,12 @@ export default function AdminPage() {
                 {/* 관리 버튼 */}
                 {selectedUserDetail.role !== 'ADMIN' && (
                   <div className="border-t border-gray-700 pt-4 mt-4 space-y-3">
-                    {/* 회원 관리 기능 임시 비활성화 */}
-                    {/* {selectedUserDetail.status !== 'DELETED' && (
-                      <>
-                        {selectedUserDetail.status === 'BLOCKED' ? (
-                          <button
-                            onClick={() => handleBlockUser(selectedUserDetail.id, 'unblock')}
-                            className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition"
-                          >
-                            차단 해제
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleBlockUser(selectedUserDetail.id, 'block')}
-                            className="w-full px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition"
-                          >
-                            회원 차단
-                          </button>
-                        )}
-                      </>
-                    )}
-
-                    {selectedUserDetail.status !== 'DELETED' && (
-                      <button
-                        onClick={() => handleDeleteUser(selectedUserDetail.id)}
-                        className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition"
-                      >
-                        회원 탈퇴 처리
-                      </button>
-                    )}
-
                     <button
                       onClick={() => handlePermanentlyDeleteUser(selectedUserDetail.id)}
                       className="w-full px-4 py-3 bg-red-900 hover:bg-red-950 text-white rounded-lg font-medium transition border-2 border-red-500"
                     >
-                      ⚠️ 영구 삭제 (모든 데이터 삭제)
+                      ⚠️ 회원 영구 삭제
                     </button>
-
-                    {selectedUserDetail.status === 'DELETED' && (
-                      <div className="p-3 bg-gray-700 rounded-lg text-center text-gray-400">
-                        탈퇴 처리된 회원입니다
-                      </div>
-                    )} */}
                   </div>
                 )}
               </div>

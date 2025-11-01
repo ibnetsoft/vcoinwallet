@@ -268,7 +268,8 @@ export const db = {
 
     // 추천인에게 보너스 지급 (백분율 계산)
     if (user.referrerId) {
-      const referrer = await this.findUserById(user.referrerId)
+      // referrerId는 실제로 추천코드(referred_by)이므로 추천코드로 검색
+      const referrer = await this.findUserByReferralCode(user.referrerId)
       if (referrer) {
         const config = await this.getSystemConfig()
         // 추천받은 회원이 받은 금액의 X%를 추천인에게 지급
