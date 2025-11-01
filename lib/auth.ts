@@ -1,7 +1,5 @@
-import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+import { createToken as createJWT, verifyToken as verifyJWT } from './jwt'
 
 export interface TokenPayload {
   userId: string
@@ -18,14 +16,12 @@ export const comparePassword = async (password: string, hashedPassword: string):
 }
 
 export const createToken = (payload: TokenPayload): string => {
-  return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: '7d'
-  })
+  return createJWT(payload)
 }
 
 export const verifyToken = (token: string): TokenPayload | null => {
   try {
-    return jwt.verify(token, JWT_SECRET) as TokenPayload
+    return verifyJWT(token) as TokenPayload
   } catch (error) {
     return null
   }
