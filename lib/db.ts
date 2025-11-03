@@ -655,6 +655,8 @@ export const db = {
     if (updates.email) supabaseUpdates.email = updates.email
     if (updates.phone) supabaseUpdates.phone = updates.phone
     if (updates.password) supabaseUpdates.password = updates.password
+    if (updates.role) supabaseUpdates.role = updates.role
+    if (updates.isAdmin !== undefined) supabaseUpdates.is_admin = updates.isAdmin
 
     const { data, error } = await supabaseAdmin
       .from('users')
@@ -663,7 +665,10 @@ export const db = {
       .select()
       .single()
 
-    if (error) return null
+    if (error) {
+      console.error('Update user error:', error)
+      return null
+    }
     return convertFromSupabaseUser(data)
   },
 
