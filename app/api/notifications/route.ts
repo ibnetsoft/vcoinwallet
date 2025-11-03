@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
 import { db } from '@/lib/db'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+import { verifyToken } from '@/lib/jwt'
 
 // GET: 사용자의 알림 목록 조회
 export async function GET(request: NextRequest) {
@@ -16,7 +14,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const payload = jwt.verify(token, JWT_SECRET) as any
+    const payload = verifyToken(token) as any
     const userId = payload.userId
 
     const notifications = await db.getNotifications(userId)
@@ -47,11 +45,10 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    jwt.verify(token, JWT_SECRET)
+    const payload = verifyToken(token) as any
     const { notificationId, markAllAsRead } = await request.json()
 
     let success = false
-    const payload = jwt.verify(token, JWT_SECRET) as any
 
     if (markAllAsRead) {
       success = await db.markAllNotificationsAsRead(payload.userId)
