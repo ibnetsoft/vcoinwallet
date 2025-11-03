@@ -204,7 +204,7 @@ export default function SignupPage() {
           {/* 이메일 (선택) */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              이메일 (선택)
+              이메일 *
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
