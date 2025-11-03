@@ -4,8 +4,12 @@ import { verifyToken } from '@/lib/jwt'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== Set Role API Called ===')
+
     // Authorization 헤더에서 토큰 추출
     const authHeader = request.headers.get('authorization')
+    console.log('Auth header exists:', !!authHeader)
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
         { error: '인증 토큰이 필요합니다.' },
@@ -14,7 +18,10 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.substring(7)
+    console.log('Token extracted, length:', token.length)
+
     const decoded = verifyToken(token)
+    console.log('Token decoded:', decoded)
 
     if (!decoded) {
       return NextResponse.json(
@@ -95,10 +102,12 @@ export async function POST(request: NextRequest) {
       }
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Set role error:', error)
+    console.error('Error message:', error?.message)
+    console.error('Error stack:', error?.stack)
     return NextResponse.json(
-      { error: '등급 변경 중 오류가 발생했습니다.' },
+      { error: '등급 변경 중 오류가 발생했습니다.', details: error?.message },
       { status: 500 }
     )
   }
