@@ -449,8 +449,8 @@ export default function WalletPage() {
 
                 {/* 알림 드롭다운 */}
                 {showNotifications && (
-                  <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-20 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto opacity-100">
-                    <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+                  <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-20 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-96 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-[9999] max-h-96 overflow-y-auto">
+                    <div className="p-4 border-b border-gray-700 flex items-center justify-between bg-gray-900">
                       <h3 className="text-white font-semibold">알림</h3>
                       {unreadCount > 0 && (
                         <button
@@ -463,7 +463,7 @@ export default function WalletPage() {
                     </div>
 
                     {notifications.filter(n => !n.isRead).length === 0 ? (
-                      <div className="p-8 text-center text-gray-400">
+                      <div className="p-8 text-center text-gray-400 bg-gray-900">
                         읽지 않은 알림이 없습니다.
                       </div>
                     ) : (
@@ -474,7 +474,7 @@ export default function WalletPage() {
                             onClick={() => {
                               markNotificationAsRead(notification.id)
                             }}
-                            className="p-4 hover:bg-gray-700 cursor-pointer transition bg-gray-750"
+                            className="p-4 hover:bg-gray-800 cursor-pointer transition bg-gray-900"
                           >
                             <div className="flex items-start space-x-3">
                               <div className="w-2 h-2 rounded-full mt-2 bg-yellow-400"></div>
