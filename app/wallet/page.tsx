@@ -420,7 +420,7 @@ export default function WalletPage() {
       <Toaster position="top-center" />
       
       {/* 헤더 */}
-      <header className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+      <header className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -434,22 +434,33 @@ export default function WalletPage() {
             </div>
             <div className="flex items-center space-x-4">
               {/* 알림 아이콘 */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className="p-2 hover:bg-gray-700 rounded-lg transition relative"
-                >
-                  <Bell className="w-5 h-5 text-white" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </button>
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-2 hover:bg-gray-700 rounded-lg transition relative"
+              >
+                <Bell className="w-5 h-5 text-white" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
 
-                {/* 알림 드롭다운 */}
-                {showNotifications && (
-                  <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-20 sm:top-auto mt-0 sm:mt-2 w-auto sm:w-96 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-[9999] max-h-96 overflow-y-auto">
+      {/* 알림 드롭다운 - 헤더 밖으로 이동 */}
+      {showNotifications && (
+        <>
+          {/* 배경 오버레이 */}
+          <div
+            className="fixed inset-0 bg-black/80 z-[9998]"
+            onClick={() => setShowNotifications(false)}
+          ></div>
+
+          {/* 알림 팝업 */}
+          <div className="fixed left-4 right-4 sm:left-auto sm:right-4 top-20 w-auto sm:w-96 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-[9999] max-h-96 overflow-y-auto">
                     <div className="p-4 border-b border-gray-700 flex items-center justify-between bg-gray-900">
                       <h3 className="text-white font-semibold">알림</h3>
                       {unreadCount > 0 && (
@@ -490,19 +501,9 @@ export default function WalletPage() {
                         ))}
                       </div>
                     )}
-                  </div>
-                )}
-              </div>
-
-              {/* 회원번호 */}
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-400">회원번호:</span>
-                <span className="text-sm font-semibold text-yellow-400">#{user?.memberNumber}</span>
-              </div>
-            </div>
           </div>
-        </div>
-      </header>
+        </>
+      )}
 
       {/* 탭 메뉴 */}
       <div className="container mx-auto px-4 pt-6 max-w-4xl">
