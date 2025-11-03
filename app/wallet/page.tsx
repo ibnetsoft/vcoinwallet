@@ -14,6 +14,7 @@ export default function WalletPage() {
   const [teamStats, setTeamStats] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'wallet' | 'transactions' | 'referral' | 'notice' | 'mypage'>('wallet')
+  const [expandedReferrals, setExpandedReferrals] = useState<Set<string>>(new Set())
 
   // 알림 관련 상태
   const [notifications, setNotifications] = useState<any[]>([])
@@ -326,6 +327,16 @@ export default function WalletPage() {
       navigator.clipboard.writeText(referralUrl)
       toast.success('추천 링크가 복사되었습니다!')
     }
+  }
+
+  const toggleReferralExpand = (userId: string) => {
+    const newExpanded = new Set(expandedReferrals)
+    if (newExpanded.has(userId)) {
+      newExpanded.delete(userId)
+    } else {
+      newExpanded.add(userId)
+    }
+    setExpandedReferrals(newExpanded)
   }
 
   const shareReferralLink = () => {
@@ -934,7 +945,7 @@ export default function WalletPage() {
               </div>
             </div>
 
-            {/* 추천한 회원 목록 */}
+            {/* 추천한 회원 목록 - 트리 구조 */}
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
               <div className="flex items-center mb-6">
                 <Users className="w-6 h-6 text-yellow-400 mr-2" />
@@ -942,7 +953,7 @@ export default function WalletPage() {
               </div>
 
               {referredUsers.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {referredUsers.map((referredUser, index) => {
                     const roleLabels: Record<string, string> = {
                       'ADMIN': '관리자',
@@ -955,34 +966,104 @@ export default function WalletPage() {
                       'USER': 'bg-gray-500/20 text-gray-400'
                     }
                     const currentRole: string = referredUser.role || 'USER'
+                    const isExpanded = expandedReferrals.has(referredUser.id)
+                    const hasSubReferrals = referredUser.referrals && referredUser.referrals.length > 0
 
                     return (
-                      <div key={referredUser.id || index} className="flex items-center justify-between py-4 border-b border-gray-700 last:border-b-0">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-1">
-                            <p className="text-sm font-medium text-white">{referredUser.name}</p>
-                            <span className={`text-xs px-2 py-1 rounded ${roleColors[currentRole]}`}>
-                              {roleLabels[currentRole]}
-                            </span>
+                      <div key={referredUser.id || index} className="border border-gray-700 rounded-lg">
+                        {/* 1단계: 직접 추천한 회원 */}
+                        <div className="flex items-center justify-between p-4 bg-gray-800/30 hover:bg-gray-800/50 transition">
+                          <div className="flex items-center flex-1">
+                            {/* 펼치기/접기 버튼 */}
+                            {hasSubReferrals && (
+                              <button
+                                onClick={() => toggleReferralExpand(referredUser.id)}
+                                className="mr-2 p-1 hover:bg-gray-700 rounded transition"
+                              >
+                                {isExpanded ? (
+                                  <ChevronDown className="w-4 h-4 text-yellow-400" />
+                                ) : (
+                                  <ChevronUp className="w-4 h-4 text-gray-400" />
+                                )}
+                              </button>
+                            )}
+                            {!hasSubReferrals && <div className="w-6 mr-2"></div>}
+
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-1">
+                                <span className="text-xs text-purple-400 font-semibold">직접</span>
+                                <p className="text-sm font-medium text-white">{referredUser.name}</p>
+                                <span className={`text-xs px-2 py-1 rounded ${roleColors[currentRole]}`}>
+                                  {roleLabels[currentRole]}
+                                </span>
+                                {hasSubReferrals && (
+                                  <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded">
+                                    하위 {referredUser.referrals.length}명
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-3">
+                                <p className="text-xs text-gray-400">{referredUser.phone}</p>
+                                <p className="text-xs text-gray-500">회원번호: #{referredUser.memberNumber}</p>
+                                <p className="text-xs text-gray-500">가입일: {referredUser.createdAt}</p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-3">
-                            <p className="text-xs text-gray-400">{referredUser.phone}</p>
-                            <p className="text-xs text-gray-500">회원번호: #{referredUser.memberNumber}</p>
-                            <p className="text-xs text-gray-500">가입일: {referredUser.createdAt}</p>
+                          <div className="text-right ml-4">
+                            <div className="flex items-center space-x-4">
+                              <div>
+                                <p className="text-xs text-gray-500">증권코인</p>
+                                <p className="text-sm font-semibold text-blue-400">{referredUser.securityCoins.toLocaleString()}개</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-500">배당코인</p>
+                                <p className="text-sm font-semibold text-yellow-400">{referredUser.dividendCoins.toLocaleString()}개</p>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right ml-4">
-                          <div className="flex items-center space-x-4">
-                            <div>
-                              <p className="text-xs text-gray-500">증권코인</p>
-                              <p className="text-sm font-semibold text-blue-400">{referredUser.securityCoins.toLocaleString()}개</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-500">배당코인</p>
-                              <p className="text-sm font-semibold text-yellow-400">{referredUser.dividendCoins.toLocaleString()}개</p>
-                            </div>
+
+                        {/* 2단계: 간접 추천한 회원들 (하위 추천) */}
+                        {isExpanded && hasSubReferrals && (
+                          <div className="bg-gray-900/50 border-t border-gray-700">
+                            {referredUser.referrals.map((subUser: any, subIndex: number) => {
+                              const subRole: string = subUser.role || 'USER'
+                              return (
+                                <div key={subUser.id || subIndex} className="flex items-center justify-between p-4 pl-12 border-b border-gray-700/50 last:border-b-0 hover:bg-gray-800/30 transition">
+                                  <div className="flex items-center flex-1">
+                                    <div className="w-4 h-4 border-l-2 border-b-2 border-gray-600 mr-2"></div>
+                                    <div className="flex-1">
+                                      <div className="flex items-center space-x-3 mb-1">
+                                        <span className="text-xs text-blue-400 font-semibold">간접</span>
+                                        <p className="text-sm font-medium text-white">{subUser.name}</p>
+                                        <span className={`text-xs px-2 py-1 rounded ${roleColors[subRole]}`}>
+                                          {roleLabels[subRole]}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center space-x-3">
+                                        <p className="text-xs text-gray-400">{subUser.phone}</p>
+                                        <p className="text-xs text-gray-500">회원번호: #{subUser.memberNumber}</p>
+                                        <p className="text-xs text-gray-500">가입일: {subUser.createdAt}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="text-right ml-4">
+                                    <div className="flex items-center space-x-4">
+                                      <div>
+                                        <p className="text-xs text-gray-500">증권코인</p>
+                                        <p className="text-sm font-semibold text-blue-400">{subUser.securityCoins.toLocaleString()}개</p>
+                                      </div>
+                                      <div>
+                                        <p className="text-xs text-gray-500">배당코인</p>
+                                        <p className="text-sm font-semibold text-yellow-400">{subUser.dividendCoins.toLocaleString()}개</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            })}
                           </div>
-                        </div>
+                        )}
                       </div>
                     )
                   })}

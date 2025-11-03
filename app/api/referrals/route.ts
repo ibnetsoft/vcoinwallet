@@ -63,11 +63,23 @@ export async function GET(request: NextRequest) {
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )
 
-    // 민감한 정보 제거
-    const safeReferredUsers = sortedReferredUsers.map(({ password, ...userData }) => ({
-      ...userData,
-      createdAt: new Date(userData.createdAt).toLocaleDateString('ko-KR')
-    }))
+    // 민감한 정보 제거 + 각 회원이 추천한 회원들 추가
+    const safeReferredUsers = sortedReferredUsers.map(({ password, ...userData }) => {
+      // 이 회원이 추천한 회원들 찾기 (2단계)
+      const secondLevelReferrals = allUsers
+        .filter(u => u.referrerId === userData.referralCode)
+        .map(({ password: _, ...subUserData }) => ({
+          ...subUserData,
+          createdAt: new Date(subUserData.createdAt).toLocaleDateString('ko-KR')
+        }))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+      return {
+        ...userData,
+        createdAt: new Date(userData.createdAt).toLocaleDateString('ko-KR'),
+        referrals: secondLevelReferrals  // 2단계 추천 회원들
+      }
+    })
 
     // 팀장인 경우 산하 매출 통계 계산
     let teamStats = null
