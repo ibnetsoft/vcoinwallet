@@ -81,10 +81,11 @@ export default function WalletPage() {
 
   const fetchUserInfo = async (userId: string, token: string) => {
     try {
-      const response = await fetch(`/api/user?userId=${userId}`, {
+      const response = await fetch(`/api/user?userId=${userId}&t=${Date.now()}`, {
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        cache: 'no-store'
       })
 
       if (response.ok) {

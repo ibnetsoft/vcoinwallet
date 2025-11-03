@@ -55,10 +55,20 @@ export async function GET(request: NextRequest) {
     // 비밀번호 제외하고 반환
     const { password, ...userWithoutPassword } = user
 
-    return NextResponse.json({
-      success: true,
-      user: userWithoutPassword
-    })
+    return NextResponse.json(
+      {
+        success: true,
+        user: userWithoutPassword
+      },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'Surrogate-Control': 'no-store'
+        }
+      }
+    )
 
   } catch (error) {
     console.error('Get user error:', error)
