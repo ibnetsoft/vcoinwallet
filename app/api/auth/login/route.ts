@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { createToken } from '@/lib/auth'
+import { supabaseAdmin } from '@/lib/supabase'
+
+// IP 주소 추출 함수
+function getClientIP(request: NextRequest): string {
+  const forwarded = request.headers.get('x-forwarded-for')
+  const realIP = request.headers.get('x-real-ip')
+
+  if (forwarded) {
+    return forwarded.split(',')[0].trim()
+  }
+  if (realIP) {
+    return realIP
+  }
+  return 'unknown'
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,6 +54,26 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       )
     }
+
+    // 현재 IP 주소 가져오기
+    const currentIP = getClientIP(request)
+
+    // 기존 로그인 IP 확인 (다른 IP에서 로그인 시도 시 차단)
+    if (user.lastLoginIP && user.lastLoginIP !== currentIP && user.lastLoginIP !== 'unknown') {
+      return NextResponse.json(
+        { error: '다른 기기에서 이미 로그인되어 있습니다. 기존 세션을 종료하고 다시 시도해주세요.' },
+        { status: 403 }
+      )
+    }
+
+    // 로그인 IP와 시간 업데이트
+    await supabaseAdmin
+      .from('users')
+      .update({
+        last_login_ip: currentIP,
+        last_login_at: new Date().toISOString()
+      })
+      .eq('id', user.id)
 
     // JWT 토큰 생성
     const token = createToken({

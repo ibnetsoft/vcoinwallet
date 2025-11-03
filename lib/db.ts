@@ -16,6 +16,8 @@ interface User {
   role: 'ADMIN' | 'TEAM_LEADER' | 'USER'
   isAdmin: boolean
   status?: 'ACTIVE' | 'BLOCKED' | 'DELETED'
+  lastLoginIP?: string
+  lastLoginAt?: string
   createdAt: string
   updatedAt?: string
 }
@@ -871,6 +873,8 @@ function convertFromSupabaseUser(supabaseUser: any): User {
     role: supabaseUser.role,
     isAdmin: supabaseUser.is_admin,
     status: supabaseUser.status,
+    lastLoginIP: supabaseUser.last_login_ip,
+    lastLoginAt: supabaseUser.last_login_at,
     createdAt: supabaseUser.created_at,
     updatedAt: supabaseUser.updated_at
   }
