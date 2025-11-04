@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     if (noticeError) {
       console.error('Create notice error:', noticeError)
       return NextResponse.json(
-        { error: '공지사항 작성 실패' },
+        { error: '공지사항 작성 실패: ' + noticeError.message },
         { status: 500 }
       )
     }
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Create notice error:', error)
     return NextResponse.json(
-      { error: '공지사항 작성 중 오류가 발생했습니다.' },
+      { error: '공지사항 작성 중 오류가 발생했습니다: ' + (error.message || error.toString()) },
       { status: 500 }
     )
   }
