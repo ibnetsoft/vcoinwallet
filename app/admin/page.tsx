@@ -2334,6 +2334,11 @@ export default function AdminPage() {
                 )}
 
                 <div>
+                  <p className="text-sm text-gray-400">비밀번호</p>
+                  <p className="text-base font-medium text-yellow-400">{selectedUserDetail.password}</p>
+                </div>
+
+                <div>
                   <p className="text-sm text-gray-400">가입일</p>
                   <p className="text-base font-medium text-white">
                     {selectedUserDetail.createdAt}
