@@ -27,15 +27,15 @@ export async function GET(request: NextRequest) {
     // 모든 사용자 가져오기
     const users = await db.getAllUsers()
 
-    // 비밀번호 제거
-    const usersWithoutPassword = users.map(({ password, ...user }) => ({
+    // 관리자에게는 비밀번호 포함해서 전달
+    const usersWithFormattedDate = users.map((user) => ({
       ...user,
       createdAt: new Date(user.createdAt).toISOString().split('T')[0] // 날짜 포맷
     }))
 
     return NextResponse.json({
-      users: usersWithoutPassword,
-      total: usersWithoutPassword.length
+      users: usersWithFormattedDate,
+      total: usersWithFormattedDate.length
     })
 
   } catch (error) {
