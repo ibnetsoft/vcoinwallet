@@ -58,10 +58,10 @@ export async function POST(request: NextRequest) {
     // 현재 IP 주소 가져오기
     const currentIP = getClientIP(request)
 
-    // 기존 로그인 IP 확인 (다른 IP에서 로그인 시도 시 차단)
-    if (user.lastLoginIP && user.lastLoginIP !== currentIP && user.lastLoginIP !== 'unknown') {
+    // 관리자만 중복 로그인 방지 (다른 IP에서 로그인 시도 시 차단)
+    if (user.isAdmin && user.lastLoginIP && user.lastLoginIP !== currentIP && user.lastLoginIP !== 'unknown') {
       return NextResponse.json(
-        { error: '다른 기기에서 이미 로그인되어 있습니다. 기존 세션을 종료하고 다시 시도해주세요.' },
+        { error: '관리자 계정은 다른 기기에서 이미 로그인되어 있습니다. 기존 세션을 종료하고 다시 시도해주세요.' },
         { status: 403 }
       )
     }
