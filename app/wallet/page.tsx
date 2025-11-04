@@ -79,6 +79,41 @@ export default function WalletPage() {
     }
   }, [activeTab])
 
+  // 세션 체크 (30초마다) - 모든 유저 적용
+  useEffect(() => {
+    const checkSession = async () => {
+      const token = localStorage.getItem('token')
+
+      if (!token) return
+
+      try {
+        const response = await fetch('/api/auth/check-session', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (!response.ok) {
+          // 세션이 무효화됨 (다른 기기에서 로그인)
+          toast.error('다른 기기에서 로그인되었습니다. 다시 로그인해주세요.')
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          router.push('/login')
+        }
+      } catch (error) {
+        console.error('Session check error:', error)
+      }
+    }
+
+    // 즉시 실행
+    checkSession()
+
+    // 30초마다 실행
+    const interval = setInterval(checkSession, 30000)
+
+    return () => clearInterval(interval)
+  }, [router])
+
   const fetchUserInfo = async (userId: string, token: string) => {
     try {
       const response = await fetch(`/api/user?userId=${userId}&t=${Date.now()}`, {

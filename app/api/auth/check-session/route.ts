@@ -47,17 +47,15 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 관리자만 IP 체크
-    if (user.isAdmin) {
-      const currentIP = getClientIP(request)
+    // 모든 유저 IP 체크 (중복 로그인 방지)
+    const currentIP = getClientIP(request)
 
-      // 현재 IP와 마지막 로그인 IP가 다르면 세션 무효
-      if (user.lastLoginIP && user.lastLoginIP !== currentIP && user.lastLoginIP !== 'unknown') {
-        return NextResponse.json(
-          { valid: false, error: '다른 기기에서 로그인되었습니다.' },
-          { status: 401 }
-        )
-      }
+    // 현재 IP와 마지막 로그인 IP가 다르면 세션 무효
+    if (user.lastLoginIP && user.lastLoginIP !== currentIP && user.lastLoginIP !== 'unknown') {
+      return NextResponse.json(
+        { valid: false, error: '다른 기기에서 로그인되었습니다.' },
+        { status: 401 }
+      )
     }
 
     return NextResponse.json({
