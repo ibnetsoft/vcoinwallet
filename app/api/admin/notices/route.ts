@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
+import { verifyToken } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
 import { db } from '@/lib/db'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 
 // GET: 공지사항 목록 조회
 export async function GET(request: NextRequest) {
@@ -42,9 +40,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const payload = jwt.verify(token, JWT_SECRET) as any
+    const payload = verifyToken(token)
 
-    if (!payload.isAdmin) {
+    if (!payload || !payload.isAdmin) {
       return NextResponse.json(
         { error: '관리자 권한이 필요합니다.' },
         { status: 403 }
@@ -149,9 +147,9 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const payload = jwt.verify(token, JWT_SECRET) as any
+    const payload = verifyToken(token)
 
-    if (!payload.isAdmin) {
+    if (!payload || !payload.isAdmin) {
       return NextResponse.json(
         { error: '관리자 권한이 필요합니다.' },
         { status: 403 }
@@ -204,9 +202,9 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const payload = jwt.verify(token, JWT_SECRET) as any
+    const payload = verifyToken(token)
 
-    if (!payload.isAdmin) {
+    if (!payload || !payload.isAdmin) {
       return NextResponse.json(
         { error: '관리자 권한이 필요합니다.' },
         { status: 403 }
