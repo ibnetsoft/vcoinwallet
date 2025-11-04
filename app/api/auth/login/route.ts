@@ -58,13 +58,8 @@ export async function POST(request: NextRequest) {
     // 현재 IP 주소 가져오기
     const currentIP = getClientIP(request)
 
-    // 관리자만 중복 로그인 방지 (다른 IP에서 로그인 시도 시 차단)
-    if (user.isAdmin && user.lastLoginIP && user.lastLoginIP !== currentIP && user.lastLoginIP !== 'unknown') {
-      return NextResponse.json(
-        { error: '관리자 계정은 다른 기기에서 이미 로그인되어 있습니다. 기존 세션을 종료하고 다시 시도해주세요.' },
-        { status: 403 }
-      )
-    }
+    // 관리자는 새로운 IP에서 로그인 시 기존 세션 무효화
+    // (로그인 IP와 시간을 업데이트하면, 기존 기기에서는 세션 체크 시 자동 로그아웃됨)
 
     // 로그인 IP와 시간 업데이트
     await supabaseAdmin
