@@ -2384,8 +2384,9 @@ export default function AdminPage() {
                   <p className="text-sm text-gray-400">추천인</p>
                   <p className="text-base font-medium text-white">
                     {(() => {
-                      const referrer = users.find(u => u.id === selectedUserDetail.referrerId)
-                      return referrer ? referrer.name : '없음'
+                      // referrerId는 추천인의 추천코드를 저장하고 있음
+                      const referrer = users.find(u => u.referralCode === selectedUserDetail.referrerId)
+                      return referrer ? `${referrer.name} (회원번호: ${referrer.memberNumber})` : '없음'
                     })()}
                   </p>
                 </div>
