@@ -42,9 +42,9 @@ export const calculateSignupBonus = (memberNumber: number): { securityCoins: num
   if (memberNumber <= 10000) {
     return { securityCoins: 500, referralBonus: 1000 }
   } else if (memberNumber <= 20000) {
-    return { securityCoins: 200, referralBonus: 400 }
+    return { securityCoins: 300, referralBonus: 600 }
   } else if (memberNumber <= 100000) {
-    return { securityCoins: 100, referralBonus: 200 }
+    return { securityCoins: 200, referralBonus: 400 }
   }
-  return { securityCoins: 50, referralBonus: 100 } // 10만명 이후
+  return { securityCoins: 100, referralBonus: 200 } // 10만명 이후
 }
