@@ -2344,12 +2344,15 @@ export default function AdminPage() {
                     const teamMembers = users.filter(u => u.referrerId === teamLeader.referralCode)
                     const totalSales = teamMembers.reduce((sum, member) => sum + member.dividendCoins, 0)
 
-                    // 산하 총회원수 계산 (재귀적으로 모든 하위 회원 포함)
+                    // 산하 총회원수 계산 (하위 팀장은 포함하지만, 그 팀장의 하위는 제외)
                     const getAllSubMembers = (referralCode: string): any[] => {
                       const directMembers = users.filter(u => u.referrerId === referralCode)
                       let allMembers = [...directMembers]
                       directMembers.forEach(member => {
-                        allMembers = [...allMembers, ...getAllSubMembers(member.referralCode)]
+                        // 팀장이면 그 팀장만 포함하고, 그 팀장의 하위는 탐색하지 않음
+                        if (member.role !== 'TEAM_LEADER') {
+                          allMembers = [...allMembers, ...getAllSubMembers(member.referralCode)]
+                        }
                       })
                       return allMembers
                     }
@@ -2444,12 +2447,15 @@ export default function AdminPage() {
                   // 해당 팀장의 직추천 회원 찾기 (추천코드로)
                   const teamMembers = users.filter(u => u.referrerId === teamLeader.referralCode)
 
-                  // 산하 총회원수 계산 (재귀적으로 모든 하위 회원 포함)
+                  // 산하 총회원수 계산 (하위 팀장은 포함하지만, 그 팀장의 하위는 제외)
                   const getAllSubMembers = (referralCode: string): any[] => {
                     const directMembers = users.filter(u => u.referrerId === referralCode)
                     let allMembers = [...directMembers]
                     directMembers.forEach(member => {
-                      allMembers = [...allMembers, ...getAllSubMembers(member.referralCode)]
+                      // 팀장이면 그 팀장만 포함하고, 그 팀장의 하위는 탐색하지 않음
+                      if (member.role !== 'TEAM_LEADER') {
+                        allMembers = [...allMembers, ...getAllSubMembers(member.referralCode)]
+                      }
                     })
                     return allMembers
                   }
