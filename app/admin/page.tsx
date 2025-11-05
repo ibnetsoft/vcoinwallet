@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Users, Coins, Gift, Search, ArrowLeft, Shield, Settings, Lock, Mail, Phone, X, ArrowUpDown, Bell, RefreshCw } from 'lucide-react'
+import { Users, Coins, Gift, Search, ArrowLeft, Shield, Settings, Lock, Mail, Phone, X, ArrowUpDown, Bell, RefreshCw, Download } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
+import * as XLSX from 'xlsx'
 
 interface User {
   id: string
@@ -2326,10 +2327,88 @@ export default function AdminPage() {
         {/* 팀별 통계 탭 */}
         {activeTab === 'team-stats' && (
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 min-h-[600px]">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center">
-              <Users className="w-6 h-6 mr-2 text-yellow-400" />
-              팀장별 산하 회원 및 매출 통계
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white flex items-center">
+                <Users className="w-6 h-6 mr-2 text-yellow-400" />
+                팀장별 산하 회원 및 매출 통계
+              </h2>
+              <button
+                onClick={() => {
+                  // 엑셀 데이터 생성
+                  const excelData: any[] = []
+
+                  users.filter(u => u.role === 'TEAM_LEADER').forEach(teamLeader => {
+                    const teamMembers = users.filter(u => u.referrerId === teamLeader.referralCode)
+                    const totalSales = teamMembers.reduce((sum, member) => sum + member.dividendCoins, 0)
+
+                    // 팀장 정보 헤더
+                    excelData.push({
+                      '팀장명': teamLeader.name,
+                      '팀장 회원번호': teamLeader.memberNumber,
+                      '팀장 휴대폰': teamLeader.phone,
+                      '산하 회원 수': teamMembers.length + '명',
+                      '총 매출(배당코인)': totalSales.toLocaleString() + '개',
+                      '': '',
+                      '회원번호': '',
+                      '이름': '',
+                      '휴대폰': '',
+                      '배당코인': '',
+                      '증권코인': '',
+                      '가입일': ''
+                    })
+
+                    // 산하 회원 목록
+                    teamMembers.forEach(member => {
+                      excelData.push({
+                        '팀장명': '',
+                        '팀장 회원번호': '',
+                        '팀장 휴대폰': '',
+                        '산하 회원 수': '',
+                        '총 매출(배당코인)': '',
+                        '': '',
+                        '회원번호': member.memberNumber,
+                        '이름': member.name,
+                        '휴대폰': member.phone,
+                        '배당코인': member.dividendCoins,
+                        '증권코인': member.securityCoins,
+                        '가입일': member.createdAt
+                      })
+                    })
+
+                    // 빈 행 추가 (팀 구분)
+                    excelData.push({
+                      '팀장명': '',
+                      '팀장 회원번호': '',
+                      '팀장 휴대폰': '',
+                      '산하 회원 수': '',
+                      '총 매출(배당코인)': '',
+                      '': '',
+                      '회원번호': '',
+                      '이름': '',
+                      '휴대폰': '',
+                      '배당코인': '',
+                      '증권코인': '',
+                      '가입일': ''
+                    })
+                  })
+
+                  // 엑셀 파일 생성
+                  const worksheet = XLSX.utils.json_to_sheet(excelData)
+                  const workbook = XLSX.utils.book_new()
+                  XLSX.utils.book_append_sheet(workbook, worksheet, '팀별통계')
+
+                  // 파일 다운로드
+                  const today = new Date().toISOString().split('T')[0]
+                  XLSX.writeFile(workbook, `팀별통계_${today}.xlsx`)
+
+                  toast.success('엑셀 파일이 다운로드되었습니다!')
+                }}
+                className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
+              >
+                <Download className="w-4 h-4" />
+                <span>엑셀 다운로드</span>
+              </button>
+            </div>
 
             {/* 팀장 목록 */}
             <div className="space-y-4">
