@@ -72,6 +72,9 @@ export default function AdminPage() {
     content: ''
   })
 
+  // 팀장별 펼침/접힘 상태
+  const [expandedTeamLeaders, setExpandedTeamLeaders] = useState<Set<string>>(new Set())
+
   // 관리자 정보 수정 상태
   const [isEditingAdmin, setIsEditingAdmin] = useState(false)
   const [adminEditForm, setAdminEditForm] = useState({
@@ -2341,12 +2344,25 @@ export default function AdminPage() {
                     const teamMembers = users.filter(u => u.referrerId === teamLeader.referralCode)
                     const totalSales = teamMembers.reduce((sum, member) => sum + member.dividendCoins, 0)
 
+                    // 산하 총회원수 계산 (재귀적으로 모든 하위 회원 포함)
+                    const getAllSubMembers = (referralCode: string): any[] => {
+                      const directMembers = users.filter(u => u.referrerId === referralCode)
+                      let allMembers = [...directMembers]
+                      directMembers.forEach(member => {
+                        allMembers = [...allMembers, ...getAllSubMembers(member.referralCode)]
+                      })
+                      return allMembers
+                    }
+                    const allSubMembers = getAllSubMembers(teamLeader.referralCode)
+                    const totalSubMemberCount = allSubMembers.length
+
                     // 팀장 정보 헤더
                     excelData.push({
                       '팀장명': teamLeader.name,
                       '팀장 회원번호': teamLeader.memberNumber,
                       '팀장 휴대폰': teamLeader.phone,
-                      '산하 회원 수': teamMembers.length + '명',
+                      '산하총회원수': totalSubMemberCount + '명',
+                      '직추천한 회원': teamMembers.length + '명',
                       '총 매출(배당코인)': totalSales.toLocaleString() + '개',
                       '': '',
                       '회원번호': '',
@@ -2358,14 +2374,15 @@ export default function AdminPage() {
                       '가입일': ''
                     })
 
-                    // 산하 회원 목록
+                    // 직추천한 회원 목록
                     teamMembers.forEach(member => {
                       const referredCount = users.filter(u => u.referrerId === member.referralCode).length
                       excelData.push({
                         '팀장명': '',
                         '팀장 회원번호': '',
                         '팀장 휴대폰': '',
-                        '산하 회원 수': '',
+                        '산하총회원수': '',
+                        '직추천한 회원': '',
                         '총 매출(배당코인)': '',
                         '': '',
                         '회원번호': member.memberNumber,
@@ -2383,7 +2400,8 @@ export default function AdminPage() {
                       '팀장명': '',
                       '팀장 회원번호': '',
                       '팀장 휴대폰': '',
-                      '산하 회원 수': '',
+                      '산하총회원수': '',
+                      '직추천한 회원': '',
                       '총 매출(배당코인)': '',
                       '': '',
                       '회원번호': '',
@@ -2423,16 +2441,47 @@ export default function AdminPage() {
                 </div>
               ) : (
                 users.filter(u => u.role === 'TEAM_LEADER').map(teamLeader => {
-                  // 해당 팀장의 산하 회원 찾기 (추천코드로)
+                  // 해당 팀장의 직추천 회원 찾기 (추천코드로)
                   const teamMembers = users.filter(u => u.referrerId === teamLeader.referralCode)
+
+                  // 산하 총회원수 계산 (재귀적으로 모든 하위 회원 포함)
+                  const getAllSubMembers = (referralCode: string): any[] => {
+                    const directMembers = users.filter(u => u.referrerId === referralCode)
+                    let allMembers = [...directMembers]
+                    directMembers.forEach(member => {
+                      allMembers = [...allMembers, ...getAllSubMembers(member.referralCode)]
+                    })
+                    return allMembers
+                  }
+                  const allSubMembers = getAllSubMembers(teamLeader.referralCode)
+                  const totalSubMemberCount = allSubMembers.length
 
                   // 총 배당코인 매출
                   const totalSales = teamMembers.reduce((sum, member) => sum + member.dividendCoins, 0)
 
+                  // 펼침/접힘 상태 확인
+                  const isExpanded = expandedTeamLeaders.has(teamLeader.id)
+
+                  // 토글 함수
+                  const toggleExpand = () => {
+                    setExpandedTeamLeaders(prev => {
+                      const newSet = new Set(prev)
+                      if (newSet.has(teamLeader.id)) {
+                        newSet.delete(teamLeader.id)
+                      } else {
+                        newSet.add(teamLeader.id)
+                      }
+                      return newSet
+                    })
+                  }
+
                   return (
                     <div key={teamLeader.id} className="bg-gray-700/50 rounded-xl p-5 border border-gray-600">
-                      {/* 팀장 정보 헤더 */}
-                      <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-600">
+                      {/* 팀장 정보 헤더 (클릭 가능) */}
+                      <div
+                        className="flex items-center justify-between mb-4 pb-4 border-b border-gray-600 cursor-pointer hover:bg-gray-700/30 transition rounded-lg p-2"
+                        onClick={toggleExpand}
+                      >
                         <div className="flex items-center">
                           <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mr-4">
                             <Users className="w-6 h-6 text-yellow-400" />
@@ -2451,7 +2500,11 @@ export default function AdminPage() {
                         <div className="text-right">
                           <div className="flex items-center space-x-4">
                             <div>
-                              <p className="text-xs text-gray-400">산하 회원</p>
+                              <p className="text-xs text-gray-400">산하총회원수</p>
+                              <p className="text-2xl font-bold text-blue-400">{totalSubMemberCount}명</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-400">직추천한 회원</p>
                               <p className="text-2xl font-bold text-green-400">{teamMembers.length}명</p>
                             </div>
                             <div>
@@ -2462,14 +2515,14 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      {/* 산하 회원 리스트 */}
-                      {teamMembers.length === 0 ? (
+                      {/* 직추천 회원 리스트 (펼쳐졌을 때만 표시) */}
+                      {isExpanded && (teamMembers.length === 0 ? (
                         <div className="text-center py-8 text-gray-500">
-                          <p>산하 회원이 없습니다.</p>
+                          <p>직추천한 회원이 없습니다.</p>
                         </div>
                       ) : (
                         <div className="space-y-2">
-                          <h4 className="text-sm font-semibold text-gray-300 mb-3">산하 회원 목록</h4>
+                          <h4 className="text-sm font-semibold text-gray-300 mb-3">직추천한 회원 목록</h4>
                           <div className="bg-gray-800/50 rounded-lg overflow-hidden">
                             <table className="w-full">
                               <thead className="bg-gray-700">
@@ -2502,7 +2555,7 @@ export default function AdminPage() {
                             </table>
                           </div>
                         </div>
-                      )}
+                      ))}
                     </div>
                   )
                 })
