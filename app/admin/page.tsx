@@ -2532,12 +2532,12 @@ export default function AdminPage() {
                           <div className="bg-gray-800/50 rounded-lg overflow-hidden">
                             {/* 재귀적 회원 트리 렌더링 함수 */}
                             {(() => {
-                              const renderMemberTree = (member: User, depth: number = 0): JSX.Element[] => {
+                              const renderMemberTree = (member: User, depth: number = 0): React.ReactNode[] => {
                                 const subMembers = users.filter(u => u.referrerId === member.referralCode)
                                 const referredCount = subMembers.length
                                 const isMemberExpanded = expandedTeamLeaders.has(member.id)
 
-                                const elements: JSX.Element[] = []
+                                const elements: React.ReactNode[] = []
 
                                 // 현재 회원 행
                                 elements.push(
