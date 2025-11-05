@@ -2524,35 +2524,90 @@ export default function AdminPage() {
                         <div className="space-y-2">
                           <h4 className="text-sm font-semibold text-gray-300 mb-3">직추천한 회원 목록</h4>
                           <div className="bg-gray-800/50 rounded-lg overflow-hidden">
-                            <table className="w-full">
-                              <thead className="bg-gray-700">
-                                <tr>
-                                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">회원번호</th>
-                                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">이름</th>
-                                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">휴대폰</th>
-                                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-300">추천인수</th>
-                                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-300">배당코인</th>
-                                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-300">증권코인</th>
-                                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">가입일</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-gray-700">
-                                {teamMembers.map(member => {
-                                  const referredCount = users.filter(u => u.referrerId === member.referralCode).length
-                                  return (
-                                    <tr key={member.id} className="hover:bg-gray-700/30 transition">
-                                      <td className="px-4 py-3 text-sm text-yellow-400 font-medium">#{member.memberNumber}</td>
-                                      <td className="px-4 py-3 text-sm text-white">{member.name}</td>
-                                      <td className="px-4 py-3 text-sm text-gray-300">{member.phone}</td>
-                                      <td className="px-4 py-3 text-sm text-green-400 font-bold text-right">{referredCount}명</td>
-                                      <td className="px-4 py-3 text-sm text-yellow-400 font-bold text-right">{member.dividendCoins.toLocaleString()}개</td>
-                                      <td className="px-4 py-3 text-sm text-blue-400 font-bold text-right">{member.securityCoins.toLocaleString()}개</td>
-                                      <td className="px-4 py-3 text-sm text-gray-400">{member.createdAt}</td>
-                                    </tr>
-                                  )
-                                })}
-                              </tbody>
-                            </table>
+                            {/* 재귀적 회원 트리 렌더링 함수 */}
+                            {(() => {
+                              const renderMemberTree = (member: User, depth: number = 0): JSX.Element[] => {
+                                const subMembers = users.filter(u => u.referrerId === member.referralCode)
+                                const referredCount = subMembers.length
+                                const isMemberExpanded = expandedTeamLeaders.has(member.id)
+
+                                const elements: JSX.Element[] = []
+
+                                // 현재 회원 행
+                                elements.push(
+                                  <div
+                                    key={member.id}
+                                    className="border-b border-gray-700 hover:bg-gray-700/30 transition"
+                                    style={{ paddingLeft: `${depth * 20}px` }}
+                                  >
+                                    <div className="flex items-center px-4 py-3">
+                                      {/* 들여쓰기 표시 */}
+                                      {depth > 0 && (
+                                        <span className="text-gray-600 mr-2">{'└─'}</span>
+                                      )}
+
+                                      {/* 이름 (클릭 가능) */}
+                                      <div className="flex-1 grid grid-cols-7 gap-4 items-center">
+                                        <div className="text-sm text-yellow-400 font-medium">#{member.memberNumber}</div>
+                                        <div
+                                          className={`text-sm ${referredCount > 0 ? 'text-blue-400 cursor-pointer hover:underline' : 'text-white'}`}
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            if (referredCount > 0) {
+                                              setExpandedTeamLeaders(prev => {
+                                                const newSet = new Set(prev)
+                                                if (newSet.has(member.id)) {
+                                                  newSet.delete(member.id)
+                                                } else {
+                                                  newSet.add(member.id)
+                                                }
+                                                return newSet
+                                              })
+                                            }
+                                          }}
+                                        >
+                                          {referredCount > 0 && (isMemberExpanded ? '▼ ' : '▶ ')}
+                                          {member.name}
+                                        </div>
+                                        <div className="text-sm text-gray-300">{member.phone}</div>
+                                        <div className="text-sm text-green-400 font-bold text-right">{referredCount}명</div>
+                                        <div className="text-sm text-yellow-400 font-bold text-right">{member.dividendCoins.toLocaleString()}개</div>
+                                        <div className="text-sm text-blue-400 font-bold text-right">{member.securityCoins.toLocaleString()}개</div>
+                                        <div className="text-sm text-gray-400">{member.createdAt}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+
+                                // 하위 회원들 (펼쳐져 있을 때만)
+                                if (isMemberExpanded && subMembers.length > 0) {
+                                  subMembers.forEach(subMember => {
+                                    elements.push(...renderMemberTree(subMember, depth + 1))
+                                  })
+                                }
+
+                                return elements
+                              }
+
+                              return (
+                                <div>
+                                  {/* 헤더 */}
+                                  <div className="bg-gray-700 px-4 py-3">
+                                    <div className="grid grid-cols-7 gap-4 text-xs font-medium text-gray-300">
+                                      <div>회원번호</div>
+                                      <div>이름</div>
+                                      <div>휴대폰</div>
+                                      <div className="text-right">추천인수</div>
+                                      <div className="text-right">배당코인</div>
+                                      <div className="text-right">증권코인</div>
+                                      <div>가입일</div>
+                                    </div>
+                                  </div>
+                                  {/* 회원 트리 */}
+                                  {teamMembers.map(member => renderMemberTree(member, 0))}
+                                </div>
+                              )
+                            })()}
                           </div>
                         </div>
                       ))}
