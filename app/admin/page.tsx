@@ -2589,7 +2589,7 @@ export default function AdminPage() {
                 <div>
                   <p className="text-sm text-gray-400">추천한 인원</p>
                   <p className="text-base font-medium text-green-400">
-                    {users.filter(u => u.referrerId === selectedUserDetail.id).length}명
+                    {users.filter(u => u.referrerId === selectedUserDetail.referralCode).length}명
                   </p>
                 </div>
 
