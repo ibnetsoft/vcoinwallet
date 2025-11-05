@@ -46,7 +46,7 @@ export default function AdminPage() {
   const [roleChangeUserId, setRoleChangeUserId] = useState('')
   const [newRole, setNewRole] = useState<'USER' | 'TEAM_LEADER'>('USER')
   const [roleSearchTerm, setRoleSearchTerm] = useState('')
-  const [activeTab, setActiveTab] = useState<'users' | 'grant' | 'security-grant' | 'roles' | 'notice' | 'settings' | 'coin-settings'>('users')
+  const [activeTab, setActiveTab] = useState<'users' | 'grant' | 'security-grant' | 'roles' | 'notice' | 'settings' | 'coin-settings' | 'team-stats'>('users')
   const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'TEAM_LEADER' | 'USER'>('ALL')
   const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -1149,6 +1149,22 @@ export default function AdminPage() {
                 <span>코인지급설정</span>
               </div>
               {activeTab === 'coin-settings' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
+              )}
+            </button>
+
+            {/* 팀별 통계 탭 */}
+            <button
+              onClick={() => setActiveTab('team-stats')}
+              className={`relative px-4 py-3 rounded-lg transition font-medium ${
+                activeTab === 'team-stats' ? 'bg-gray-700 text-yellow-400' : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4" />
+                <span>팀별통계</span>
+              </div>
+              {activeTab === 'team-stats' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
               )}
             </button>
@@ -2303,6 +2319,106 @@ export default function AdminPage() {
                   <li><strong>추천인 보너스</strong>: 신규 회원을 추천한 회원이 받는 증권코인</li>
                 </ul>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 팀별 통계 탭 */}
+        {activeTab === 'team-stats' && (
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 min-h-[600px]">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center">
+              <Users className="w-6 h-6 mr-2 text-yellow-400" />
+              팀장별 산하 회원 및 매출 통계
+            </h2>
+
+            {/* 팀장 목록 */}
+            <div className="space-y-4">
+              {users.filter(u => u.role === 'TEAM_LEADER').length === 0 ? (
+                <div className="text-center py-12">
+                  <Users className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400">등록된 팀장이 없습니다.</p>
+                </div>
+              ) : (
+                users.filter(u => u.role === 'TEAM_LEADER').map(teamLeader => {
+                  // 해당 팀장의 산하 회원 찾기 (추천코드로)
+                  const teamMembers = users.filter(u => u.referrerId === teamLeader.referralCode)
+
+                  // 총 배당코인 매출
+                  const totalSales = teamMembers.reduce((sum, member) => sum + member.dividendCoins, 0)
+
+                  return (
+                    <div key={teamLeader.id} className="bg-gray-700/50 rounded-xl p-5 border border-gray-600">
+                      {/* 팀장 정보 헤더 */}
+                      <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-600">
+                        <div className="flex items-center">
+                          <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mr-4">
+                            <Users className="w-6 h-6 text-yellow-400" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-white flex items-center">
+                              {teamLeader.name}
+                              <span className="ml-2 px-2 py-1 bg-yellow-600 rounded text-xs font-semibold">팀장</span>
+                            </h3>
+                            <p className="text-sm text-gray-400">회원번호: #{teamLeader.memberNumber}</p>
+                            <p className="text-sm text-gray-400">휴대폰: {teamLeader.phone}</p>
+                          </div>
+                        </div>
+
+                        {/* 통계 요약 */}
+                        <div className="text-right">
+                          <div className="flex items-center space-x-4">
+                            <div>
+                              <p className="text-xs text-gray-400">산하 회원</p>
+                              <p className="text-2xl font-bold text-green-400">{teamMembers.length}명</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-400">총 매출 (배당코인)</p>
+                              <p className="text-2xl font-bold text-yellow-400">{totalSales.toLocaleString()}개</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 산하 회원 리스트 */}
+                      {teamMembers.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          <p>산하 회원이 없습니다.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-semibold text-gray-300 mb-3">산하 회원 목록</h4>
+                          <div className="bg-gray-800/50 rounded-lg overflow-hidden">
+                            <table className="w-full">
+                              <thead className="bg-gray-700">
+                                <tr>
+                                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">회원번호</th>
+                                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">이름</th>
+                                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">휴대폰</th>
+                                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-300">배당코인</th>
+                                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-300">증권코인</th>
+                                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">가입일</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-700">
+                                {teamMembers.map(member => (
+                                  <tr key={member.id} className="hover:bg-gray-700/30 transition">
+                                    <td className="px-4 py-3 text-sm text-yellow-400 font-medium">#{member.memberNumber}</td>
+                                    <td className="px-4 py-3 text-sm text-white">{member.name}</td>
+                                    <td className="px-4 py-3 text-sm text-gray-300">{member.phone}</td>
+                                    <td className="px-4 py-3 text-sm text-yellow-400 font-bold text-right">{member.dividendCoins.toLocaleString()}개</td>
+                                    <td className="px-4 py-3 text-sm text-blue-400 font-bold text-right">{member.securityCoins.toLocaleString()}개</td>
+                                    <td className="px-4 py-3 text-sm text-gray-400">{member.createdAt}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })
+              )}
             </div>
           </div>
         )}
