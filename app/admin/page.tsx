@@ -2352,6 +2352,7 @@ export default function AdminPage() {
                       '회원번호': '',
                       '이름': '',
                       '휴대폰': '',
+                      '추천인수': '',
                       '배당코인': '',
                       '증권코인': '',
                       '가입일': ''
@@ -2359,6 +2360,7 @@ export default function AdminPage() {
 
                     // 산하 회원 목록
                     teamMembers.forEach(member => {
+                      const referredCount = users.filter(u => u.referrerId === member.referralCode).length
                       excelData.push({
                         '팀장명': '',
                         '팀장 회원번호': '',
@@ -2369,6 +2371,7 @@ export default function AdminPage() {
                         '회원번호': member.memberNumber,
                         '이름': member.name,
                         '휴대폰': member.phone,
+                        '추천인수': referredCount,
                         '배당코인': member.dividendCoins,
                         '증권코인': member.securityCoins,
                         '가입일': member.createdAt
@@ -2386,6 +2389,7 @@ export default function AdminPage() {
                       '회원번호': '',
                       '이름': '',
                       '휴대폰': '',
+                      '추천인수': '',
                       '배당코인': '',
                       '증권코인': '',
                       '가입일': ''
@@ -2473,22 +2477,27 @@ export default function AdminPage() {
                                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">회원번호</th>
                                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">이름</th>
                                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">휴대폰</th>
+                                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-300">추천인수</th>
                                   <th className="px-4 py-3 text-right text-xs font-medium text-gray-300">배당코인</th>
                                   <th className="px-4 py-3 text-right text-xs font-medium text-gray-300">증권코인</th>
                                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-300">가입일</th>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-gray-700">
-                                {teamMembers.map(member => (
-                                  <tr key={member.id} className="hover:bg-gray-700/30 transition">
-                                    <td className="px-4 py-3 text-sm text-yellow-400 font-medium">#{member.memberNumber}</td>
-                                    <td className="px-4 py-3 text-sm text-white">{member.name}</td>
-                                    <td className="px-4 py-3 text-sm text-gray-300">{member.phone}</td>
-                                    <td className="px-4 py-3 text-sm text-yellow-400 font-bold text-right">{member.dividendCoins.toLocaleString()}개</td>
-                                    <td className="px-4 py-3 text-sm text-blue-400 font-bold text-right">{member.securityCoins.toLocaleString()}개</td>
-                                    <td className="px-4 py-3 text-sm text-gray-400">{member.createdAt}</td>
-                                  </tr>
-                                ))}
+                                {teamMembers.map(member => {
+                                  const referredCount = users.filter(u => u.referrerId === member.referralCode).length
+                                  return (
+                                    <tr key={member.id} className="hover:bg-gray-700/30 transition">
+                                      <td className="px-4 py-3 text-sm text-yellow-400 font-medium">#{member.memberNumber}</td>
+                                      <td className="px-4 py-3 text-sm text-white">{member.name}</td>
+                                      <td className="px-4 py-3 text-sm text-gray-300">{member.phone}</td>
+                                      <td className="px-4 py-3 text-sm text-green-400 font-bold text-right">{referredCount}명</td>
+                                      <td className="px-4 py-3 text-sm text-yellow-400 font-bold text-right">{member.dividendCoins.toLocaleString()}개</td>
+                                      <td className="px-4 py-3 text-sm text-blue-400 font-bold text-right">{member.securityCoins.toLocaleString()}개</td>
+                                      <td className="px-4 py-3 text-sm text-gray-400">{member.createdAt}</td>
+                                    </tr>
+                                  )
+                                })}
                               </tbody>
                             </table>
                           </div>
