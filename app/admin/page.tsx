@@ -1145,22 +1145,25 @@ export default function AdminPage() {
               )}
             </button>
 
-            <button
-              onClick={() => setActiveTab('coin-settings')}
-              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === 'coin-settings'
-                  ? 'text-yellow-400'
-                  : 'text-gray-400 hover:text-gray-300'
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <Coins className="w-4 h-4" />
-                <span>코인지급설정</span>
-              </div>
-              {activeTab === 'coin-settings' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
-              )}
-            </button>
+            {/* 부관리자(01012341234)는 코인지급설정 메뉴 숨김 */}
+            {user?.phone !== '01012341234' && (
+              <button
+                onClick={() => setActiveTab('coin-settings')}
+                className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  activeTab === 'coin-settings'
+                    ? 'text-yellow-400'
+                    : 'text-gray-400 hover:text-gray-300'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <Coins className="w-4 h-4" />
+                  <span>코인지급설정</span>
+                </div>
+                {activeTab === 'coin-settings' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
+                )}
+              </button>
+            )}
 
             {/* 팀별 통계 탭 */}
             <button
@@ -2083,8 +2086,8 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* 코인지급 설정 탭 */}
-        {activeTab === 'coin-settings' && (
+        {/* 코인지급 설정 탭 - 부관리자(01012341234)는 접근 불가 */}
+        {activeTab === 'coin-settings' && user?.phone !== '01012341234' && (
           <div className="space-y-6 min-h-[600px]">
             {/* 기본 설정 */}
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
