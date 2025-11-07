@@ -148,11 +148,9 @@ export default function AdminPage() {
 
     // 회원번호별 규칙 불러오기
     const savedRules = localStorage.getItem('memberNumberRules')
-    if (savedRules) {
-      setMemberNumberRules(JSON.parse(savedRules))
-    } else {
-      // 기본 규칙 세팅
-      const defaultRules = [
+
+    // 기본 규칙 정의 (lib/auth.ts와 동기화)
+    const defaultRules = [
         {
           id: 'default-1',
           memberNumberFrom: 1,
@@ -164,27 +162,28 @@ export default function AdminPage() {
           id: 'default-2',
           memberNumberFrom: 10001,
           memberNumberTo: 20000,
-          referralBonus: 400,
-          newMemberCoins: 200
+          referralBonus: 600,
+          newMemberCoins: 300
         },
         {
           id: 'default-3',
           memberNumberFrom: 20001,
           memberNumberTo: 100000,
-          referralBonus: 200,
-          newMemberCoins: 100
+          referralBonus: 400,
+          newMemberCoins: 200
         },
         {
           id: 'default-4',
           memberNumberFrom: 100001,
           memberNumberTo: 999999,
-          referralBonus: 100,
-          newMemberCoins: 50
+          referralBonus: 200,
+          newMemberCoins: 100
         }
       ]
-      setMemberNumberRules(defaultRules)
-      localStorage.setItem('memberNumberRules', JSON.stringify(defaultRules))
-    }
+
+    // 항상 최신 기본값으로 업데이트 (lib/auth.ts와 동기화 유지)
+    setMemberNumberRules(defaultRules)
+    localStorage.setItem('memberNumberRules', JSON.stringify(defaultRules))
 
     // 실제 사용자 목록 가져오기
     fetchUsers()
