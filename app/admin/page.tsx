@@ -1252,60 +1252,110 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentUsers.map(u => {
-                    const roleLabels: Record<string, string> = {
-                      'ADMIN': '관리자',
-                      'TEAM_LEADER': '팀장',
-                      'USER': '일반회원'
-                    }
-                    const roleColors: Record<string, string> = {
-                      'ADMIN': 'bg-red-500/20 text-red-400',
-                      'TEAM_LEADER': 'bg-blue-500/20 text-blue-400',
-                      'USER': 'bg-gray-500/20 text-gray-400'
-                    }
-                    const currentRole: string = u.role || 'USER'
+                  {(() => {
+                    // 재귀적으로 회원과 하부 추천 회원들을 렌더링하는 함수
+                    const renderUserRow = (u: User, depth: number = 0): React.ReactNode[] => {
+                      const roleLabels: Record<string, string> = {
+                        'ADMIN': '관리자',
+                        'TEAM_LEADER': '팀장',
+                        'USER': '일반회원'
+                      }
+                      const roleColors: Record<string, string> = {
+                        'ADMIN': 'bg-red-500/20 text-red-400',
+                        'TEAM_LEADER': 'bg-blue-500/20 text-blue-400',
+                        'USER': 'bg-gray-500/20 text-gray-400'
+                      }
+                      const currentRole: string = u.role || 'USER'
 
-                    // 추천인 찾기
-                    const referrer = u.referrerId ? users.find(user => user.referralCode === u.referrerId) : null
+                      // 추천인 찾기
+                      const referrer = u.referrerId ? users.find(user => user.referralCode === u.referrerId) : null
 
-                    return (
-                      <tr key={u.id} className={`border-b border-gray-700/50 hover:bg-gray-700/20 ${
-                        u.status === 'BLOCKED' ? 'opacity-60' :
-                        u.status === 'DELETED' ? 'opacity-40' : ''
-                      }`}>
-                        <td className="py-3 px-2 text-sm text-white">#{u.memberNumber}</td>
-                        <td className="py-3 px-2 text-sm text-white">
-                          <button
-                            onClick={() => handleUserClick(u)}
-                            className="text-yellow-400 hover:text-yellow-300 hover:underline transition flex items-center gap-2"
-                          >
-                            {u.name}
-                            {u.status === 'BLOCKED' && <span className="text-red-400 text-xs">🚫</span>}
-                            {u.status === 'DELETED' && <span className="text-gray-500 text-xs">❌</span>}
-                          </button>
-                        </td>
-                        <td className="py-3 px-2 text-sm text-gray-300">
-                          {referrer ? referrer.name : '-'}
-                        </td>
-                        <td className="py-3 px-2">
-                          <span className={`text-xs px-2 py-1 rounded ${roleColors[currentRole]}`}>
-                            {roleLabels[currentRole]}
-                          </span>
-                        </td>
-                        <td className="py-3 px-2 text-sm text-gray-300">{u.phone}</td>
-                        <td className="py-3 px-2">
-                          <span className="text-sm font-mono text-yellow-400">{u.referralCode}</span>
-                        </td>
-                        <td className="py-3 px-2 text-sm text-right text-blue-400">
-                          {u.securityCoins.toLocaleString()}
-                        </td>
-                        <td className="py-3 px-2 text-sm text-right text-yellow-400">
-                          {u.dividendCoins.toLocaleString()}
-                        </td>
-                        <td className="py-3 px-2 text-sm text-gray-400">{u.createdAt}</td>
-                      </tr>
-                    )
-                  })}
+                      // 이 회원이 추천한 회원들
+                      const referredMembers = users.filter(user => user.referrerId === u.referralCode)
+                      const referredCount = referredMembers.length
+                      const isExpanded = expandedTeamLeaders.has(u.id)
+
+                      const elements: React.ReactNode[] = []
+
+                      // 현재 회원 행
+                      elements.push(
+                        <tr key={u.id} className={`border-b border-gray-700/50 hover:bg-gray-700/20 ${
+                          u.status === 'BLOCKED' ? 'opacity-60' :
+                          u.status === 'DELETED' ? 'opacity-40' : ''
+                        }`}>
+                          <td className="py-3 px-2 text-sm text-white" style={{ paddingLeft: `${8 + depth * 20}px` }}>
+                            {depth > 0 && <span className="text-gray-600 mr-2">└─</span>}
+                            #{u.memberNumber}
+                          </td>
+                          <td className="py-3 px-2 text-sm">
+                            <div className="flex items-center gap-2">
+                              {/* 이름 클릭하면 하부 회원들 펼침/접힘 */}
+                              <button
+                                onClick={() => {
+                                  if (referredCount > 0) {
+                                    setExpandedTeamLeaders(prev => {
+                                      const newSet = new Set(prev)
+                                      if (newSet.has(u.id)) {
+                                        newSet.delete(u.id)
+                                      } else {
+                                        newSet.add(u.id)
+                                      }
+                                      return newSet
+                                    })
+                                  }
+                                }}
+                                className={`${referredCount > 0 ? 'text-blue-400 hover:text-blue-300' : 'text-white'} transition`}
+                              >
+                                {referredCount > 0 && (isExpanded ? '▼ ' : '▶ ')}
+                                {u.name}
+                              </button>
+                              {/* 회원 상세 정보 버튼 */}
+                              <button
+                                onClick={() => handleUserClick(u)}
+                                className="text-yellow-400 hover:text-yellow-300 text-xs"
+                                title="회원 상세 정보"
+                              >
+                                📋
+                              </button>
+                              {u.status === 'BLOCKED' && <span className="text-red-400 text-xs">🚫</span>}
+                              {u.status === 'DELETED' && <span className="text-gray-500 text-xs">❌</span>}
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 text-sm text-gray-300">
+                            {referrer ? referrer.name : '-'}
+                          </td>
+                          <td className="py-3 px-2">
+                            <span className={`text-xs px-2 py-1 rounded ${roleColors[currentRole]}`}>
+                              {roleLabels[currentRole]}
+                            </span>
+                          </td>
+                          <td className="py-3 px-2 text-sm text-gray-300">{u.phone}</td>
+                          <td className="py-3 px-2">
+                            <span className="text-sm font-mono text-yellow-400">{u.referralCode}</span>
+                          </td>
+                          <td className="py-3 px-2 text-sm text-right text-blue-400">
+                            {u.securityCoins.toLocaleString()}
+                          </td>
+                          <td className="py-3 px-2 text-sm text-right text-yellow-400">
+                            {u.dividendCoins.toLocaleString()}
+                          </td>
+                          <td className="py-3 px-2 text-sm text-gray-400">{u.createdAt}</td>
+                        </tr>
+                      )
+
+                      // 하부 추천 회원들 (펼쳐져 있을 때만)
+                      if (isExpanded && referredMembers.length > 0) {
+                        referredMembers.forEach(member => {
+                          elements.push(...renderUserRow(member, depth + 1))
+                        })
+                      }
+
+                      return elements
+                    }
+
+                    // 모든 회원을 렌더링
+                    return currentUsers.flatMap(u => renderUserRow(u, 0))
+                  })()}
                 </tbody>
               </table>
             </div>
