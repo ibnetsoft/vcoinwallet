@@ -1242,6 +1242,7 @@ export default function AdminPage() {
                   <tr className="border-b border-gray-700">
                     <th className="text-left py-3 px-2 text-sm text-gray-400">회원번호</th>
                     <th className="text-left py-3 px-2 text-sm text-gray-400">이름</th>
+                    <th className="text-left py-3 px-2 text-sm text-gray-400">추천인</th>
                     <th className="text-left py-3 px-2 text-sm text-gray-400">등급</th>
                     <th className="text-left py-3 px-2 text-sm text-gray-400">휴대폰</th>
                     <th className="text-left py-3 px-2 text-sm text-gray-400">추천코드</th>
@@ -1264,6 +1265,9 @@ export default function AdminPage() {
                     }
                     const currentRole: string = u.role || 'USER'
 
+                    // 추천인 찾기
+                    const referrer = u.referrerId ? users.find(user => user.referralCode === u.referrerId) : null
+
                     return (
                       <tr key={u.id} className={`border-b border-gray-700/50 hover:bg-gray-700/20 ${
                         u.status === 'BLOCKED' ? 'opacity-60' :
@@ -1279,6 +1283,9 @@ export default function AdminPage() {
                             {u.status === 'BLOCKED' && <span className="text-red-400 text-xs">🚫</span>}
                             {u.status === 'DELETED' && <span className="text-gray-500 text-xs">❌</span>}
                           </button>
+                        </td>
+                        <td className="py-3 px-2 text-sm text-gray-300">
+                          {referrer ? referrer.name : '-'}
                         </td>
                         <td className="py-3 px-2">
                           <span className={`text-xs px-2 py-1 rounded ${roleColors[currentRole]}`}>
