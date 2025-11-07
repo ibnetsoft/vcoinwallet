@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { verifyToken } from '@/lib/auth'
 
+// Next.js 캐싱 완전 비활성화
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(request: NextRequest) {
   try {
     // Authorization 헤더에서 토큰 추출
@@ -36,6 +40,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       users: usersWithFormattedDate,
       total: usersWithFormattedDate.length
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     })
 
   } catch (error) {

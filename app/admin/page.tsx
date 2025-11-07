@@ -240,10 +240,16 @@ export default function AdminPage() {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('/api/admin/users', {
+      // 타임스탬프를 쿼리 파라미터로 추가하여 캐시 우회
+      const timestamp = new Date().getTime()
+      const response = await fetch(`/api/admin/users?_t=${timestamp}`, {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        },
+        cache: 'no-store'
       })
 
       if (response.ok) {
