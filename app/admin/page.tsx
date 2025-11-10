@@ -986,7 +986,7 @@ export default function AdminPage() {
                     </span>
                   )}
                 </p>
-                <p className="text-2xl font-bold text-white">{periodFilteredUsers.length}명</p>
+                <p className="text-2xl font-bold text-white">{periodFilter === 'all' ? users.length : periodFilteredUsers.length}명</p>
               </div>
               <Users className="w-8 h-8 text-blue-400" />
             </div>
@@ -1006,7 +1006,7 @@ export default function AdminPage() {
                   )}
                 </p>
                 <p className="text-2xl font-bold text-white">
-                  {periodFilteredUsers.reduce((sum, u) => sum + u.securityCoins, 0).toLocaleString()}개
+                  {(periodFilter === 'all' ? users : periodFilteredUsers).reduce((sum, u) => sum + u.securityCoins, 0).toLocaleString()}개
                 </p>
               </div>
               <Coins className="w-8 h-8 text-blue-400" />
@@ -1027,7 +1027,7 @@ export default function AdminPage() {
                   )}
                 </p>
                 <p className="text-2xl font-bold text-white">
-                  {periodFilteredUsers.reduce((sum, u) => sum + u.dividendCoins, 0).toLocaleString()}개
+                  {(periodFilter === 'all' ? users : periodFilteredUsers).reduce((sum, u) => sum + u.dividendCoins, 0).toLocaleString()}개
                 </p>
               </div>
               <Coins className="w-8 h-8 text-yellow-400" />
