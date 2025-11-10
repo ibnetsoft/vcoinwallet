@@ -24,13 +24,13 @@ export default function PrivacyConsentModal({ isOpen, onClose }: PrivacyConsentM
         <div className="p-6 overflow-y-auto flex-1">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 text-sm text-gray-700 leading-relaxed">
             <p className="mb-2">
-              • 빅데이터뱅크 주식회사가 처리하는 모든 「개인정보보호법」과 「정보통신망 이용촉진 및 정보보호 등에 관한 법률」 등 정보통신서비스제공자가 준수하여야 할 관련 법령상의 개인정보보호 규정을 준수하며, 관련 법령에 의거한 개인정보 취급방침을 정하여 이용자 권익 보호에 최선을 다하고 있습니다.
+              • 쓰리디썬 테크 주식회사가 처리하는 모든 개인정보는「개인정보 보호법」등 관련 법령상의 개인정보 보호 규정을 준수하며, 공공업무의 적절한 수행과 이용자의 개인정보 보호 및 권익보호 등 적법하고 적정하게 취급하기 위해 최선을 다하고 있습니다.
             </p>
             <p className="mb-2">
-              • 빅데이터뱅크 주식회사 (이하 '회사'라 함)는 정보통신망이용촉진 및 정보보호 등에 관한 법률, 개인정보보호법, 통신비밀보호법, 전기통신사업법 등의 법령상 개인정보 보호 규정을 준수하며 귀하의 개인정보 보호에 최선을 다하고 있습니다.
+              • 쓰리디썬 테크 주식회사 (이하 '회사'라 함)은 「개인정보보호법」, 「신용정보의 이용 및 보호에 관한 법률」, 「특정 금융거래정보의 보고 및 이용 등에 관한 법률」에 따라 귀하의 개인(신용)정보를 수집·이용하기 위해 다음과 같이 동의를 받고자 합니다.
             </p>
             <p>
-              본 약관은 개인정보 수집·이용에 관한 동의를 거부할 권리가 있습니다. 다만, 동의 거부 시 회원가입, 상품 거래 등의 이용, 경품의 자발 환불 처리 등이 불가능할 수 있습니다.
+              ※ 귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다. 단, 동의 거부 시 회원가입, 금융 거래 서비스 이용, 디지털 자산 반환 처리 등이 불가할 수 있습니다.
             </p>
           </div>
 
@@ -39,8 +39,8 @@ export default function PrivacyConsentModal({ isOpen, onClose }: PrivacyConsentM
 
             <div className="mb-4">
               <p className="font-semibold text-gray-900 mb-2">1. 개인정보 수집·이용 목적</p>
-              <p className="text-sm text-gray-700 ml-4">- 이메일 및 문자메시지 발송 등을 통한 안내</p>
-              <p className="text-sm text-gray-700 ml-4">- 거래현황 확인 및 잔액 조회 확인 등</p>
+              <p className="text-sm text-gray-700 ml-4">- 이메일 및 문자메세지 발송 등의 각종 안내</p>
+              <p className="text-sm text-gray-700 ml-4">- 코인현황 지급 및 수정 조회 확인 등</p>
             </div>
 
             <div className="mb-4">
@@ -62,19 +62,19 @@ export default function PrivacyConsentModal({ isOpen, onClose }: PrivacyConsentM
                 <tbody>
                   <tr>
                     <td className="border border-gray-300 px-4 py-2 align-top">
-                      - 전금등 부정 차입자의 환불 처리 및 채권 추심 필요 시 송달 주소 확인<br/>
-                      - 전금등 차입 확인<br/>
-                      - 수입자금이용대금 보호 등 관련 규정, 특정 금융거래정보법 관련 및 이용 등에 관련 자금의 관련법에 관련 의견 제공
+                      - 송금한 가상 자산의 반환 처리 및 관련 문의 대응 등 제반 업무 이행<br/>
+                      - 송금인 신원 확인<br/>
+                      - 가상자산이용자 보호 등에 관한 법률, 특정금융거래정보의 보고 및 이용등에 관한 법률 및 관계 법령에 따른 의무 이행
                     </td>
                     <td className="border border-gray-300 px-4 py-2 align-top">
                       □ 성명(한글)<br/>
                       □ 주민등록번호 (앞 6자리 및 뒷자리 첫째자리)<br/>
                       □ 주소<br/>
-                      □ 연락처(휴대전화, 휴대전화번호, E-mail)
+                      □ 연락처(유선전화, 휴대전화번호, E-mail)
                     </td>
                     <td className="border border-gray-300 px-4 py-2 align-top">
                       - 회원탈퇴 후 5년<br/>
-                      - 단, 관련 법령에 의한 보유 의견이 있는 경우 해당 기간까지 보유 후 삭제
+                      - 단, 관련 법령에 의한 보유 의견이 있는 경우 해당 기간까지 보존 후 파기
                     </td>
                   </tr>
                 </tbody>
