@@ -906,6 +906,27 @@ function convertFromSupabaseUser(supabaseUser: any): User {
   }
 }
 
+  // 회원 정보 업데이트 (관리자용)
+  async updateUserInfo(userId: string, updates: { phone?: string; idNumber?: string }): Promise<boolean> {
+    const updateData: any = {}
+
+    if (updates.phone !== undefined) {
+      updateData.phone = updates.phone
+    }
+
+    if (updates.idNumber !== undefined) {
+      updateData.id_number = updates.idNumber
+    }
+
+    const { error } = await supabaseAdmin
+      .from('users')
+      .update(updateData)
+      .eq('id', userId)
+
+    return !error
+  }
+}
+
 function convertFromSupabaseTransaction(supabaseTx: any): Transaction {
   return {
     id: supabaseTx.id,

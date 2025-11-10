@@ -53,6 +53,13 @@ export default function AdminPage() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
+  // 회원 정보 수정 상태
+  const [isEditingUserInfo, setIsEditingUserInfo] = useState(false)
+  const [userEditForm, setUserEditForm] = useState({
+    phone: '',
+    idNumber: ''
+  })
+
   // 페이지네이션
   const [currentPage, setCurrentPage] = useState(1)
   const usersPerPage = 30
@@ -547,11 +554,53 @@ export default function AdminPage() {
   const handleUserClick = (selectedUser: any) => {
     setSelectedUserDetail(selectedUser)
     setIsDetailModalOpen(true)
+    setIsEditingUserInfo(false)
+    setUserEditForm({
+      phone: selectedUser.phone || '',
+      idNumber: selectedUser.idNumber || ''
+    })
   }
 
   const closeDetailModal = () => {
     setIsDetailModalOpen(false)
     setSelectedUserDetail(null)
+    setIsEditingUserInfo(false)
+  }
+
+  const handleUpdateUserInfo = async () => {
+    if (!selectedUserDetail) return
+
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch(`/api/admin/users/${selectedUserDetail.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          phone: userEditForm.phone,
+          idNumber: userEditForm.idNumber
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || '회원 정보 수정 실패')
+      }
+
+      toast.success('회원 정보가 수정되었습니다')
+      setIsEditingUserInfo(false)
+
+      // 회원 목록 새로고침
+      await fetchUsers()
+
+      // 상세 정보 업데이트
+      const updatedUser = { ...selectedUserDetail, ...userEditForm }
+      setSelectedUserDetail(updatedUser)
+    } catch (error: any) {
+      toast.error(error.message || '회원 정보 수정 중 오류가 발생했습니다')
+    }
   }
 
   const handleBlockUser = async (userId: string, action: 'block' | 'unblock') => {
@@ -2748,12 +2797,31 @@ export default function AdminPage() {
 
                 <div className="border-t border-gray-700 pt-4">
                   <p className="text-sm text-gray-400">휴대폰</p>
-                  <p className="text-base font-medium text-white">{selectedUserDetail.phone}</p>
+                  {isEditingUserInfo ? (
+                    <input
+                      type="text"
+                      value={userEditForm.phone}
+                      onChange={(e) => setUserEditForm({ ...userEditForm, phone: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                      placeholder="01012345678"
+                    />
+                  ) : (
+                    <p className="text-base font-medium text-white">{selectedUserDetail.phone}</p>
+                  )}
                 </div>
 
-                {selectedUserDetail.idNumber && (
-                  <div>
-                    <p className="text-sm text-gray-400">주민등록번호</p>
+                <div>
+                  <p className="text-sm text-gray-400">주민등록번호</p>
+                  {isEditingUserInfo ? (
+                    <input
+                      type="text"
+                      value={userEditForm.idNumber}
+                      onChange={(e) => setUserEditForm({ ...userEditForm, idNumber: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                      placeholder="900101-1"
+                      maxLength={8}
+                    />
+                  ) : selectedUserDetail.idNumber ? (
                     <p className="text-base font-medium text-white">
                       {(() => {
                         const idNum = selectedUserDetail.idNumber
@@ -2765,8 +2833,10 @@ export default function AdminPage() {
                         return idNum
                       })()}
                     </p>
-                  </div>
-                )}
+                  ) : (
+                    <p className="text-base font-medium text-gray-500">없음</p>
+                  )}
+                </div>
 
                 <div>
                   <p className="text-sm text-gray-400">비밀번호</p>
@@ -2816,6 +2886,37 @@ export default function AdminPage() {
                 {/* 관리 버튼 */}
                 {selectedUserDetail.role !== 'ADMIN' && (
                   <div className="border-t border-gray-700 pt-4 mt-4 space-y-3">
+                    {/* 회원 정보 수정 버튼 */}
+                    {isEditingUserInfo ? (
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={handleUpdateUserInfo}
+                          className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
+                        >
+                          💾 저장
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsEditingUserInfo(false)
+                            setUserEditForm({
+                              phone: selectedUserDetail.phone || '',
+                              idNumber: selectedUserDetail.idNumber || ''
+                            })
+                          }}
+                          className="flex-1 px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition"
+                        >
+                          ❌ 취소
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setIsEditingUserInfo(true)}
+                        className="w-full px-4 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition"
+                      >
+                        ✏️ 회원 정보 수정
+                      </button>
+                    )}
+
                     <button
                       onClick={() => handlePermanentlyDeleteUser(selectedUserDetail.id)}
                       className="w-full px-4 py-3 bg-red-900 hover:bg-red-950 text-white rounded-lg font-medium transition border-2 border-red-500"
