@@ -2754,7 +2754,17 @@ export default function AdminPage() {
                 {selectedUserDetail.idNumber && (
                   <div>
                     <p className="text-sm text-gray-400">주민등록번호</p>
-                    <p className="text-base font-medium text-white">{selectedUserDetail.idNumber}</p>
+                    <p className="text-base font-medium text-white">
+                      {(() => {
+                        const idNum = selectedUserDetail.idNumber
+                        const parts = idNum.split('-')
+                        if (parts.length === 2 && parts[1].length > 0) {
+                          // 뒷자리 첫째 자리만 표시 (나머지는 * 처리)
+                          return `${parts[0]}-${parts[1][0]}******`
+                        }
+                        return idNum
+                      })()}
+                    </p>
                   </div>
                 )}
 
