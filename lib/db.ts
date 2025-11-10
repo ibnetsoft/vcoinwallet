@@ -410,10 +410,12 @@ export const db = {
 
   // 모든 사용자 조회
   async getAllUsers(): Promise<User[]> {
-    const { data, error } = await supabaseAdmin
+    // Supabase 기본 제한(1000개)을 넘어서 모든 데이터를 가져오기 위해 range 사용
+    const { data, error, count } = await supabaseAdmin
       .from('users')
-      .select('*')
+      .select('*', { count: 'exact' })
       .order('member_number', { ascending: true })
+      .range(0, 100000) // 충분히 큰 범위 설정
 
     if (error) return []
     return data.map(convertFromSupabaseUser)
