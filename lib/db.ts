@@ -416,12 +416,16 @@ export const db = {
     const pageSize = 1000
     let hasMore = true
 
+    console.log('🔍 getAllUsers() started')
+
     while (hasMore) {
       const { data, error } = await supabaseAdmin
         .from('users')
         .select('*')
         .order('member_number', { ascending: true })
         .range(page * pageSize, (page + 1) * pageSize - 1)
+
+      console.log(`🔍 Page ${page}: fetched ${data?.length || 0} users, range: ${page * pageSize}-${(page + 1) * pageSize - 1}`)
 
       if (error) {
         console.error('Error fetching users:', error)
@@ -437,6 +441,7 @@ export const db = {
       }
     }
 
+    console.log('🔍 getAllUsers() completed - Total users:', allUsers.length)
     return allUsers.map(convertFromSupabaseUser)
   },
 
