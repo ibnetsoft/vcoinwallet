@@ -413,7 +413,7 @@ export const db = {
     const { data, error } = await supabaseAdmin
       .from('users')
       .select('*')
-      .order('created_at', { ascending: false })
+      .order('member_number', { ascending: true })
 
     if (error) return []
     return data.map(convertFromSupabaseUser)
