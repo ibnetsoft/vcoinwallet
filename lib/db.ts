@@ -880,6 +880,26 @@ export const db = {
       return []
     }
   },
+
+  // 회원 정보 업데이트 (관리자용)
+  async updateUserInfo(userId: string, updates: { phone?: string; idNumber?: string }): Promise<boolean> {
+    const updateData: any = {}
+
+    if (updates.phone !== undefined) {
+      updateData.phone = updates.phone
+    }
+
+    if (updates.idNumber !== undefined) {
+      updateData.id_number = updates.idNumber
+    }
+
+    const { error } = await supabaseAdmin
+      .from('users')
+      .update(updateData)
+      .eq('id', userId)
+
+    return !error
+  }
 }
 
 // Supabase 스네이크 케이스를 카멜 케이스로 변환
@@ -903,27 +923,6 @@ function convertFromSupabaseUser(supabaseUser: any): User {
     lastLoginAt: supabaseUser.last_login_at,
     createdAt: supabaseUser.created_at,
     updatedAt: supabaseUser.updated_at
-  }
-}
-
-  // 회원 정보 업데이트 (관리자용)
-  async updateUserInfo(userId: string, updates: { phone?: string; idNumber?: string }): Promise<boolean> {
-    const updateData: any = {}
-
-    if (updates.phone !== undefined) {
-      updateData.phone = updates.phone
-    }
-
-    if (updates.idNumber !== undefined) {
-      updateData.id_number = updates.idNumber
-    }
-
-    const { error } = await supabaseAdmin
-      .from('users')
-      .update(updateData)
-      .eq('id', userId)
-
-    return !error
   }
 }
 
