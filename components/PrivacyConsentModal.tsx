@@ -51,28 +51,28 @@ export default function PrivacyConsentModal({ isOpen, onClose }: PrivacyConsentM
             <div className="mb-4">
               <p className="font-semibold text-gray-900 mb-2">3. 개인(민감)정보 수집·이용 기간 (필수)</p>
 
-              <table className="w-full border-collapse border border-gray-300 text-sm mt-2">
+              <table className="w-full border-collapse border border-gray-800 text-sm mt-2">
                 <thead>
                   <tr className="bg-gray-50">
-                    <th className="border border-gray-300 px-4 py-2 text-left">수집·이용 목적</th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">수집하는 개인(민감)정보의 항목</th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">보유 및 이용기간</th>
+                    <th className="border border-gray-800 px-4 py-2 text-left">수집·이용 목적</th>
+                    <th className="border border-gray-800 px-4 py-2 text-left">수집하는 개인(민감)정보의 항목</th>
+                    <th className="border border-gray-800 px-4 py-2 text-left">보유 및 이용기간</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="border border-gray-300 px-4 py-2 align-top">
+                    <td className="border border-gray-800 px-4 py-2 align-top">
                       - 송금한 가상 자산의 반환 처리 및 관련 문의 대응 등 제반 업무 이행<br/>
                       - 송금인 신원 확인<br/>
                       - 가상자산이용자 보호 등에 관한 법률, 특정금융거래정보의 보고 및 이용등에 관한 법률 및 관계 법령에 따른 의무 이행
                     </td>
-                    <td className="border border-gray-300 px-4 py-2 align-top">
+                    <td className="border border-gray-800 px-4 py-2 align-top">
                       □ 성명(한글)<br/>
                       □ 주민등록번호 (앞 6자리 및 뒷자리 첫째자리)<br/>
                       □ 주소<br/>
                       □ 연락처(유선전화, 휴대전화번호, E-mail)
                     </td>
-                    <td className="border border-gray-300 px-4 py-2 align-top">
+                    <td className="border border-gray-800 px-4 py-2 align-top">
                       - 회원탈퇴 후 5년<br/>
                       - 단, 관련 법령에 의한 보유 의견이 있는 경우 해당 기간까지 보존 후 파기
                     </td>
