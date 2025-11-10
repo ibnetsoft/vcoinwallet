@@ -410,15 +410,34 @@ export const db = {
 
   // 모든 사용자 조회
   async getAllUsers(): Promise<User[]> {
-    // Supabase 기본 제한(1000개)을 넘어서 모든 데이터를 가져오기 위해 range 사용
-    const { data, error, count } = await supabaseAdmin
-      .from('users')
-      .select('*', { count: 'exact' })
-      .order('member_number', { ascending: true })
-      .range(0, 100000) // 충분히 큰 범위 설정
+    // Supabase 기본 제한(1000개)을 넘어서 모든 데이터를 가져오기
+    let allUsers: any[] = []
+    let page = 0
+    const pageSize = 1000
+    let hasMore = true
 
-    if (error) return []
-    return data.map(convertFromSupabaseUser)
+    while (hasMore) {
+      const { data, error } = await supabaseAdmin
+        .from('users')
+        .select('*')
+        .order('member_number', { ascending: true })
+        .range(page * pageSize, (page + 1) * pageSize - 1)
+
+      if (error) {
+        console.error('Error fetching users:', error)
+        break
+      }
+
+      if (data && data.length > 0) {
+        allUsers = [...allUsers, ...data]
+        hasMore = data.length === pageSize
+        page++
+      } else {
+        hasMore = false
+      }
+    }
+
+    return allUsers.map(convertFromSupabaseUser)
   },
 
   // 거래 내역 조회
