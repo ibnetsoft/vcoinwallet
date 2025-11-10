@@ -253,6 +253,7 @@ export default function AdminPage() {
 
       if (response.ok) {
         const data = await response.json()
+        console.log('🔍 API Response - Total users from API:', data.users?.length)
         setUsers(data.users || [])
       }
     } catch (error) {
@@ -986,7 +987,13 @@ export default function AdminPage() {
                     </span>
                   )}
                 </p>
-                <p className="text-2xl font-bold text-white">{periodFilter === 'all' ? users.length : periodFilteredUsers.length}명</p>
+                <p className="text-2xl font-bold text-white">
+                  {(() => {
+                    const count = periodFilter === 'all' ? users.length : periodFilteredUsers.length
+                    console.log('🔍 Display Count - periodFilter:', periodFilter, 'users.length:', users.length, 'periodFilteredUsers.length:', periodFilteredUsers.length, 'showing:', count)
+                    return count
+                  })()}명
+                </p>
               </div>
               <Users className="w-8 h-8 text-blue-400" />
             </div>
