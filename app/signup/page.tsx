@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { UserPlus, Mail, Lock, User, Phone, Gift } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import Link from 'next/link'
+import PrivacyConsentModal from '@/components/PrivacyConsentModal'
 
 type SignupForm = {
   name: string
@@ -20,6 +21,8 @@ type SignupForm = {
 export default function SignupPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false)
+  const [isPrivacyConsented, setIsPrivacyConsented] = useState(false)
   const {
     register,
     handleSubmit,
@@ -291,10 +294,33 @@ export default function SignupPage() {
             </p>
           </div>
 
+          {/* 개인정보 수집/이용 동의 */}
+          <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+            <div className="flex items-start">
+              <input
+                type="checkbox"
+                id="privacyConsent"
+                checked={isPrivacyConsented}
+                onChange={(e) => setIsPrivacyConsented(e.target.checked)}
+                className="mt-1 w-4 h-4 text-yellow-500 bg-gray-700 border-gray-600 rounded focus:ring-yellow-500 focus:ring-2"
+              />
+              <label htmlFor="privacyConsent" className="ml-3 text-sm text-gray-300">
+                <span className="font-medium text-white">[필수]</span> 개인정보 수집 및 이용에 동의합니다.{' '}
+                <button
+                  type="button"
+                  onClick={() => setIsPrivacyModalOpen(true)}
+                  className="text-yellow-400 hover:text-yellow-300 underline font-medium"
+                >
+                  자세히 보기
+                </button>
+              </label>
+            </div>
+          </div>
+
           {/* 가입 버튼 */}
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || !isPrivacyConsented}
             className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 font-semibold rounded-lg hover:from-yellow-400 hover:to-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             {isLoading ? (
@@ -324,6 +350,12 @@ export default function SignupPage() {
           </p>
         </div>
       </div>
+
+      {/* 개인정보 수집 동의서 팝업 */}
+      <PrivacyConsentModal
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
+      />
     </div>
   )
 }
