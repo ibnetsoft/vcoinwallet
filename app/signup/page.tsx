@@ -40,12 +40,12 @@ export default function SignupPage() {
     }
   }, [setValue])
 
-  // 주민번호 자동 포맷팅 (6자리 입력 시 자동으로 - 추가)
+  // 주민번호 자동 포맷팅 (6자리 입력 시 자동으로 - 추가, 뒷자리는 1자리만)
   const handleIdNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/[^0-9]/g, '') // 숫자만 추출
 
     if (value.length > 6) {
-      value = value.slice(0, 6) + '-' + value.slice(6, 13)
+      value = value.slice(0, 6) + '-' + value.slice(6, 7) // 뒷자리 1자리만
     }
 
     setValue('idNumber', value)
@@ -186,14 +186,14 @@ export default function SignupPage() {
                 {...register('idNumber', {
                   required: '주민등록번호를 입력해주세요.',
                   pattern: {
-                    value: /^[0-9]{6}-[0-9]{7}$/,
-                    message: '올바른 주민등록번호 형식이 아닙니다. (예: 900101-1234567)'
+                    value: /^[0-9]{6}-[0-9]{1}$/,
+                    message: '올바른 주민등록번호 형식이 아닙니다. (예: 900101-1)'
                   }
                 })}
                 onChange={handleIdNumberChange}
                 className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-white placeholder-gray-500"
-                placeholder="900101-1234567"
-                maxLength={14}
+                placeholder="900101-1"
+                maxLength={8}
               />
             </div>
             {errors.idNumber && (
