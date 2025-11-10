@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization')
@@ -14,11 +14,12 @@ export async function PATCH(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
     const { phone, idNumber } = body
 
     // 회원 정보 업데이트
-    const success = await db.updateUserInfo(params.id, { phone, idNumber })
+    const success = await db.updateUserInfo(id, { phone, idNumber })
 
     if (!success) {
       return NextResponse.json(
