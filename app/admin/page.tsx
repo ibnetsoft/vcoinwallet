@@ -1323,11 +1323,13 @@ export default function AdminPage() {
                       }
                       const currentRole: string = u.role || 'USER'
 
-                      // 추천인 찾기
-                      const referrer = u.referrerId ? users.find(user => user.id === u.referrerId) : null
+                      // 추천인 찾기 (referrerId는 USER ID 또는 추천코드일 수 있음)
+                      const referrer = u.referrerId
+                        ? users.find(user => user.id === u.referrerId || user.referralCode === u.referrerId)
+                        : null
 
-                      // 이 회원이 추천한 회원들
-                      const referredMembers = users.filter(user => user.referrerId === u.id)
+                      // 이 회원이 추천한 회원들 (referrerId가 USER ID 또는 추천코드일 수 있음)
+                      const referredMembers = users.filter(user => user.referrerId === u.id || user.referrerId === u.referralCode)
                       const referredCount = referredMembers.length
                       const isExpanded = expandedTeamLeaders.has(u.id)
 
@@ -1567,8 +1569,11 @@ export default function AdminPage() {
                 'USER': '일반회원'
               }
               const currentRole: string = selectedUser.role || 'USER'
-              const referrer = users.find(u => u.id === selectedUser.referrerId)
-              const referredCount = users.filter(u => u.referrerId === selectedUser.id).length
+              // referrerId는 USER ID 또는 추천코드일 수 있음
+              const referrer = selectedUser.referrerId
+                ? users.find(u => u.id === selectedUser.referrerId || u.referralCode === selectedUser.referrerId)
+                : null
+              const referredCount = users.filter(u => u.referrerId === selectedUser.id || u.referrerId === selectedUser.referralCode).length
               const joinDate = new Date(selectedUser.createdAt).toLocaleDateString('ko-KR')
 
               // 디버깅
@@ -1810,8 +1815,11 @@ export default function AdminPage() {
                 'USER': '일반회원'
               }
               const currentRole: string = securitySelectedUser.role || 'USER'
-              const referrer = users.find(u => u.id === securitySelectedUser.referrerId)
-              const referredCount = users.filter(u => u.referrerId === securitySelectedUser.id).length
+              // referrerId는 USER ID 또는 추천코드일 수 있음
+              const referrer = securitySelectedUser.referrerId
+                ? users.find(u => u.id === securitySelectedUser.referrerId || u.referralCode === securitySelectedUser.referrerId)
+                : null
+              const referredCount = users.filter(u => u.referrerId === securitySelectedUser.id || u.referrerId === securitySelectedUser.referralCode).length
               const joinDate = new Date(securitySelectedUser.createdAt).toLocaleDateString('ko-KR')
 
               // 디버깅
@@ -2870,8 +2878,10 @@ export default function AdminPage() {
                   <p className="text-sm text-gray-400">추천인</p>
                   <p className="text-base font-medium text-white">
                     {(() => {
-                      // referrerId는 추천인의 USER ID를 저장하고 있음
-                      const referrer = users.find(u => u.id === selectedUserDetail.referrerId)
+                      // referrerId는 USER ID 또는 추천코드일 수 있음
+                      const referrer = selectedUserDetail.referrerId
+                        ? users.find(u => u.id === selectedUserDetail.referrerId || u.referralCode === selectedUserDetail.referrerId)
+                        : null
                       return referrer ? `${referrer.name} (회원번호: ${referrer.memberNumber})` : '없음'
                     })()}
                   </p>
