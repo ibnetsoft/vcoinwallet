@@ -1571,6 +1571,14 @@ export default function AdminPage() {
               const referredCount = users.filter(u => u.referrerId === selectedUser.id).length
               const joinDate = new Date(selectedUser.createdAt).toLocaleDateString('ko-KR')
 
+              // 디버깅
+              if (selectedUser.phone === '01088418964' || selectedUser.phone === '01044818013') {
+                console.log('증권코인 관리 - 선택된 회원:', selectedUser.name, selectedUser.phone)
+                console.log('referrerId:', selectedUser.referrerId)
+                console.log('찾은 추천인:', referrer)
+                console.log('전체 users 수:', users.length)
+              }
+
               return (
                 <div className="md:col-span-2 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                   <p className="text-sm text-gray-400 mb-3">선택된 회원 정보</p>
@@ -1805,6 +1813,14 @@ export default function AdminPage() {
               const referrer = users.find(u => u.id === securitySelectedUser.referrerId)
               const referredCount = users.filter(u => u.referrerId === securitySelectedUser.id).length
               const joinDate = new Date(securitySelectedUser.createdAt).toLocaleDateString('ko-KR')
+
+              // 디버깅
+              if (securitySelectedUser.phone === '01088418964' || securitySelectedUser.phone === '01044818013') {
+                console.log('배당코인 관리 - 선택된 회원:', securitySelectedUser.name, securitySelectedUser.phone)
+                console.log('referrerId:', securitySelectedUser.referrerId)
+                console.log('찾은 추천인:', referrer)
+                console.log('전체 users 수:', users.length)
+              }
 
               return (
                 <div className="md:col-span-2 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
