@@ -157,7 +157,7 @@ export const db = {
       email: data.email || null,
       password: data.password, // 평문 저장
       referral_code: generateReferralCode(),
-      referred_by: referrer?.referralCode || null,  // 추천인의 추천코드 저장
+      referred_by: referrer?.id || null,  // 추천인의 USER ID 저장
       security_coins: securityCoins,
       dividend_coins: 0,
       member_number: memberNumber,
