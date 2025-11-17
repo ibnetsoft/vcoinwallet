@@ -509,6 +509,42 @@ export const db = {
     const user = await this.findUserById(userId)
     if (!user || user.role === 'ADMIN') return false
 
+    // 1. 이 회원으로 인해 지급된 추천 보너스 찾기
+    const { data: referralBonusTransactions } = await supabaseAdmin
+      .from('transactions')
+      .select('*')
+      .eq('type', 'REFERRAL_BONUS')
+      .like('description', `%${user.name}%가입%`)
+
+    // 2. 추천인(들)에게서 보너스 회수
+    if (referralBonusTransactions && referralBonusTransactions.length > 0) {
+      for (const transaction of referralBonusTransactions) {
+        const referrer = await this.findUserById(transaction.user_id)
+        if (referrer) {
+          // 추천 보너스 금액 차감
+          const newSecurityCoins = Math.max(0, referrer.securityCoins - transaction.amount)
+
+          await supabaseAdmin
+            .from('users')
+            .update({ security_coins: newSecurityCoins })
+            .eq('id', referrer.id)
+
+          // 회수 거래 기록
+          await supabaseAdmin.from('transactions').insert({
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            user_id: referrer.id,
+            type: 'BONUS_RECLAIM',
+            coin_type: 'SECURITY',
+            amount: -transaction.amount,
+            balance: newSecurityCoins,
+            description: `추천 보너스 회수 - ${user.name}님(회원번호: ${user.memberNumber}) 탈퇴`,
+            created_at: new Date().toISOString()
+          })
+        }
+      }
+    }
+
+    // 3. 회원 상태를 DELETED로 변경
     const { error } = await supabaseAdmin
       .from('users')
       .update({ status: 'DELETED' })
@@ -528,7 +564,41 @@ export const db = {
     try {
       console.log('Starting permanent delete for user:', userId)
 
-      // 1. 이 회원과 관련된 알림 삭제 (user_id)
+      // 1. 이 회원으로 인해 지급된 추천 보너스 회수
+      const { data: referralBonusTransactions } = await supabaseAdmin
+        .from('transactions')
+        .select('*')
+        .eq('type', 'REFERRAL_BONUS')
+        .like('description', `%${user.name}%가입%`)
+
+      if (referralBonusTransactions && referralBonusTransactions.length > 0) {
+        for (const transaction of referralBonusTransactions) {
+          const referrer = await this.findUserById(transaction.user_id)
+          if (referrer) {
+            // 추천 보너스 금액 차감
+            const newSecurityCoins = Math.max(0, referrer.securityCoins - transaction.amount)
+
+            await supabaseAdmin
+              .from('users')
+              .update({ security_coins: newSecurityCoins })
+              .eq('id', referrer.id)
+
+            // 회수 거래 기록
+            await supabaseAdmin.from('transactions').insert({
+              id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+              user_id: referrer.id,
+              type: 'BONUS_RECLAIM',
+              coin_type: 'SECURITY',
+              amount: -transaction.amount,
+              balance: newSecurityCoins,
+              description: `추천 보너스 회수 - ${user.name}님(회원번호: ${user.memberNumber}) 영구삭제`,
+              created_at: new Date().toISOString()
+            })
+          }
+        }
+      }
+
+      // 2. 이 회원과 관련된 알림 삭제 (user_id)
       const { error: notifError1 } = await supabaseAdmin
         .from('notifications')
         .delete()
@@ -536,7 +606,7 @@ export const db = {
 
       if (notifError1) console.log('Notification delete error 1:', notifError1)
 
-      // 2. 이 회원이 related_user_id로 연결된 알림 삭제
+      // 3. 이 회원이 related_user_id로 연결된 알림 삭제
       const { error: notifError2 } = await supabaseAdmin
         .from('notifications')
         .delete()
@@ -544,7 +614,7 @@ export const db = {
 
       if (notifError2) console.log('Notification delete error 2:', notifError2)
 
-      // 3. 푸시 구독 삭제
+      // 4. 푸시 구독 삭제
       const { error: pushError } = await supabaseAdmin
         .from('push_subscriptions')
         .delete()
@@ -552,7 +622,7 @@ export const db = {
 
       if (pushError) console.log('Push subscription delete error:', pushError)
 
-      // 4. 거래 내역 삭제
+      // 5. 거래 내역 삭제
       const { error: txError } = await supabaseAdmin
         .from('transactions')
         .delete()
@@ -560,7 +630,7 @@ export const db = {
 
       if (txError) console.log('Transaction delete error:', txError)
 
-      // 5. 이 회원을 추천인으로 가진 다른 회원들의 referred_by를 null로 설정
+      // 6. 이 회원을 추천인으로 가진 다른 회원들의 referred_by를 null로 설정
       const { error: refError } = await supabaseAdmin
         .from('users')
         .update({ referred_by: null })
@@ -568,7 +638,7 @@ export const db = {
 
       if (refError) console.log('Referral update error:', refError)
 
-      // 6. 사용자 삭제
+      // 7. 사용자 삭제
       const { error: userError } = await supabaseAdmin
         .from('users')
         .delete()
