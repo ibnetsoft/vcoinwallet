@@ -2240,6 +2240,92 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
+
+            {/* 게시판 설정 */}
+            <div className="bg-gray-700/50 rounded-xl p-6 border border-gray-600 mt-6">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                자료실 게시판 설정
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    게시판 이름
+                  </label>
+                  <input
+                    type="text"
+                    value={coinSettings.boardName}
+                    onChange={(e) => setCoinSettings({...coinSettings, boardName: e.target.value})}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="자료실"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    파일 최대 크기 (MB)
+                  </label>
+                  <select
+                    value={coinSettings.boardMaxFileSize}
+                    onChange={(e) => setCoinSettings({...coinSettings, boardMaxFileSize: parseInt(e.target.value)})}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value={5242880}>5 MB</option>
+                    <option value={10485760}>10 MB</option>
+                    <option value={20971520}>20 MB</option>
+                    <option value={52428800}>50 MB</option>
+                    <option value={104857600}>100 MB</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-2">
+                    현재 설정: {(coinSettings.boardMaxFileSize / (1024 * 1024)).toFixed(0)} MB
+                  </p>
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    onClick={async () => {
+                      const token = localStorage.getItem('token')
+                      try {
+                        const response = await fetch('/api/admin/system-config', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                          },
+                          body: JSON.stringify({
+                            config: {
+                              securityCoinNewUser: coinSettings.newUserReward,
+                              securityCoinReferral: coinSettings.referralBonus,
+                              dividendCoinPer100: coinSettings.dividendCoinPer100,
+                              dividendCoinReferralPercentage: coinSettings.referralBonusPercentage || 10,
+                              youtubeUrl: coinSettings.youtubeUrl,
+                              boardName: coinSettings.boardName,
+                              boardMaxFileSize: coinSettings.boardMaxFileSize
+                            }
+                          })
+                        })
+
+                        const result = await response.json()
+
+                        if (!response.ok) {
+                          throw new Error(result.error || '설정 저장 실패')
+                        }
+
+                        toast.success('게시판 설정이 저장되었습니다!')
+                      } catch (error: any) {
+                        toast.error(error.message || '설정 저장 중 오류가 발생했습니다.')
+                      }
+                    }}
+                    className="px-6 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-semibold"
+                  >
+                    게시판 설정 저장
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -2324,51 +2410,6 @@ export default function AdminPage() {
                       <br />
                       ※ 일반 유튜브 링크를 임베드 URL로 변환: watch?v= → embed/
                     </p>
-                  </div>
-                </div>
-
-                {/* 게시판 설정 */}
-                <div className="bg-gray-700/50 rounded-xl p-5 border border-gray-600">
-                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                    <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    자료실 게시판 설정
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        게시판 이름
-                      </label>
-                      <input
-                        type="text"
-                        value={coinSettings.boardName}
-                        onChange={(e) => setCoinSettings({...coinSettings, boardName: e.target.value})}
-                        className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="자료실"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        파일 최대 크기 (MB)
-                      </label>
-                      <select
-                        value={coinSettings.boardMaxFileSize}
-                        onChange={(e) => setCoinSettings({...coinSettings, boardMaxFileSize: parseInt(e.target.value)})}
-                        className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value={5242880}>5 MB</option>
-                        <option value={10485760}>10 MB</option>
-                        <option value={20971520}>20 MB</option>
-                        <option value={52428800}>50 MB</option>
-                        <option value={104857600}>100 MB</option>
-                      </select>
-                      <p className="text-xs text-gray-500 mt-2">
-                        현재 설정: {(coinSettings.boardMaxFileSize / (1024 * 1024)).toFixed(0)} MB
-                      </p>
-                    </div>
                   </div>
                 </div>
 
