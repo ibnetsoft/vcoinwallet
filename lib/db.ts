@@ -40,6 +40,8 @@ interface SystemConfig {
   dividendCoinPer100: number
   dividendCoinReferralPercentage: number  // 백분율 (기본값: 10 = 10%)
   youtubeUrl?: string  // 메인 페이지 유튜브 동영상 URL
+  boardName?: string  // 자료실 게시판 이름
+  boardMaxFileSize?: number  // 파일 최대 크기 (bytes)
 }
 
 interface Notification {
@@ -684,7 +686,9 @@ export const db = {
           'security_coin_referral',
           'dividend_coin_per_100',
           'dividend_coin_referral_percentage',
-          'youtube_url'
+          'youtube_url',
+          'board_name',
+          'board_max_file_size'
         ])
 
       if (error || !data) {
@@ -708,7 +712,9 @@ export const db = {
         securityCoinReferral: config.security_coin_referral || 1000,
         dividendCoinPer100: config.dividend_coin_per_100 || 10000,
         dividendCoinReferralPercentage: config.dividend_coin_referral_percentage || 10,
-        youtubeUrl: config.youtube_url || 'https://www.youtube.com/embed/mJPAA9OzoPI'
+        youtubeUrl: config.youtube_url || 'https://www.youtube.com/embed/mJPAA9OzoPI',
+        boardName: config.board_name || '자료실',
+        boardMaxFileSize: config.board_max_file_size || 10485760  // 10MB
       }
     } catch (error) {
       // 에러 시 기본값 반환
@@ -717,7 +723,9 @@ export const db = {
         securityCoinReferral: 1000,
         dividendCoinPer100: 10000,
         dividendCoinReferralPercentage: 10,
-        youtubeUrl: 'https://www.youtube.com/embed/mJPAA9OzoPI'
+        youtubeUrl: 'https://www.youtube.com/embed/mJPAA9OzoPI',
+        boardName: '자료실',
+        boardMaxFileSize: 10485760  // 10MB
       }
     }
   },
@@ -732,9 +740,15 @@ export const db = {
         { key: 'dividend_coin_referral_percentage', value: config.dividendCoinReferralPercentage }
       ]
 
-      // youtubeUrl이 있으면 추가
+      // Optional fields
       if (config.youtubeUrl !== undefined) {
         updates.push({ key: 'youtube_url', value: config.youtubeUrl })
+      }
+      if (config.boardName !== undefined) {
+        updates.push({ key: 'board_name', value: config.boardName })
+      }
+      if (config.boardMaxFileSize !== undefined) {
+        updates.push({ key: 'board_max_file_size', value: config.boardMaxFileSize })
       }
 
       for (const update of updates) {

@@ -47,7 +47,7 @@ export default function AdminPage() {
   const [roleChangeUserId, setRoleChangeUserId] = useState('')
   const [newRole, setNewRole] = useState<'USER' | 'TEAM_LEADER'>('USER')
   const [roleSearchTerm, setRoleSearchTerm] = useState('')
-  const [activeTab, setActiveTab] = useState<'users' | 'grant' | 'security-grant' | 'roles' | 'notice' | 'settings' | 'coin-settings' | 'team-stats'>('users')
+  const [activeTab, setActiveTab] = useState<'users' | 'grant' | 'security-grant' | 'roles' | 'notice' | 'resources' | 'settings' | 'coin-settings' | 'team-stats'>('users')
   const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'TEAM_LEADER' | 'USER'>('ALL')
   const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -99,8 +99,27 @@ export default function AdminPage() {
     referralBonus: 1000, // 추천인 보너스 (안전코인)
     dividendCoinPer100: 10000, // 100만원당 배당코인
     referralBonusPercentage: 10, // 배당코인 추천 보너스 비율 (%)
-    youtubeUrl: 'https://www.youtube.com/embed/mJPAA9OzoPI' // 메인 페이지 유튜브 URL
+    youtubeUrl: 'https://www.youtube.com/embed/mJPAA9OzoPI', // 메인 페이지 유튜브 URL
+    boardName: '자료실', // 게시판 이름
+    boardMaxFileSize: 10485760 // 파일 최대 크기 (10MB)
   })
+
+  // 자료실 관련 상태
+  const [resources, setResources] = useState<any[]>([])
+  const [isResourceModalOpen, setIsResourceModalOpen] = useState(false)
+  const [editingResourceId, setEditingResourceId] = useState<string | null>(null)
+  const [resourceForm, setResourceForm] = useState({
+    type: 'NOTICE',
+    title: '',
+    content: '',
+    file: null as File | null
+  })
+  const [uploadedFile, setUploadedFile] = useState<{
+    url: string
+    name: string
+    size: number
+    type: string
+  } | null>(null)
 
   // 회원번호별 특별 지급 설정
   const [memberNumberRules, setMemberNumberRules] = useState<Array<{
@@ -2308,6 +2327,51 @@ export default function AdminPage() {
                   </div>
                 </div>
 
+                {/* 게시판 설정 */}
+                <div className="bg-gray-700/50 rounded-xl p-5 border border-gray-600">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    자료실 게시판 설정
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        게시판 이름
+                      </label>
+                      <input
+                        type="text"
+                        value={coinSettings.boardName}
+                        onChange={(e) => setCoinSettings({...coinSettings, boardName: e.target.value})}
+                        className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="자료실"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        파일 최대 크기 (MB)
+                      </label>
+                      <select
+                        value={coinSettings.boardMaxFileSize}
+                        onChange={(e) => setCoinSettings({...coinSettings, boardMaxFileSize: parseInt(e.target.value)})}
+                        className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value={5242880}>5 MB</option>
+                        <option value={10485760}>10 MB</option>
+                        <option value={20971520}>20 MB</option>
+                        <option value={52428800}>50 MB</option>
+                        <option value={104857600}>100 MB</option>
+                      </select>
+                      <p className="text-xs text-gray-500 mt-2">
+                        현재 설정: {(coinSettings.boardMaxFileSize / (1024 * 1024)).toFixed(0)} MB
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* 저장 버튼 */}
                 <div className="flex justify-end pt-4">
                   <button
@@ -2326,7 +2390,9 @@ export default function AdminPage() {
                               securityCoinReferral: coinSettings.referralBonus,
                               dividendCoinPer100: coinSettings.dividendCoinPer100,
                               dividendCoinReferralPercentage: coinSettings.referralBonusPercentage || 10,
-                              youtubeUrl: coinSettings.youtubeUrl
+                              youtubeUrl: coinSettings.youtubeUrl,
+                              boardName: coinSettings.boardName,
+                              boardMaxFileSize: coinSettings.boardMaxFileSize
                             }
                           })
                         })
