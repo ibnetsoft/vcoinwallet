@@ -40,7 +40,7 @@ interface SystemConfig {
   dividendCoinPer100: number
   dividendCoinReferralPercentage: number  // 백분율 (기본값: 10 = 10%)
   youtubeUrl?: string  // 메인 페이지 유튜브 동영상 URL
-  boardName?: string  // 자료실 게시판 이름
+  boardName?: string  // 게시판 게시판 이름
   boardMaxFileSize?: number  // 파일 최대 크기 (bytes)
 }
 
@@ -712,7 +712,7 @@ export const db = {
         dividendCoinPer100: config.dividend_coin_per_100 || 10000,
         dividendCoinReferralPercentage: config.dividend_coin_referral_percentage || 10,
         youtubeUrl: config.youtube_url || 'https://www.youtube.com/embed/mJPAA9OzoPI',
-        boardName: '자료실',  // Fixed value (metadata.value is integer only)
+        boardName: '게시판',  // Fixed value (metadata.value is integer only)
         boardMaxFileSize: config.board_max_file_size || 10485760  // 10MB
       }
     } catch (error) {
@@ -723,7 +723,7 @@ export const db = {
         dividendCoinPer100: 10000,
         dividendCoinReferralPercentage: 10,
         youtubeUrl: 'https://www.youtube.com/embed/mJPAA9OzoPI',
-        boardName: '자료실',
+        boardName: '게시판',
         boardMaxFileSize: 10485760  // 10MB
       }
     }
@@ -744,7 +744,7 @@ export const db = {
         updates.push({ key: 'youtube_url', value: config.youtubeUrl })
       }
       // Note: boardName is not saved to metadata (value column is integer only)
-      // It will always use the default value '자료실'
+      // It will always use the default value '게시판'
       if (config.boardMaxFileSize !== undefined) {
         updates.push({ key: 'board_max_file_size', value: config.boardMaxFileSize })
       }

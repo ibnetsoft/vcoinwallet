@@ -51,7 +51,7 @@ CREATE POLICY "Service role can manage resource files"
 
 -- Add board settings to metadata table
 -- Note: metadata.value is integer type, so we only store the file size
--- board_name will use default value '자료실' in the application
+-- board_name will use default value '게시판' in the application
 INSERT INTO public.metadata (key, value)
 VALUES
   ('board_max_file_size', 10485760)  -- 10MB in bytes

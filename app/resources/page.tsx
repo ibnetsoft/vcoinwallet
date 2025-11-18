@@ -25,7 +25,7 @@ export default function ResourcesPage() {
   const [resources, setResources] = useState<Resource[]>([])
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [boardName, setBoardName] = useState('자료실')
+  const [boardName, setBoardName] = useState('게시판')
 
   useEffect(() => {
     const token = localStorage.getItem('token')

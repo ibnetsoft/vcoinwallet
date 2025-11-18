@@ -100,11 +100,11 @@ export default function AdminPage() {
     dividendCoinPer100: 10000, // 100만원당 배당코인
     referralBonusPercentage: 10, // 배당코인 추천 보너스 비율 (%)
     youtubeUrl: 'https://www.youtube.com/embed/mJPAA9OzoPI', // 메인 페이지 유튜브 URL
-    boardName: '자료실', // 게시판 이름
+    boardName: '게시판', // 게시판 이름
     boardMaxFileSize: 10485760 // 파일 최대 크기 (10MB)
   })
 
-  // 자료실 관련 상태
+  // 게시판 관련 상태
   const [resources, setResources] = useState<any[]>([])
   const [isResourceModalOpen, setIsResourceModalOpen] = useState(false)
   const [editingResourceId, setEditingResourceId] = useState<string | null>(null)
@@ -1362,7 +1362,7 @@ export default function AdminPage() {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>{coinSettings.boardName || '자료실'}</span>
+                <span>{coinSettings.boardName || '게시판'}</span>
               </div>
               {activeTab === 'resources' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -2261,11 +2261,11 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* 자료실 탭 */}
+        {/* 게시판 탭 */}
         {activeTab === 'resources' && (
           <div className="bg-gray-800/50 rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">{coinSettings.boardName || '자료실'} 관리</h2>
+              <h2 className="text-2xl font-bold text-white">{coinSettings.boardName || '게시판'} 관리</h2>
               <button
                 onClick={() => {
                   setIsResourceModalOpen(true)
@@ -2557,7 +2557,7 @@ export default function AdminPage() {
                 <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                자료실 게시판 설정
+                게시판 게시판 설정
               </h3>
 
               <div className="space-y-4">
@@ -2566,7 +2566,7 @@ export default function AdminPage() {
                     게시판 이름
                   </label>
                   <div className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-gray-400">
-                    자료실 (고정값)
+                    게시판 (고정값)
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
                     ※ 게시판 이름은 현재 변경할 수 없습니다. 변경이 필요한 경우 개발자에게 문의하세요.
