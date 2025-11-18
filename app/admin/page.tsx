@@ -2241,6 +2241,72 @@ export default function AdminPage() {
               </div>
             )}
 
+            {/* 유튜브 동영상 URL 설정 */}
+            <div className="bg-gray-700/50 rounded-xl p-6 border border-gray-600 mt-6">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                <svg className="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm3.5 10.5l-5 3a.5.5 0 01-.75-.433v-6a.5.5 0 01.75-.433l5 3a.5.5 0 010 .866z"/>
+                </svg>
+                메인 페이지 유튜브 동영상
+              </h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">유튜브 임베드 URL</label>
+                <input
+                  type="text"
+                  value={coinSettings.youtubeUrl}
+                  onChange={(e) => setCoinSettings({...coinSettings, youtubeUrl: e.target.value})}
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="https://www.youtube.com/embed/VIDEO_ID"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  예: https://www.youtube.com/embed/mJPAA9OzoPI
+                  <br />
+                  ※ 일반 유튜브 링크를 임베드 URL로 변환: watch?v= → embed/
+                </p>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <button
+                  onClick={async () => {
+                    const token = localStorage.getItem('token')
+                    try {
+                      const response = await fetch('/api/admin/system-config', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                          config: {
+                            securityCoinNewUser: coinSettings.newUserReward,
+                            securityCoinReferral: coinSettings.referralBonus,
+                            dividendCoinPer100: coinSettings.dividendCoinPer100,
+                            dividendCoinReferralPercentage: coinSettings.referralBonusPercentage || 10,
+                            youtubeUrl: coinSettings.youtubeUrl,
+                            boardName: coinSettings.boardName,
+                            boardMaxFileSize: coinSettings.boardMaxFileSize
+                          }
+                        })
+                      })
+
+                      const result = await response.json()
+
+                      if (!response.ok) {
+                        throw new Error(result.error || '설정 저장 실패')
+                      }
+
+                      toast.success('유튜브 URL이 저장되었습니다!')
+                    } catch (error: any) {
+                      toast.error(error.message || '설정 저장 중 오류가 발생했습니다.')
+                    }
+                  }}
+                  className="px-6 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-semibold"
+                >
+                  유튜브 URL 저장
+                </button>
+              </div>
+            </div>
+
             {/* 게시판 설정 */}
             <div className="bg-gray-700/50 rounded-xl p-6 border border-gray-600 mt-6">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
@@ -2385,31 +2451,6 @@ export default function AdminPage() {
                       <span className="text-gray-400">%</span>
                     </div>
                     <p className="text-xs text-gray-500 mt-2">회원에게 배당코인 지급 시 추천인에게 지급 금액의 {coinSettings.referralBonusPercentage}%를 자동 지급</p>
-                  </div>
-                </div>
-
-                {/* 유튜브 동영상 URL 설정 */}
-                <div className="bg-gray-700/50 rounded-xl p-5 border border-gray-600">
-                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                    <svg className="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm3.5 10.5l-5 3a.5.5 0 01-.75-.433v-6a.5.5 0 01.75-.433l5 3a.5.5 0 010 .866z"/>
-                    </svg>
-                    메인 페이지 유튜브 동영상
-                  </h3>
-                  <div>
-                    <label className="block text-sm text-gray-300 mb-2">유튜브 임베드 URL</label>
-                    <input
-                      type="text"
-                      value={coinSettings.youtubeUrl}
-                      onChange={(e) => setCoinSettings({...coinSettings, youtubeUrl: e.target.value})}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
-                      placeholder="https://www.youtube.com/embed/VIDEO_ID"
-                    />
-                    <p className="text-xs text-gray-500 mt-2">
-                      예: https://www.youtube.com/embed/mJPAA9OzoPI
-                      <br />
-                      ※ 일반 유튜브 링크를 임베드 URL로 변환: watch?v= → embed/
-                    </p>
                   </div>
                 </div>
 
