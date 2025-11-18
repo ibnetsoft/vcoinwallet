@@ -14,6 +14,7 @@ export default function HomePage() {
   const [notifications, setNotifications] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [showNotifications, setShowNotifications] = useState(false)
+  const [youtubeUrl, setYoutubeUrl] = useState('https://www.youtube.com/embed/mJPAA9OzoPI')
 
   useEffect(() => {
     // 로컬 스토리지에서 토큰 확인
@@ -56,6 +57,31 @@ export default function HomePage() {
         setShowWelcomeModal(true)
       }, 500)
     }
+  }, [])
+
+  // 유튜브 URL 로드
+  useEffect(() => {
+    const loadYoutubeUrl = async () => {
+      try {
+        const response = await fetch('/api/admin/system-config', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          }
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.config?.youtubeUrl) {
+            setYoutubeUrl(data.config.youtubeUrl)
+          }
+        }
+      } catch (error) {
+        // 에러 시 기본값 유지
+        console.log('Failed to load youtube URL, using default')
+      }
+    }
+
+    loadYoutubeUrl()
   }, [])
 
   const fetchUnreadCount = async (token: string) => {
@@ -356,7 +382,7 @@ export default function HomePage() {
           <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
             <iframe
               className="absolute top-0 left-0 w-full h-full rounded-2xl shadow-2xl border border-gray-700"
-              src="https://www.youtube.com/embed/mJPAA9OzoPI"
+              src={youtubeUrl}
               title="3D 태양광 기술 소개"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

@@ -98,7 +98,8 @@ export default function AdminPage() {
     newUserReward: 500, // 신규 가입 보너스
     referralBonus: 1000, // 추천인 보너스 (안전코인)
     dividendCoinPer100: 10000, // 100만원당 배당코인
-    referralBonusPercentage: 10 // 배당코인 추천 보너스 비율 (%)
+    referralBonusPercentage: 10, // 배당코인 추천 보너스 비율 (%)
+    youtubeUrl: 'https://www.youtube.com/embed/mJPAA9OzoPI' // 메인 페이지 유튜브 URL
   })
 
   // 회원번호별 특별 지급 설정
@@ -2282,6 +2283,31 @@ export default function AdminPage() {
                   </div>
                 </div>
 
+                {/* 유튜브 동영상 URL 설정 */}
+                <div className="bg-gray-700/50 rounded-xl p-5 border border-gray-600">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm3.5 10.5l-5 3a.5.5 0 01-.75-.433v-6a.5.5 0 01.75-.433l5 3a.5.5 0 010 .866z"/>
+                    </svg>
+                    메인 페이지 유튜브 동영상
+                  </h3>
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-2">유튜브 임베드 URL</label>
+                    <input
+                      type="text"
+                      value={coinSettings.youtubeUrl}
+                      onChange={(e) => setCoinSettings({...coinSettings, youtubeUrl: e.target.value})}
+                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
+                      placeholder="https://www.youtube.com/embed/VIDEO_ID"
+                    />
+                    <p className="text-xs text-gray-500 mt-2">
+                      예: https://www.youtube.com/embed/mJPAA9OzoPI
+                      <br />
+                      ※ 일반 유튜브 링크를 임베드 URL로 변환: watch?v= → embed/
+                    </p>
+                  </div>
+                </div>
+
                 {/* 저장 버튼 */}
                 <div className="flex justify-end pt-4">
                   <button
@@ -2299,7 +2325,8 @@ export default function AdminPage() {
                               securityCoinNewUser: coinSettings.newUserReward,
                               securityCoinReferral: coinSettings.referralBonus,
                               dividendCoinPer100: coinSettings.dividendCoinPer100,
-                              dividendCoinReferralPercentage: coinSettings.referralBonusPercentage || 10
+                              dividendCoinReferralPercentage: coinSettings.referralBonusPercentage || 10,
+                              youtubeUrl: coinSettings.youtubeUrl
                             }
                           })
                         })

@@ -39,6 +39,7 @@ interface SystemConfig {
   securityCoinReferral: number
   dividendCoinPer100: number
   dividendCoinReferralPercentage: number  // 백분율 (기본값: 10 = 10%)
+  youtubeUrl?: string  // 메인 페이지 유튜브 동영상 URL
 }
 
 interface Notification {
@@ -682,7 +683,8 @@ export const db = {
           'security_coin_new_user',
           'security_coin_referral',
           'dividend_coin_per_100',
-          'dividend_coin_referral_percentage'
+          'dividend_coin_referral_percentage',
+          'youtube_url'
         ])
 
       if (error || !data) {
@@ -705,7 +707,8 @@ export const db = {
         securityCoinNewUser: config.security_coin_new_user || 500,
         securityCoinReferral: config.security_coin_referral || 1000,
         dividendCoinPer100: config.dividend_coin_per_100 || 10000,
-        dividendCoinReferralPercentage: config.dividend_coin_referral_percentage || 10
+        dividendCoinReferralPercentage: config.dividend_coin_referral_percentage || 10,
+        youtubeUrl: config.youtube_url || 'https://www.youtube.com/embed/mJPAA9OzoPI'
       }
     } catch (error) {
       // 에러 시 기본값 반환
@@ -713,7 +716,8 @@ export const db = {
         securityCoinNewUser: 500,
         securityCoinReferral: 1000,
         dividendCoinPer100: 10000,
-        dividendCoinReferralPercentage: 10
+        dividendCoinReferralPercentage: 10,
+        youtubeUrl: 'https://www.youtube.com/embed/mJPAA9OzoPI'
       }
     }
   },
@@ -727,6 +731,11 @@ export const db = {
         { key: 'dividend_coin_per_100', value: config.dividendCoinPer100 },
         { key: 'dividend_coin_referral_percentage', value: config.dividendCoinReferralPercentage }
       ]
+
+      // youtubeUrl이 있으면 추가
+      if (config.youtubeUrl !== undefined) {
+        updates.push({ key: 'youtube_url', value: config.youtubeUrl })
+      }
 
       for (const update of updates) {
         await supabaseAdmin
