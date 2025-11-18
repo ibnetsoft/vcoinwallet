@@ -50,10 +50,11 @@ CREATE POLICY "Service role can manage resource files"
   USING (bucket_id = 'resources');
 
 -- Add board settings to metadata table
+-- Note: metadata.value is integer type, so we only store the file size
+-- board_name will use default value '자료실' in the application
 INSERT INTO public.metadata (key, value)
 VALUES
-  ('board_name', '자료실'),
-  ('board_max_file_size', '10485760')  -- 10MB in bytes
+  ('board_max_file_size', 10485760)  -- 10MB in bytes
 ON CONFLICT (key) DO NOTHING;
 
 -- Create functions for incrementing counters

@@ -2321,13 +2321,12 @@ export default function AdminPage() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     게시판 이름
                   </label>
-                  <input
-                    type="text"
-                    value={coinSettings.boardName}
-                    onChange={(e) => setCoinSettings({...coinSettings, boardName: e.target.value})}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="자료실"
-                  />
+                  <div className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-gray-400">
+                    자료실 (고정값)
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    ※ 게시판 이름은 현재 변경할 수 없습니다. 변경이 필요한 경우 개발자에게 문의하세요.
+                  </p>
                 </div>
 
                 <div>

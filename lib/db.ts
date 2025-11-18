@@ -687,7 +687,6 @@ export const db = {
           'dividend_coin_per_100',
           'dividend_coin_referral_percentage',
           'youtube_url',
-          'board_name',
           'board_max_file_size'
         ])
 
@@ -713,7 +712,7 @@ export const db = {
         dividendCoinPer100: config.dividend_coin_per_100 || 10000,
         dividendCoinReferralPercentage: config.dividend_coin_referral_percentage || 10,
         youtubeUrl: config.youtube_url || 'https://www.youtube.com/embed/mJPAA9OzoPI',
-        boardName: config.board_name || '자료실',
+        boardName: '자료실',  // Fixed value (metadata.value is integer only)
         boardMaxFileSize: config.board_max_file_size || 10485760  // 10MB
       }
     } catch (error) {
@@ -744,9 +743,8 @@ export const db = {
       if (config.youtubeUrl !== undefined) {
         updates.push({ key: 'youtube_url', value: config.youtubeUrl })
       }
-      if (config.boardName !== undefined) {
-        updates.push({ key: 'board_name', value: config.boardName })
-      }
+      // Note: boardName is not saved to metadata (value column is integer only)
+      // It will always use the default value '자료실'
       if (config.boardMaxFileSize !== undefined) {
         updates.push({ key: 'board_max_file_size', value: config.boardMaxFileSize })
       }
