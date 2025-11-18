@@ -725,7 +725,7 @@ export const db = {
   // 시스템 설정 저장
   async saveSystemConfig(config: SystemConfig): Promise<boolean> {
     try {
-      const updates = [
+      const updates: Array<{ key: string, value: number | string }> = [
         { key: 'security_coin_new_user', value: config.securityCoinNewUser },
         { key: 'security_coin_referral', value: config.securityCoinReferral },
         { key: 'dividend_coin_per_100', value: config.dividendCoinPer100 },
