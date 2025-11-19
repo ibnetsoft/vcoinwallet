@@ -23,22 +23,42 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 모든 사용자 데이터 가져오기
-    const { data: users, error } = await supabaseAdmin
-      .from('users')
-      .select('*')
-      .order('created_at', { ascending: false })
+    // 모든 사용자 데이터 가져오기 (페이지네이션으로 전체 데이터 가져오기)
+    let allUsers: any[] = []
+    let from = 0
+    const pageSize = 1000
 
-    if (error) {
-      console.error('Fetch users error:', error)
-      return NextResponse.json(
-        { error: '사용자 데이터 조회 실패' },
-        { status: 500 }
-      )
+    while (true) {
+      const { data, error } = await supabaseAdmin
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range(from, from + pageSize - 1)
+
+      if (error) {
+        console.error('Fetch users error:', error)
+        return NextResponse.json(
+          { error: '사용자 데이터 조회 실패' },
+          { status: 500 }
+        )
+      }
+
+      if (!data || data.length === 0) {
+        break
+      }
+
+      allUsers = allUsers.concat(data)
+
+      // 마지막 페이지면 종료
+      if (data.length < pageSize) {
+        break
+      }
+
+      from += pageSize
     }
 
     // 엑셀 데이터 형식으로 변환
-    const excelData = users.map((user, index) => ({
+    const excelData = allUsers.map((user, index) => ({
       '번호': index + 1,
       '아이디': user.id,
       '이름': user.name,
@@ -46,9 +66,9 @@ export async function GET(request: NextRequest) {
       '전화번호': user.phone || '-',
       '역할': user.role === 'ADMIN' ? '관리자' : '일반회원',
       '추천인 ID': user.referrer_id || '-',
-      '증권코인': user.security_coin || 0,
-      '배당코인': user.dividend_coin || 0,
-      '총 코인': (user.security_coin || 0) + (user.dividend_coin || 0),
+      '증권코인': user.security_coins || 0,
+      '배당코인': user.dividend_coins || 0,
+      '총 코인': (user.security_coins || 0) + (user.dividend_coins || 0),
       '인증 여부': user.is_verified ? '인증완료' : '미인증',
       '계좌번호': user.account_number || '-',
       '은행명': user.bank_name || '-',
