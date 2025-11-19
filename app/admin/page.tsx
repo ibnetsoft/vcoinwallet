@@ -2635,6 +2635,79 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
+
+            {/* 회원 데이터 관리 */}
+            <div className="bg-gray-700/50 rounded-xl p-6 border border-gray-600 mt-6">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                <Users className="w-5 h-5 mr-2 text-green-500" />
+                회원 데이터 관리
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    전체 회원 데이터 다운로드
+                  </label>
+                  <p className="text-sm text-gray-400 mb-4">
+                    전체 회원의 정보를 엑셀 파일로 다운로드합니다. (아이디, 이름, 연락처, 코인 보유량, 계좌정보 등)
+                  </p>
+                  <button
+                    onClick={async () => {
+                      const token = localStorage.getItem('token')
+                      try {
+                        toast.loading('엑셀 파일을 생성하는 중...')
+
+                        const response = await fetch('/api/admin/export-users', {
+                          method: 'GET',
+                          headers: {
+                            'Authorization': `Bearer ${token}`
+                          }
+                        })
+
+                        if (!response.ok) {
+                          const result = await response.json()
+                          throw new Error(result.error || '다운로드 실패')
+                        }
+
+                        // Blob으로 변환
+                        const blob = await response.blob()
+
+                        // 다운로드
+                        const url = window.URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+
+                        // 파일명 추출 (Content-Disposition 헤더에서)
+                        const contentDisposition = response.headers.get('Content-Disposition')
+                        let filename = '회원목록.xlsx'
+                        if (contentDisposition) {
+                          const filenameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)/)
+                          if (filenameMatch) {
+                            filename = decodeURIComponent(filenameMatch[1])
+                          }
+                        }
+
+                        a.download = filename
+                        document.body.appendChild(a)
+                        a.click()
+                        window.URL.revokeObjectURL(url)
+                        document.body.removeChild(a)
+
+                        toast.dismiss()
+                        toast.success('엑셀 파일 다운로드가 완료되었습니다!')
+                      } catch (error: any) {
+                        toast.dismiss()
+                        toast.error(error.message || '다운로드 중 오류가 발생했습니다.')
+                      }
+                    }}
+                    className="flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-500 transition font-semibold"
+                  >
+                    <Download className="w-5 h-5 mr-2" />
+                    전체 회원 엑셀 다운로드
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
