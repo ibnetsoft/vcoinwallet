@@ -187,8 +187,22 @@ export default function ResourcesPage() {
                 className="bg-gray-800/50 border border-gray-700 rounded-lg p-5 hover:border-yellow-500/50 transition cursor-pointer"
                 onClick={() => handleView(resource)}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
+                <div className="flex items-start justify-between gap-4">
+                  {/* 이미지 썸네일 (이미지 파일인 경우) */}
+                  {resource.file_url && resource.file_type?.startsWith('image/') && (
+                    <div className="flex-shrink-0">
+                      <img
+                        src={resource.file_url}
+                        alt={resource.title}
+                        className="w-32 h-32 object-cover rounded-lg border border-gray-600"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-2">
                       <span className={`px-2 py-1 text-xs rounded ${getTypeColor(resource.type)} text-white`}>
                         {getTypeLabel(resource.type)}
@@ -230,7 +244,7 @@ export default function ResourcesPage() {
                         e.stopPropagation()
                         handleDownload(resource)
                       }}
-                      className="ml-4 px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-medium flex items-center"
+                      className="flex-shrink-0 px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-medium flex items-center"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       다운로드
@@ -280,7 +294,7 @@ export default function ResourcesPage() {
 
             {selectedResource.file_url && (
               <div className="bg-gray-700/50 rounded-lg p-4 mb-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     <FileText className="w-5 h-5 text-yellow-400 mr-2" />
                     <div>
@@ -298,6 +312,21 @@ export default function ResourcesPage() {
                     다운로드
                   </button>
                 </div>
+
+                {/* 이미지 파일이면 미리보기 표시 */}
+                {selectedResource.file_type?.startsWith('image/') && (
+                  <div className="mt-4">
+                    <img
+                      src={selectedResource.file_url}
+                      alt={selectedResource.file_name || '첨부 이미지'}
+                      className="w-full rounded-lg border border-gray-600"
+                      onError={(e) => {
+                        // 이미지 로드 실패 시 숨김
+                        e.currentTarget.style.display = 'none'
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
