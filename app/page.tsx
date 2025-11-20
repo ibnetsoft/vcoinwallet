@@ -22,8 +22,12 @@ export default function HomePage() {
     const userData = localStorage.getItem('user')
 
     if (token && userData) {
-      setUser(JSON.parse(userData))
+      const parsedUser = JSON.parse(userData)
+      setUser(parsedUser)
       setIsLoading(false) // 토큰이 있으면 즉시 로딩 종료
+
+      // 최신 사용자 정보 가져오기 (코인 데이터 업데이트)
+      fetchLatestUserInfo(parsedUser.id, token)
 
       // 알림 개수 가져오기
       fetchUnreadCount(token)
@@ -83,6 +87,30 @@ export default function HomePage() {
 
     loadYoutubeUrl()
   }, [])
+
+  const fetchLatestUserInfo = async (userId: string, token: string) => {
+    try {
+      const response = await fetch(`/api/user?userId=${userId}&t=${Date.now()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        cache: 'no-store'
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const updatedUser = data.user
+
+        // 최신 정보로 업데이트
+        setUser(updatedUser)
+
+        // localStorage도 업데이트
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+      }
+    } catch (error) {
+      console.error('Failed to fetch latest user info:', error)
+    }
+  }
 
   const fetchUnreadCount = async (token: string) => {
     try {

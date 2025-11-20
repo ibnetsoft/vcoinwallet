@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { LogIn, Phone, Lock } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
@@ -14,7 +13,6 @@ type LoginForm = {
 }
 
 export default function LoginPage() {
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const {
     register,
@@ -43,9 +41,9 @@ export default function LoginPage() {
 
       toast.success(`환영합니다, ${result.user.name}님! 👋`)
 
-      // 1초 후 메인 페이지로 이동
+      // 1초 후 메인 페이지로 이동 (강력한 새로고침)
       setTimeout(() => {
-        router.push('/')
+        window.location.href = '/'
       }, 1000)
 
     } catch (error: any) {
