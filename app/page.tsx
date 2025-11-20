@@ -165,6 +165,12 @@ export default function HomePage() {
                   >
                     <Wallet className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
+                  <button
+                    onClick={() => router.push('/resources')}
+                    className="hidden sm:block px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+                  >
+                    게시판
+                  </button>
                   {user.isAdmin && (
                     <button
                       onClick={() => router.push('/admin')}
@@ -217,15 +223,23 @@ export default function HomePage() {
             </nav>
           </div>
 
-          {/* 두 번째 줄: 모바일에서만 공지사항 + 사용자 이름 */}
+          {/* 두 번째 줄: 모바일에서만 공지사항 + 게시판 + 사용자 이름 */}
           {user && (
             <div className="flex sm:hidden items-center justify-between text-sm">
-              <button
-                onClick={() => router.push('/notices')}
-                className="text-gray-300 hover:text-yellow-400 transition"
-              >
-                공지사항
-              </button>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => router.push('/notices')}
+                  className="text-gray-300 hover:text-yellow-400 transition"
+                >
+                  공지사항
+                </button>
+                <button
+                  onClick={() => router.push('/resources')}
+                  className="text-gray-300 hover:text-yellow-400 transition"
+                >
+                  게시판
+                </button>
+              </div>
               <div className="text-gray-300">
                 안녕하세요, <span className="text-white font-semibold">{user.name}</span>님
               </div>
