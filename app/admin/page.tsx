@@ -365,44 +365,63 @@ export default function AdminPage() {
 
     const token = localStorage.getItem('token')
 
+    // 모달 즉시 닫기
+    setIsResourceModalOpen(false)
+    const formData = { ...resourceForm }
+    const fileData = uploadedFile
+    const isEditing = editingResourceId
+    const editId = editingResourceId
+
+    // 폼 초기화
+    setResourceForm({ type: 'NOTICE', title: '', content: '', file: null })
+    setUploadedFile(null)
+    setEditingResourceId(null)
+
+    // 로딩 토스트 표시
+    const loadingToast = toast.loading(isEditing ? '게시글 수정 중...' : '게시글 등록 중...')
+
     try {
-      let fileData = uploadedFile
-      if (resourceForm.file && !uploadedFile) {
-        fileData = await handleFileUpload(resourceForm.file)
-        if (!fileData) return
+      // 파일 업로드 (필요한 경우)
+      let uploadedFileData = fileData
+      if (formData.file && !fileData) {
+        uploadedFileData = await handleFileUpload(formData.file)
+        if (!uploadedFileData) {
+          toast.dismiss(loadingToast)
+          toast.error('파일 업로드 실패')
+          return
+        }
       }
 
       const response = await fetch('/api/admin/resources', {
-        method: editingResourceId ? 'PUT' : 'POST',
+        method: isEditing ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          resourceId: editingResourceId,
-          type: resourceForm.type,
-          title: resourceForm.title,
-          content: resourceForm.content,
-          fileUrl: fileData?.url,
-          fileName: fileData?.name,
-          fileSize: fileData?.size,
-          fileType: fileData?.type
+          resourceId: editId,
+          type: formData.type,
+          title: formData.title,
+          content: formData.content,
+          fileUrl: uploadedFileData?.url,
+          fileName: uploadedFileData?.name,
+          fileSize: uploadedFileData?.size,
+          fileType: uploadedFileData?.type
         })
       })
 
       const result = await response.json()
 
+      toast.dismiss(loadingToast)
+
       if (!response.ok) {
         throw new Error(result.error || '게시글 작성 실패')
       }
 
-      toast.success(result.message)
-      setIsResourceModalOpen(false)
-      setResourceForm({ type: 'NOTICE', title: '', content: '', file: null })
-      setUploadedFile(null)
-      setEditingResourceId(null)
+      toast.success(result.message || (isEditing ? '게시글이 수정되었습니다.' : '게시글이 등록되었습니다.'))
       fetchResources()
     } catch (error: any) {
+      toast.dismiss(loadingToast)
       toast.error(error.message || '게시글 작성 중 오류가 발생했습니다.')
     }
   }
