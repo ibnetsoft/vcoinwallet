@@ -244,10 +244,10 @@ export default function ResourcesPage() {
                         e.stopPropagation()
                         handleDownload(resource)
                       }}
-                      className="flex-shrink-0 px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-medium flex items-center"
+                      className="flex-shrink-0 p-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition"
+                      title="다운로드"
                     >
-                      <Download className="w-4 h-4 mr-2" />
-                      다운로드
+                      <Download className="w-5 h-5" />
                     </button>
                   )}
                 </div>
@@ -306,10 +306,10 @@ export default function ResourcesPage() {
                   </div>
                   <button
                     onClick={() => handleDownload(selectedResource)}
-                    className="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-medium flex items-center"
+                    className="p-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition"
+                    title="다운로드"
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    다운로드
+                    <Download className="w-5 h-5" />
                   </button>
                 </div>
 
