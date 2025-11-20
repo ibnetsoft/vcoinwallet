@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { LogIn, Phone, Lock } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import Link from 'next/link'
+import KakaoBrowserWarning from '@/components/KakaoBrowserWarning'
 
 type LoginForm = {
   phone: string
@@ -56,6 +57,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center py-12 px-4">
+      <KakaoBrowserWarning />
       <Toaster position="top-center" />
       
       <div className="max-w-md w-full">
