@@ -1,6 +1,6 @@
 -- Create resources table for file board
 CREATE TABLE IF NOT EXISTS public.resources (
-  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   type TEXT NOT NULL CHECK (type IN ('IMPORTANT', 'NOTICE', 'INFO', 'EVENT', 'UPDATE')),
   title TEXT NOT NULL,
   content TEXT NOT NULL,
@@ -58,7 +58,7 @@ VALUES
 ON CONFLICT (key) DO NOTHING;
 
 -- Create functions for incrementing counters
-CREATE OR REPLACE FUNCTION increment_resource_view(resource_id TEXT)
+CREATE OR REPLACE FUNCTION increment_resource_view(resource_id UUID)
 RETURNS void AS $$
 BEGIN
   UPDATE public.resources
@@ -67,7 +67,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE FUNCTION increment_resource_download(resource_id TEXT)
+CREATE OR REPLACE FUNCTION increment_resource_download(resource_id UUID)
 RETURNS void AS $$
 BEGIN
   UPDATE public.resources
