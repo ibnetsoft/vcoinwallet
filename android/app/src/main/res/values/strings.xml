@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">V COIN</string>
+    <string name="title_activity_main">V COIN</string>
+    <string name="package_name">com.vcoin.wallet</string>
+    <string name="custom_url_scheme">com.vcoin.wallet</string>
+</resources>

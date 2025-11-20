@@ -10,12 +10,20 @@
     "db:init": "npx prisma generate && npx prisma db push",
     "db:seed": "npx tsx prisma/seed.ts",
     "db:reset": "npx prisma db push --force-reset && npm run db:seed",
-    "db:studio": "npx prisma studio"
+    "db:studio": "npx prisma studio",
+    "android:sync": "npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:build:debug": "cd android && gradlew.bat assembleDebug",
+    "android:build:release": "cd android && gradlew.bat assembleRelease",
+    "android:build:bundle": "cd android && gradlew.bat bundleRelease"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.4",
+    "@capacitor/cli": "^7.4.4",
+    "@capacitor/core": "^7.4.4",
     "@prisma/client": "^6.18.0",
     "@supabase/supabase-js": "^2.76.1",
     "@tanstack/react-query": "^5.90.5",
