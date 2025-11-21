@@ -15,7 +15,10 @@
     "android:open": "npx cap open android",
     "android:build:debug": "cd android && gradlew.bat assembleDebug",
     "android:build:release": "cd android && gradlew.bat assembleRelease",
-    "android:build:bundle": "cd android && gradlew.bat bundleRelease"
+    "android:build:bundle": "cd android && gradlew.bat bundleRelease",
+    "ios:init": "npm install @capacitor/ios && npx cap add ios && npx cap sync ios",
+    "ios:sync": "npx cap sync ios",
+    "ios:open": "npx cap open ios"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
