@@ -35,6 +35,8 @@ export default function WalletPage() {
     newPassword: '',
     confirmPassword: ''
   })
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false)
+  const [withdrawConfirmText, setWithdrawConfirmText] = useState('')
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -439,6 +441,45 @@ export default function WalletPage() {
 
     } catch (error: any) {
       toast.error(error.message || '정보 수정 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleWithdraw = async () => {
+    if (withdrawConfirmText !== '회원탈퇴') {
+      toast.error('정확히 "회원탈퇴"를 입력해주세요.')
+      return
+    }
+
+    const token = localStorage.getItem('token')
+
+    try {
+      const response = await fetch('/api/user/withdraw', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '회원 탈퇴 실패')
+      }
+
+      // 로컬 스토리지 삭제
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+
+      toast.success('회원 탈퇴가 완료되었습니다.')
+
+      // 로그인 페이지로 이동
+      setTimeout(() => {
+        router.push('/login')
+      }, 1500)
+
+    } catch (error: any) {
+      toast.error(error.message || '회원 탈퇴 중 오류가 발생했습니다.')
     }
   }
 
@@ -1355,7 +1396,7 @@ export default function WalletPage() {
             {/* 로그아웃 버튼 */}
             <button
               onClick={handleLogout}
-              className="w-full px-4 py-3 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-semibold flex items-center justify-center space-x-2"
+              className="w-full px-4 py-3 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-semibold flex items-center justify-center space-x-2 mb-4"
               title="로그아웃"
             >
               <svg
@@ -1371,9 +1412,131 @@ export default function WalletPage() {
               </svg>
               <span>로그아웃</span>
             </button>
+
+            {/* 회원탈퇴 버튼 */}
+            <button
+              onClick={() => setShowWithdrawModal(true)}
+              className="w-full px-4 py-3 bg-red-600/20 border border-red-500/50 text-red-400 rounded-lg hover:bg-red-600/30 transition font-semibold flex items-center justify-center space-x-2"
+              title="회원탈퇴"
+            >
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="8.5" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="18" y1="8" x2="23" y2="13" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="23" y1="8" x2="18" y2="13" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span>회원탈퇴</span>
+            </button>
           </div>
         )}
       </div>
+
+      {/* 회원탈퇴 확인 모달 */}
+      {showWithdrawModal && (
+        <>
+          {/* 배경 오버레이 */}
+          <div
+            className="fixed inset-0 bg-black/80 z-[9998]"
+            onClick={() => {
+              setShowWithdrawModal(false)
+              setWithdrawConfirmText('')
+            }}
+          ></div>
+
+          {/* 모달 */}
+          <div className="fixed left-4 right-4 sm:left-1/2 sm:right-auto top-1/2 -translate-y-1/2 sm:-translate-x-1/2 w-auto sm:w-[500px] bg-gray-900 border border-red-500/50 rounded-xl shadow-xl z-[9999] p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-8 h-8 text-red-400"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <circle cx="12" cy="12" r="10" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="12" y1="8" x2="12" y2="12" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">회원 탈퇴</h3>
+              <p className="text-sm text-gray-400">정말로 탈퇴하시겠습니까?</p>
+            </div>
+
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
+              <h4 className="text-red-400 font-semibold mb-2 flex items-center">
+                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="12" y1="9" x2="12" y2="13" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                주의사항
+              </h4>
+              <ul className="text-sm text-gray-300 space-y-2">
+                <li className="flex items-start">
+                  <span className="text-red-400 mr-2">•</span>
+                  <span>탈퇴 시 모든 보유 코인이 소멸되며 복구할 수 없습니다.</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-red-400 mr-2">•</span>
+                  <span>거래 내역 및 추천 정보가 모두 삭제됩니다.</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-red-400 mr-2">•</span>
+                  <span>동일한 정보로 재가입이 제한될 수 있습니다.</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-red-400 mr-2">•</span>
+                  <span>탈퇴 후 7일간 계정 복구가 가능합니다.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm text-gray-300 mb-2">
+                탈퇴를 진행하시려면 아래에 <span className="text-red-400 font-bold">"회원탈퇴"</span>를 입력해주세요.
+              </label>
+              <input
+                type="text"
+                value={withdrawConfirmText}
+                onChange={(e) => setWithdrawConfirmText(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-red-500 focus:outline-none"
+                placeholder="회원탈퇴"
+                autoFocus
+              />
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowWithdrawModal(false)
+                  setWithdrawConfirmText('')
+                }}
+                className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleWithdraw}
+                disabled={withdrawConfirmText !== '회원탈퇴'}
+                className={`flex-1 px-4 py-3 rounded-lg transition font-semibold ${
+                  withdrawConfirmText === '회원탈퇴'
+                    ? 'bg-red-600 text-white hover:bg-red-500'
+                    : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                탈퇴하기
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
