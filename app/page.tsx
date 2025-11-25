@@ -17,49 +17,62 @@ export default function HomePage() {
   const [youtubeUrl, setYoutubeUrl] = useState('https://www.youtube.com/embed/mJPAA9OzoPI')
 
   useEffect(() => {
-    // 로컬 스토리지에서 토큰 확인
-    const token = localStorage.getItem('token')
-    const userData = localStorage.getItem('user')
+    try {
+      // 로컬 스토리지에서 토큰 확인
+      const token = localStorage.getItem('token')
+      const userData = localStorage.getItem('user')
 
-    if (token && userData) {
-      const parsedUser = JSON.parse(userData)
-      setUser(parsedUser)
-      setIsLoading(false) // 토큰이 있으면 즉시 로딩 종료
+      if (token && userData) {
+        try {
+          const parsedUser = JSON.parse(userData)
+          setUser(parsedUser)
+          setIsLoading(false) // 토큰이 있으면 즉시 로딩 종료
 
-      // 최신 사용자 정보 가져오기 (코인 데이터 업데이트)
-      fetchLatestUserInfo(parsedUser.id, token)
+          // 최신 사용자 정보 가져오기 (코인 데이터 업데이트)
+          fetchLatestUserInfo(parsedUser.id, token)
 
-      // 알림 개수 가져오기
-      fetchUnreadCount(token)
+          // 알림 개수 가져오기
+          fetchUnreadCount(token)
 
-      // 10초마다 알림 개수 업데이트
-      const interval = setInterval(() => {
-        fetchUnreadCount(token)
-      }, 10000)
+          // 10초마다 알림 개수 업데이트
+          const interval = setInterval(() => {
+            fetchUnreadCount(token)
+          }, 10000)
 
-      return () => clearInterval(interval)
-    }
+          return () => clearInterval(interval)
+        } catch (parseError) {
+          // JSON 파싱 에러 시 로컬 스토리지 초기화
+          console.error('User data parse error:', parseError)
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          setIsLoading(false)
+        }
+      } else {
+        setIsLoading(false) // 토큰이 없어도 로딩 종료
+      }
 
-    setIsLoading(false) // 토큰이 없어도 로딩 종료
+      // 회원가입 완료 시 환영 팝업 표시
+      const urlParams = new URLSearchParams(window.location.search)
+      const welcomeParam = urlParams.get('welcome')
+      const justSignedUp = localStorage.getItem('justSignedUp')
 
-    // 회원가입 완료 시 환영 팝업 표시
-    const urlParams = new URLSearchParams(window.location.search)
-    const welcomeParam = urlParams.get('welcome')
-    const justSignedUp = localStorage.getItem('justSignedUp')
+      if (welcomeParam === 'true' && justSignedUp === 'true') {
+        // 플래그 제거 (한 번만 표시)
+        localStorage.removeItem('justSignedUp')
 
-    if (welcomeParam === 'true' && justSignedUp === 'true') {
-      // 플래그 제거 (한 번만 표시)
-      localStorage.removeItem('justSignedUp')
+        // 축하 사운드 재생
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjeJ0/POfjQGJ3vG7+GXSA0RVbHm77BfEgpCpd7zw2AfCTSM0O7Ogy8HKX3D7+SVQAwPUK3k8bBgFApCo93zxF8gBzOKz+/Ngi4HKHzC8OGYRw0OT6rl8bJjEwtDot3yxGAhBjCIzu3PgTAHKH3C7+KZRg0NTqrm8bJjFQpBod/txWEgBjCLze/NhC0GKoC/7+OXRQwQUK7j8bBjEQo+nd3yw2IhBi+Jz+/MhSsGKoK+7+OZRAsQTK/i8LFkEQo+n93yw2IiBjCJze/NhCsGK4G+7+KaRQsRT6/i8LBjEQo9n97yw2EhBjCJze/Ngy0FK4G/7+KaRQoRT7Dj8LBjEAo9n93xw2EgBi+Kze/OhCwGKoK+7+KYRwoQT6/j8LBiEAo+nt3yw2EhBjCIzu7Ngy4FK4G/7+KYRwoQT6/j8LBiEAo9nt7yw2EhBjCJze7Ngy0FK4G/7+KZRQoQTq/j8LBiEAo9nt3yw2IhBjCJze7Ngy0FK4C/7+KZRQoQTrDi8LBjEAo9nt3yw2EhBjCKze7MhC0FK4G+7+KZRQoQTa/j8LBhEAo9nt3yw2EhBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9')
+        audio.volume = 0.3
+        audio.play().catch(() => {}) // 사운드 재생 실패 시 무시
 
-      // 축하 사운드 재생
-      const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjeJ0/POfjQGJ3vG7+GXSA0RVbHm77BfEgpCpd7zw2AfCTSM0O7Ogy8HKX3D7+SVQAwPUK3k8bBgFApCo93zxF8gBzOKz+/Ngi4HKHzC8OGYRw0OT6rl8bJjEwtDot3yxGAhBjCIzu3PgTAHKH3C7+KZRg0NTqrm8bJjFQpBod/txWEgBjCLze/NhC0GKoC/7+OXRQwQUK7j8bBjEQo+nd3yw2IhBi+Jz+/MhSsGKoK+7+OZRAsQTK/i8LFkEQo+n93yw2IiBjCJze/NhCsGK4G+7+KaRQsRT6/i8LBjEQo9n97yw2EhBjCJze/Ngy0FK4G/7+KaRQoRT7Dj8LBjEAo9n93xw2EgBi+Kze/OhCwGKoK+7+KYRwoQT6/j8LBiEAo+nt3yw2EhBjCIzu7Ngy4FK4G/7+KYRwoQT6/j8LBiEAo9nt7yw2EhBjCJze7Ngy0FK4G/7+KZRQoQTq/j8LBiEAo9nt3yw2IhBjCJze7Ngy0FK4C/7+KZRQoQTrDi8LBjEAo9nt3yw2EhBjCKze7MhC0FK4G+7+KZRQoQTa/j8LBhEAo9nt3yw2EhBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9')
-      audio.volume = 0.3
-      audio.play().catch(() => {}) // 사운드 재생 실패 시 무시
-
-      // 0.5초 후 모달 표시
-      setTimeout(() => {
-        setShowWelcomeModal(true)
-      }, 500)
+        // 0.5초 후 모달 표시
+        setTimeout(() => {
+          setShowWelcomeModal(true)
+        }, 500)
+      }
+    } catch (error) {
+      console.error('페이지 초기화 오류:', error)
+      setIsLoading(false)
     }
   }, [])
 
