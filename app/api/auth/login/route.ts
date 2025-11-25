@@ -55,6 +55,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // 탈퇴한 계정 체크 (role이 WITHDRAWN인 경우)
+    if (user.role === 'WITHDRAWN') {
+      return NextResponse.json(
+        { error: '탈퇴 처리된 계정입니다.' },
+        { status: 403 }
+      )
+    }
+
     // 현재 IP 주소 가져오기
     const currentIP = getClientIP(request)
 
