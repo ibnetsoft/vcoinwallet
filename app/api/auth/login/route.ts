@@ -55,8 +55,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 탈퇴한 계정 체크 (role이 WITHDRAWN인 경우)
-    if ((user.role as string) === 'WITHDRAWN') {
+    // 탈퇴한 계정 체크 (is_active가 false인 경우)
+    if (user.is_active === false) {
       return NextResponse.json(
         { error: '탈퇴 처리된 계정입니다.' },
         { status: 403 }

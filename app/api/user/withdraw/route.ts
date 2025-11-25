@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
         password: 'WITHDRAWN_ACCOUNT',
         security_coins: 0,
         dividend_coins: 0,
-        role: 'WITHDRAWN',
-        id_number: null
+        id_number: null,
+        is_active: false
       })
       .eq('id', userId)
 
