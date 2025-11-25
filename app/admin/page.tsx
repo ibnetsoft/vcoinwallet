@@ -1107,7 +1107,7 @@ export default function AdminPage() {
       <Toaster position="top-center" />
       
       {/* 헤더 */}
-      <header className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+      <header className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm pt-[env(safe-area-inset-top)]">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">

@@ -162,7 +162,7 @@ export default function HomePage() {
       <Toaster position="top-center" />
       
       {/* 헤더 */}
-      <header className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+      <header className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm pt-[env(safe-area-inset-top)]">
         <div className="container mx-auto px-4 py-3">
           {/* 첫 번째 줄: 로고 + 아이콘들 */}
           <div className="flex items-center justify-between mb-2">
