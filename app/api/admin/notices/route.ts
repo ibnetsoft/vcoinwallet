@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
 import { db } from '@/lib/db'
+import { sendPushNotification } from '@/lib/push-notification'
 
 // GET: 공지사항 목록 조회
 export async function GET(request: NextRequest) {
@@ -100,21 +101,29 @@ export async function POST(request: NextRequest) {
         .neq('role', 'ADMIN') // 관리자 제외
 
       if (allUsers && allUsers.length > 0) {
-        // 모든 사용자에게 알림 생성
-        const notificationPromises = allUsers.map(user =>
-          db.createNotification(
+        // 모든 사용자에게 알림 생성 및 푸시 전송
+        const notificationPromises = allUsers.map(async (user) => {
+          // 인앱 알림 생성
+          await db.createNotification(
             user.id,
             'SYSTEM',
             `📢 새 공지사항: ${title}`,
             content.length > 100 ? content.substring(0, 100) + '...' : content,
             admin.id
           )
-        )
+
+          // 푸시 알림 전송
+          await sendPushNotification(user.id, {
+            title: `📢 새 공지사항: ${title}`,
+            body: content.length > 100 ? content.substring(0, 100) + '...' : content,
+            data: {
+              type: 'NOTICE',
+              noticeId: notice.id
+            }
+          })
+        })
 
         await Promise.all(notificationPromises)
-
-        // 푸시 알림은 백그라운드에서 전송 (너무 많으면 시간이 오래 걸릴 수 있음)
-        // 실제 운영 환경에서는 Queue 시스템 사용 권장
       }
     } catch (notificationError) {
       console.error('Send notifications error:', notificationError)
