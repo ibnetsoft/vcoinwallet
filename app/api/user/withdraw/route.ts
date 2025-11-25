@@ -47,21 +47,33 @@ export async function POST(request: NextRequest) {
     }
 
     // 어드민은 탈퇴 불가
-    if (user.role === 'admin') {
+    if (user.role === 'ADMIN' || user.role === 'admin') {
       return NextResponse.json(
         { error: '관리자 계정은 탈퇴할 수 없습니다.' },
         { status: 403 }
       )
     }
 
-    // 사용자 삭제 (관련 데이터는 CASCADE로 자동 삭제될 수 있도록 DB 설정 필요)
-    const { error: deleteError } = await supabaseAdmin
+    // 사용자 비활성화 (완전 삭제 대신 비활성화 처리)
+    const withdrawnEmail = `withdrawn_${userId}_${Date.now()}@deleted.com`
+    const withdrawnPhone = `withdrawn_${Date.now()}`
+
+    const { error: updateError } = await supabaseAdmin
       .from('users')
-      .delete()
+      .update({
+        email: withdrawnEmail,
+        phone: withdrawnPhone,
+        name: '탈퇴한 회원',
+        password: 'WITHDRAWN_ACCOUNT',
+        security_coins: 0,
+        dividend_coins: 0,
+        role: 'WITHDRAWN',
+        id_number: null
+      })
       .eq('id', userId)
 
-    if (deleteError) {
-      console.error('회원 탈퇴 오류:', deleteError)
+    if (updateError) {
+      console.error('회원 탈퇴 오류:', updateError)
       return NextResponse.json(
         { error: '회원 탈퇴 처리 중 오류가 발생했습니다.' },
         { status: 500 }
