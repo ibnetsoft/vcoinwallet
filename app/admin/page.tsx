@@ -1527,13 +1527,13 @@ export default function AdminPage() {
                       }
                       const currentRole: string = u.role || 'USER'
 
-                      // 추천인 찾기 (referrerId는 USER ID 또는 추천코드일 수 있음)
+                      // 추천인 찾기 (referrerId는 user.id로 저장됨)
                       const referrer = u.referrerId
-                        ? users.find(user => user.id === u.referrerId || user.referralCode === u.referrerId)
+                        ? users.find(user => user.id === u.referrerId)
                         : null
 
-                      // 이 회원이 추천한 회원들 (referrerId가 USER ID 또는 추천코드일 수 있음)
-                      const referredMembers = users.filter(user => user.referrerId === u.id || user.referrerId === u.referralCode)
+                      // 이 회원이 추천한 회원들 (referrerId는 user.id로 저장됨)
+                      const referredMembers = users.filter(user => user.referrerId === u.id)
                       const referredCount = referredMembers.length
                       const isExpanded = expandedTeamLeaders.has(u.id)
 
@@ -1773,11 +1773,11 @@ export default function AdminPage() {
                 'USER': '일반회원'
               }
               const currentRole: string = selectedUser.role || 'USER'
-              // referrerId는 USER ID 또는 추천코드일 수 있음
+              // referrerId는 user.id로 저장됨
               const referrer = selectedUser.referrerId
-                ? users.find(u => u.id === selectedUser.referrerId || u.referralCode === selectedUser.referrerId)
+                ? users.find(u => u.id === selectedUser.referrerId)
                 : null
-              const referredCount = users.filter(u => u.referrerId === selectedUser.id || u.referrerId === selectedUser.referralCode).length
+              const referredCount = users.filter(u => u.referrerId === selectedUser.id).length
               const joinDate = new Date(selectedUser.createdAt).toLocaleDateString('ko-KR')
 
               // 디버깅
@@ -2019,11 +2019,11 @@ export default function AdminPage() {
                 'USER': '일반회원'
               }
               const currentRole: string = securitySelectedUser.role || 'USER'
-              // referrerId는 USER ID 또는 추천코드일 수 있음
+              // referrerId는 user.id로 저장됨
               const referrer = securitySelectedUser.referrerId
-                ? users.find(u => u.id === securitySelectedUser.referrerId || u.referralCode === securitySelectedUser.referrerId)
+                ? users.find(u => u.id === securitySelectedUser.referrerId)
                 : null
-              const referredCount = users.filter(u => u.referrerId === securitySelectedUser.id || u.referrerId === securitySelectedUser.referralCode).length
+              const referredCount = users.filter(u => u.referrerId === securitySelectedUser.id).length
               const joinDate = new Date(securitySelectedUser.createdAt).toLocaleDateString('ko-KR')
 
               // 디버깅
@@ -2996,22 +2996,23 @@ export default function AdminPage() {
                   const excelData: any[] = []
 
                   users.filter(u => u.role === 'TEAM_LEADER').forEach(teamLeader => {
-                    const teamMembers = users.filter(u => u.referrerId === teamLeader.referralCode)
+                    // referrerId는 user.id로 저장되어 있음
+                    const teamMembers = users.filter(u => u.referrerId === teamLeader.id)
                     const totalSales = teamMembers.reduce((sum, member) => sum + member.dividendCoins, 0)
 
                     // 산하 총회원수 계산 (하위 팀장은 포함하지만, 그 팀장의 하위는 제외)
-                    const getAllSubMembers = (referralCode: string): any[] => {
-                      const directMembers = users.filter(u => u.referrerId === referralCode)
+                    const getAllSubMembers = (userId: string): any[] => {
+                      const directMembers = users.filter(u => u.referrerId === userId)
                       let allMembers = [...directMembers]
                       directMembers.forEach(member => {
                         // 팀장이면 그 팀장만 포함하고, 그 팀장의 하위는 탐색하지 않음
                         if (member.role !== 'TEAM_LEADER') {
-                          allMembers = [...allMembers, ...getAllSubMembers(member.referralCode)]
+                          allMembers = [...allMembers, ...getAllSubMembers(member.id)]
                         }
                       })
                       return allMembers
                     }
-                    const allSubMembers = getAllSubMembers(teamLeader.referralCode)
+                    const allSubMembers = getAllSubMembers(teamLeader.id)
                     const totalSubMemberCount = allSubMembers.length
 
                     // 팀장 정보 헤더
@@ -3034,7 +3035,7 @@ export default function AdminPage() {
 
                     // 직추천한 회원 목록
                     teamMembers.forEach(member => {
-                      const referredCount = users.filter(u => u.referrerId === member.referralCode).length
+                      const referredCount = users.filter(u => u.referrerId === member.id).length
                       excelData.push({
                         '팀장명': '',
                         '팀장 회원번호': '',
@@ -3099,22 +3100,22 @@ export default function AdminPage() {
                 </div>
               ) : (
                 users.filter(u => u.role === 'TEAM_LEADER').map(teamLeader => {
-                  // 해당 팀장의 직추천 회원 찾기 (추천코드로)
-                  const teamMembers = users.filter(u => u.referrerId === teamLeader.referralCode)
+                  // 해당 팀장의 직추천 회원 찾기 (referrerId는 user.id로 저장됨)
+                  const teamMembers = users.filter(u => u.referrerId === teamLeader.id)
 
                   // 산하 총회원수 계산 (하위 팀장은 포함하지만, 그 팀장의 하위는 제외)
-                  const getAllSubMembers = (referralCode: string): any[] => {
-                    const directMembers = users.filter(u => u.referrerId === referralCode)
+                  const getAllSubMembers = (userId: string): any[] => {
+                    const directMembers = users.filter(u => u.referrerId === userId)
                     let allMembers = [...directMembers]
                     directMembers.forEach(member => {
                       // 팀장이면 그 팀장만 포함하고, 그 팀장의 하위는 탐색하지 않음
                       if (member.role !== 'TEAM_LEADER') {
-                        allMembers = [...allMembers, ...getAllSubMembers(member.referralCode)]
+                        allMembers = [...allMembers, ...getAllSubMembers(member.id)]
                       }
                     })
                     return allMembers
                   }
-                  const allSubMembers = getAllSubMembers(teamLeader.referralCode)
+                  const allSubMembers = getAllSubMembers(teamLeader.id)
                   const totalSubMemberCount = allSubMembers.length
 
                   // 총 배당코인 매출
@@ -3188,7 +3189,7 @@ export default function AdminPage() {
                             {/* 재귀적 회원 트리 렌더링 함수 */}
                             {(() => {
                               const renderMemberTree = (member: User, depth: number = 0): React.ReactNode[] => {
-                                const subMembers = users.filter(u => u.referrerId === member.referralCode)
+                                const subMembers = users.filter(u => u.referrerId === member.id)
                                 const referredCount = subMembers.length
                                 const isMemberExpanded = expandedTeamLeaders.has(member.id)
 
@@ -3388,9 +3389,9 @@ export default function AdminPage() {
                   <p className="text-sm text-gray-400">추천인</p>
                   <p className="text-base font-medium text-white">
                     {(() => {
-                      // referrerId는 USER ID 또는 추천코드일 수 있음
+                      // referrerId는 user.id로 저장됨
                       const referrer = selectedUserDetail.referrerId
-                        ? users.find(u => u.id === selectedUserDetail.referrerId || u.referralCode === selectedUserDetail.referrerId)
+                        ? users.find(u => u.id === selectedUserDetail.referrerId)
                         : null
                       return referrer ? `${referrer.name} (회원번호: ${referrer.memberNumber})` : '없음'
                     })()}
@@ -3400,7 +3401,7 @@ export default function AdminPage() {
                 <div>
                   <p className="text-sm text-gray-400">추천한 인원</p>
                   <p className="text-base font-medium text-green-400">
-                    {users.filter(u => u.referrerId === selectedUserDetail.referralCode).length}명
+                    {users.filter(u => u.referrerId === selectedUserDetail.id).length}명
                   </p>
                 </div>
 

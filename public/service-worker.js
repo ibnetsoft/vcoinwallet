@@ -37,6 +37,11 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
+  // chrome-extension 등 지원되지 않는 스킴은 무시
+  if (!event.request.url.startsWith('http')) {
+    return
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -55,6 +60,9 @@ self.addEventListener('fetch', (event) => {
               cache.put(event.request, responseToCache)
             })
           return response
+        }).catch(() => {
+          // 네트워크 오류 시 빈 응답 반환
+          return new Response('', { status: 408, statusText: 'Request Timeout' })
         })
       })
   )

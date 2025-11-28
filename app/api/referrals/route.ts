@@ -3,8 +3,9 @@ import { db } from '@/lib/db'
 import { verifyToken } from '@/lib/auth'
 
 // 재귀적으로 모든 하위 회원을 찾는 함수 (TEAM_LEADER의 하위는 제외)
-function getAllDownlineUsers(userReferralCode: string, allUsers: any[]): any[] {
-  const directReferrals = allUsers.filter(u => u.referrerId === userReferralCode)
+// userId: 추천인의 User ID (DB의 referred_by에는 User ID가 저장됨)
+function getAllDownlineUsers(userId: string, allUsers: any[]): any[] {
+  const directReferrals = allUsers.filter(u => u.referrerId === userId)
   let allDownline = [...directReferrals]
 
   // 각 직접 추천인의 하위 라인도 재귀적으로 추가
@@ -12,7 +13,7 @@ function getAllDownlineUsers(userReferralCode: string, allUsers: any[]): any[] {
   for (const referral of directReferrals) {
     // TEAM_LEADER가 아닌 경우에만 하위 탐색
     if (referral.role !== 'TEAM_LEADER') {
-      const subDownline = getAllDownlineUsers(referral.referralCode, allUsers)
+      const subDownline = getAllDownlineUsers(referral.id, allUsers)
       allDownline = [...allDownline, ...subDownline]
     }
   }
@@ -58,7 +59,8 @@ export async function GET(request: NextRequest) {
     console.log('전체 사용자 수:', allUsers.length)
     console.log('각 사용자의 referrerId:', allUsers.map(u => ({ name: u.name, referrerId: u.referrerId })))
 
-    const referredUsers = allUsers.filter(u => u.referrerId === user.referralCode)
+    // referrerId는 추천인의 User ID가 저장됨 (user.id와 비교)
+    const referredUsers = allUsers.filter(u => u.referrerId === user.id)
     console.log('필터링된 추천 회원 수:', referredUsers.length)
     console.log('=== 디버깅 끝 ===')
 
@@ -75,7 +77,7 @@ export async function GET(request: NextRequest) {
 
       if (userData.role !== 'TEAM_LEADER') {
         secondLevelReferrals = allUsers
-          .filter(u => u.referrerId === userData.referralCode)
+          .filter(u => u.referrerId === userData.id)
           .map(({ password: _, ...subUserData }) => ({
             ...subUserData,
             createdAt: new Date(subUserData.createdAt).toLocaleDateString('ko-KR')
@@ -95,7 +97,7 @@ export async function GET(request: NextRequest) {
     if (user.role === 'TEAM_LEADER') {
       // 모든 산하 회원 (직접 + 간접 추천)
       // 주의: 하위 팀장(TEAM_LEADER)은 포함하되, 그 팀장의 산하는 제외됨
-      const allDownline = getAllDownlineUsers(user.referralCode, allUsers)
+      const allDownline = getAllDownlineUsers(user.id, allUsers)
 
       // 산하 총 인원 (하위 팀장의 산하 제외)
       const totalMembers = allDownline.length

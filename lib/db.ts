@@ -274,8 +274,8 @@ export const db = {
 
     // 추천인에게 보너스 지급 (백분율 계산)
     if (user.referrerId) {
-      // referrerId는 실제로 추천코드(referred_by)이므로 추천코드로 검색
-      const referrer = await this.findUserByReferralCode(user.referrerId)
+      // referrerId는 추천인의 User ID (referred_by 컬럼)
+      const referrer = await this.findUserById(user.referrerId)
       if (referrer) {
         const config = await this.getSystemConfig()
         // 추천받은 회원이 받은 금액의 X%를 추천인에게 지급
@@ -634,11 +634,11 @@ export const db = {
 
       if (txError) console.log('Transaction delete error:', txError)
 
-      // 6. 이 회원을 추천인으로 가진 다른 회원들의 referred_by를 null로 설정
+      // 6. 이 회원을 추천인으로 가진 다른 회원들의 referred_by를 null로 설정 (referred_by에는 user.id가 저장됨)
       const { error: refError } = await supabaseAdmin
         .from('users')
         .update({ referred_by: null })
-        .eq('referred_by', user.referralCode)
+        .eq('referred_by', userId)
 
       if (refError) console.log('Referral update error:', refError)
 
@@ -661,15 +661,12 @@ export const db = {
     }
   },
 
-  // 추천인 목록
+  // 추천인 목록 (referred_by에는 user.id가 저장됨)
   async getReferredUsers(userId: string): Promise<User[]> {
-    const user = await this.findUserById(userId)
-    if (!user) return []
-
     const { data, error } = await supabaseAdmin
       .from('users')
       .select('*')
-      .eq('referred_by', user.referralCode)
+      .eq('referred_by', userId)
       .order('created_at', { ascending: false })
 
     if (error) return []

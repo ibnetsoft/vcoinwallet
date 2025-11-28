@@ -14,7 +14,7 @@ export default function HomePage() {
   const [notifications, setNotifications] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [showNotifications, setShowNotifications] = useState(false)
-  const [youtubeUrl, setYoutubeUrl] = useState('https://www.youtube.com/embed/mJPAA9OzoPI')
+  const [youtubeUrl, setYoutubeUrl] = useState('https://www.youtube-nocookie.com/embed/mJPAA9OzoPI')
 
   useEffect(() => {
     try {
@@ -89,7 +89,9 @@ export default function HomePage() {
         if (response.ok) {
           const data = await response.json()
           if (data.config?.youtubeUrl) {
-            setYoutubeUrl(data.config.youtubeUrl)
+            // youtube-nocookie.com으로 변환 (개인정보 보호 모드)
+            const url = data.config.youtubeUrl.replace('www.youtube.com', 'www.youtube-nocookie.com')
+            setYoutubeUrl(url)
           }
         }
       } catch (error) {

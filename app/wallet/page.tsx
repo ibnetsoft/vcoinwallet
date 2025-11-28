@@ -307,10 +307,19 @@ export default function WalletPage() {
           return
         }
 
-        subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
-        })
+        try {
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+          })
+        } catch (subscribeError: any) {
+          // 푸시 서비스 연결 실패는 무시 (네트워크/브라우저 환경 문제)
+          if (subscribeError.name === 'AbortError') {
+            console.log('푸시 서비스 연결 실패 - 나중에 다시 시도됩니다.')
+            return
+          }
+          throw subscribeError
+        }
       }
 
       // 서버에 구독 정보 저장
