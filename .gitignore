@@ -42,3 +42,7 @@ data.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Firebase service account (sensitive)
+*firebase-adminsdk*.json
+firebase-service-account.json
