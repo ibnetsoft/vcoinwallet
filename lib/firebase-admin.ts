@@ -15,6 +15,7 @@ async function initializeFirebaseAdmin() {
   }
 
   try {
+    // @ts-ignore - 서버 사이드에서만 사용되는 모듈
     const firebaseAdmin = await import('firebase-admin')
     admin = firebaseAdmin.default
 
