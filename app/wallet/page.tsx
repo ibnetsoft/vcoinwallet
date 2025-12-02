@@ -267,6 +267,7 @@ export default function WalletPage() {
 
       if (Capacitor.isNativePlatform()) {
         // 네이티브 앱: FCM 푸시
+        // @ts-ignore - 네이티브 환경에서만 사용되는 모듈
         const { PushNotifications } = await import('@capacitor/push-notifications')
 
         let permStatus = await PushNotifications.checkPermissions()
@@ -280,7 +281,7 @@ export default function WalletPage() {
 
         await PushNotifications.register()
 
-        PushNotifications.addListener('registration', async (token) => {
+        PushNotifications.addListener('registration', async (token: any) => {
           console.log('FCM 토큰:', token.value)
           try {
             await fetch('/api/notifications/fcm-token', {
@@ -296,11 +297,11 @@ export default function WalletPage() {
           }
         })
 
-        PushNotifications.addListener('registrationError', (error) => {
+        PushNotifications.addListener('registrationError', (error: any) => {
           console.error('FCM 등록 오류:', error)
         })
 
-        PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        PushNotifications.addListener('pushNotificationReceived', (notification: any) => {
           toast(notification.body || '새 알림이 도착했습니다.', { icon: '🔔' })
         })
       } else {
