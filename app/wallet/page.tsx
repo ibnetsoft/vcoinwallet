@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Wallet, Coins, TrendingUp, History, Copy, Share2, ArrowLeft, User as UserIcon, Lock, Mail, Phone, Users, Bell, ChevronDown, ChevronUp } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
-import { Capacitor } from '@capacitor/core'
-import { PushNotifications } from '@capacitor/push-notifications'
 
 export default function WalletPage() {
   const router = useRouter()
@@ -64,11 +62,7 @@ export default function WalletPage() {
     fetchNotifications(token)
 
     // 푸시 알림 구독 요청 (웹/네이티브 분기)
-    if (Capacitor.isNativePlatform()) {
-      registerNativePush(token)
-    } else {
-      requestPushNotificationPermission(token)
-    }
+    initPushNotifications(token)
 
     setIsLoading(false)
 
@@ -265,6 +259,60 @@ export default function WalletPage() {
     }
   }
 
+  // 푸시 알림 초기화 (웹/네이티브 분기)
+  const initPushNotifications = async (authToken: string) => {
+    try {
+      // 동적 import로 Capacitor 확인
+      const { Capacitor } = await import('@capacitor/core')
+
+      if (Capacitor.isNativePlatform()) {
+        // 네이티브 앱: FCM 푸시
+        const { PushNotifications } = await import('@capacitor/push-notifications')
+
+        let permStatus = await PushNotifications.checkPermissions()
+        if (permStatus.receive === 'prompt') {
+          permStatus = await PushNotifications.requestPermissions()
+        }
+        if (permStatus.receive !== 'granted') {
+          console.log('푸시 권한이 거부되었습니다.')
+          return
+        }
+
+        await PushNotifications.register()
+
+        PushNotifications.addListener('registration', async (token) => {
+          console.log('FCM 토큰:', token.value)
+          try {
+            await fetch('/api/notifications/fcm-token', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+              },
+              body: JSON.stringify({ fcmToken: token.value })
+            })
+          } catch (err) {
+            console.error('FCM 토큰 저장 실패:', err)
+          }
+        })
+
+        PushNotifications.addListener('registrationError', (error) => {
+          console.error('FCM 등록 오류:', error)
+        })
+
+        PushNotifications.addListener('pushNotificationReceived', (notification) => {
+          toast(notification.body || '새 알림이 도착했습니다.', { icon: '🔔' })
+        })
+      } else {
+        // 웹: 웹 푸시
+        requestPushNotificationPermission(authToken)
+      }
+    } catch (error) {
+      // Capacitor 없는 환경 (일반 웹)
+      requestPushNotificationPermission(authToken)
+    }
+  }
+
   const requestPushNotificationPermission = async (token: string) => {
     try {
       // 브라우저가 푸시 알림을 지원하는지 확인
@@ -293,76 +341,6 @@ export default function WalletPage() {
       }
     } catch (error) {
       console.error('푸시 알림 권한 요청 실패:', error)
-    }
-  }
-
-  // 네이티브 앱 FCM 푸시 등록
-  const registerNativePush = async (authToken: string) => {
-    try {
-      // 네이티브 환경인지 확인
-      if (!Capacitor.isNativePlatform()) {
-        return
-      }
-
-      console.log('네이티브 푸시 등록 시작...')
-
-      // 권한 확인
-      let permStatus = await PushNotifications.checkPermissions()
-
-      if (permStatus.receive === 'prompt') {
-        permStatus = await PushNotifications.requestPermissions()
-      }
-
-      if (permStatus.receive !== 'granted') {
-        console.log('푸시 권한이 거부되었습니다.')
-        return
-      }
-
-      // FCM 등록
-      await PushNotifications.register()
-
-      // 토큰 수신 리스너
-      PushNotifications.addListener('registration', async (token) => {
-        console.log('FCM 토큰:', token.value)
-
-        // 서버에 FCM 토큰 저장
-        try {
-          await fetch('/api/notifications/fcm-token', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify({ fcmToken: token.value })
-          })
-          console.log('FCM 토큰 저장 완료')
-        } catch (err) {
-          console.error('FCM 토큰 저장 실패:', err)
-        }
-      })
-
-      // 등록 오류 리스너
-      PushNotifications.addListener('registrationError', (error) => {
-        console.error('FCM 등록 오류:', error)
-      })
-
-      // 푸시 수신 리스너
-      PushNotifications.addListener('pushNotificationReceived', (notification) => {
-        console.log('푸시 수신:', notification)
-        toast(notification.body || '새 알림이 도착했습니다.', {
-          icon: '🔔',
-          duration: 4000
-        })
-      })
-
-      // 푸시 클릭 리스너
-      PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-        console.log('푸시 클릭:', notification)
-        // 알림 클릭 시 처리
-      })
-
-    } catch (error) {
-      console.error('네이티브 푸시 등록 실패:', error)
     }
   }
 
