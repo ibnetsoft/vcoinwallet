@@ -7,8 +7,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
@@ -21,8 +21,8 @@ public class MainActivity extends BridgeActivity {
     private static final String TAG = "MainActivity";
     private static final int NOTIFICATION_PERMISSION_CODE = 1001;
     private String fcmToken = null;
-    private boolean pageLoaded = false;
     private Handler handler = new Handler(Looper.getMainLooper());
+    private boolean tokenInjected = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -30,28 +30,53 @@ public class MainActivity extends BridgeActivity {
         createNotificationChannel();
         requestNotificationPermission();
 
-        // 페이지 로드 완료 감지를 위한 WebViewClient 설정
-        handler.postDelayed(() -> {
-            WebView webView = getBridge().getWebView();
-            if (webView != null) {
-                webView.setWebViewClient(new WebViewClient() {
-                    @Override
-                    public void onPageFinished(WebView view, String url) {
-                        super.onPageFinished(view, url);
-                        Log.d(TAG, "페이지 로드 완료: " + url);
-                        pageLoaded = true;
+        // FCM 토큰 가져오기
+        initFCM();
 
-                        // 페이지 로드 후 약간의 딜레이를 주고 토큰 주입
-                        handler.postDelayed(() -> {
-                            if (fcmToken != null) {
-                                injectFCMToken(view, fcmToken);
-                            }
-                        }, 2000); // 2초 딜레이 (React 앱 초기화 대기)
-                    }
-                });
+        // JavaScript Interface 추가 및 주기적 토큰 주입
+        handler.postDelayed(this::setupWebViewAndInjectToken, 1000);
+    }
+
+    private void setupWebViewAndInjectToken() {
+        WebView webView = getBridge().getWebView();
+        if (webView != null) {
+            // JavaScript Interface 추가 - 웹에서 네이티브 호출 가능
+            webView.addJavascriptInterface(new FCMInterface(), "AndroidFCM");
+            Log.d(TAG, "JavaScript Interface 추가됨");
+
+            // 주기적으로 토큰 주입 시도 (5초마다, 최대 12회 = 1분)
+            startTokenInjection(webView);
+        } else {
+            // WebView가 아직 준비되지 않았으면 재시도
+            handler.postDelayed(this::setupWebViewAndInjectToken, 500);
+        }
+    }
+
+    private void startTokenInjection(WebView webView) {
+        final int[] attempts = {0};
+        final int maxAttempts = 12;
+
+        Runnable injectRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (tokenInjected || attempts[0] >= maxAttempts) {
+                    Log.d(TAG, "토큰 주입 종료: injected=" + tokenInjected + ", attempts=" + attempts[0]);
+                    return;
+                }
+
+                if (fcmToken != null) {
+                    injectFCMToken(webView, fcmToken);
+                    attempts[0]++;
+                    Log.d(TAG, "토큰 주입 시도 #" + attempts[0]);
+                }
+
+                // 5초 후 재시도
+                handler.postDelayed(this, 5000);
             }
-            initFCM();
-        }, 500);
+        };
+
+        // 3초 후 첫 시도 (페이지 로드 대기)
+        handler.postDelayed(injectRunnable, 3000);
     }
 
     private void createNotificationChannel() {
@@ -94,47 +119,61 @@ public class MainActivity extends BridgeActivity {
 
                 fcmToken = task.getResult();
                 Log.d(TAG, "FCM 토큰 획득: " + fcmToken);
-
-                // 페이지가 이미 로드되었으면 바로 주입, 아니면 onPageFinished에서 주입
-                if (pageLoaded) {
-                    runOnUiThread(() -> {
-                        WebView webView = getBridge().getWebView();
-                        if (webView != null) {
-                            injectFCMToken(webView, fcmToken);
-                        }
-                    });
-                }
             });
     }
 
     private void injectFCMToken(WebView webView, String token) {
-        Log.d(TAG, "FCM 토큰 JavaScript로 주입 시도: " + token);
+        Log.d(TAG, "FCM 토큰 JavaScript로 주입 시도");
 
-        // 토큰을 window 객체에 저장하고, 콜백이 있으면 호출, 없으면 주기적으로 재시도
+        // 토큰을 window 객체에 저장
         String script =
-            "console.log('FCM 토큰 주입 시작');" +
-            "window.NATIVE_FCM_TOKEN = '" + token + "';" +
-            "window.IS_NATIVE_APP = true;" +
-            "if (typeof window.onFCMToken === 'function') {" +
-            "  console.log('onFCMToken 콜백 호출');" +
-            "  window.onFCMToken('" + token + "');" +
-            "} else {" +
-            "  console.log('onFCMToken 콜백 없음, 이벤트 발생');" +
-            "  window.dispatchEvent(new CustomEvent('fcmToken', { detail: '" + token + "' }));" +
-            "}";
+            "(function() {" +
+            "  console.log('[Native] FCM 토큰 주입');" +
+            "  window.NATIVE_FCM_TOKEN = '" + token + "';" +
+            "  window.IS_NATIVE_APP = true;" +
+            "  window.FCM_TOKEN = '" + token + "';" +
+            "  " +
+            "  // 콜백이 있으면 호출" +
+            "  if (typeof window.onFCMToken === 'function') {" +
+            "    console.log('[Native] onFCMToken 콜백 호출');" +
+            "    try { window.onFCMToken('" + token + "'); } catch(e) { console.error(e); }" +
+            "  }" +
+            "  " +
+            "  // 이벤트도 발생" +
+            "  try {" +
+            "    window.dispatchEvent(new CustomEvent('nativeFCMToken', { detail: '" + token + "' }));" +
+            "  } catch(e) { console.error(e); }" +
+            "  " +
+            "  return 'injected';" +
+            "})();";
 
-        webView.evaluateJavascript(script, result -> {
-            Log.d(TAG, "JavaScript 실행 결과: " + result);
+        runOnUiThread(() -> {
+            webView.evaluateJavascript(script, result -> {
+                Log.d(TAG, "JavaScript 실행 결과: " + result);
+                if (result != null && result.contains("injected")) {
+                    Log.d(TAG, "토큰 주입 성공!");
+                }
+            });
         });
+    }
 
-        // 3초 후에 다시 한번 시도 (안전장치)
-        handler.postDelayed(() -> {
-            String retryScript =
-                "if (window.NATIVE_FCM_TOKEN && typeof window.onFCMToken === 'function') {" +
-                "  console.log('FCM 토큰 재시도');" +
-                "  window.onFCMToken(window.NATIVE_FCM_TOKEN);" +
-                "}";
-            webView.evaluateJavascript(retryScript, null);
-        }, 3000);
+    // JavaScript Interface - 웹에서 호출 가능
+    public class FCMInterface {
+        @JavascriptInterface
+        public String getFCMToken() {
+            Log.d(TAG, "JavaScript에서 getFCMToken() 호출됨");
+            return fcmToken != null ? fcmToken : "";
+        }
+
+        @JavascriptInterface
+        public void tokenSaved() {
+            Log.d(TAG, "JavaScript에서 tokenSaved() 호출됨 - 토큰 저장 완료");
+            tokenInjected = true;
+        }
+
+        @JavascriptInterface
+        public boolean isNativeApp() {
+            return true;
+        }
     }
 }
