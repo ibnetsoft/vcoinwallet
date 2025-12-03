@@ -267,11 +267,11 @@ export default function WalletPage() {
       const savedToken = localStorage.getItem('fcm_token_saved')
       if (savedToken === fcmToken) {
         console.log('FCM 토큰 이미 저장됨, 스킵')
-        return
+        return true
       }
 
       try {
-        console.log('FCM 토큰 저장 시도:', fcmToken)
+        console.log('FCM 토큰 저장 시도:', fcmToken.substring(0, 20) + '...')
         const response = await fetch('/api/notifications/fcm-token', {
           method: 'POST',
           headers: {
@@ -281,13 +281,17 @@ export default function WalletPage() {
           body: JSON.stringify({ fcmToken })
         })
         if (response.ok) {
-          console.log('FCM 토큰 저장 성공')
+          console.log('FCM 토큰 저장 성공!')
           localStorage.setItem('fcm_token_saved', fcmToken)
+          return true
         } else {
-          console.error('FCM 토큰 저장 실패:', await response.text())
+          const errText = await response.text()
+          console.error('FCM 토큰 저장 실패:', response.status, errText)
+          return false
         }
       } catch (err) {
         console.error('FCM 토큰 저장 오류:', err)
+        return false
       }
     }
 
@@ -296,42 +300,58 @@ export default function WalletPage() {
       // @ts-ignore
       window.IS_NATIVE_APP === true ||
       navigator.userAgent.includes('wv') ||
-      navigator.userAgent.includes('Android') && navigator.userAgent.includes('Version/')
+      (navigator.userAgent.includes('Android') && navigator.userAgent.includes('Version/'))
     )
 
-    console.log('네이티브 앱 여부:', isNativeApp, 'User-Agent:', navigator.userAgent)
+    console.log('푸시 알림 초기화 시작, 네이티브 앱:', isNativeApp)
 
-    // 네이티브 앱에서 이미 전달받은 토큰 처리
-    // @ts-ignore
-    if (typeof window !== 'undefined' && window.NATIVE_FCM_TOKEN) {
-      console.log('이미 주입된 NATIVE_FCM_TOKEN 발견')
-      // @ts-ignore
-      await saveFCMToken(window.NATIVE_FCM_TOKEN)
-    }
-    // @ts-ignore - 레거시 지원
-    if (typeof window !== 'undefined' && window.FCM_TOKEN) {
-      console.log('이미 주입된 FCM_TOKEN 발견')
-      // @ts-ignore
-      await saveFCMToken(window.FCM_TOKEN)
-    }
-
-    // 네이티브 앱에서 나중에 토큰을 전달받을 때 처리 (콜백 등록)
+    // 콜백 등록 - 네이티브에서 호출할 수 있도록
     // @ts-ignore
     window.onFCMToken = async (token: string) => {
-      console.log('onFCMToken 콜백 호출됨:', token)
+      console.log('onFCMToken 콜백 호출됨')
       await saveFCMToken(token)
     }
 
-    // fcmToken 이벤트 리스너 등록 (CustomEvent)
+    // 이벤트 리스너 등록
     window.addEventListener('fcmToken', async (event: any) => {
-      console.log('fcmToken 이벤트 수신:', event.detail)
+      console.log('fcmToken 이벤트 수신')
       if (event.detail) {
         await saveFCMToken(event.detail)
       }
     })
 
-    // 웹 브라우저에서만 웹 푸시 (네이티브 앱 제외)
-    if (typeof window !== 'undefined' && !isNativeApp) {
+    // 네이티브 앱인 경우: 폴링으로 토큰 체크 (더 확실한 방법)
+    if (isNativeApp || navigator.userAgent.includes('Android')) {
+      console.log('네이티브 앱 감지됨 - FCM 토큰 폴링 시작')
+
+      let pollCount = 0
+      const maxPolls = 20 // 최대 20회 (10초간)
+
+      const pollForToken = async () => {
+        // @ts-ignore
+        const nativeToken = window.NATIVE_FCM_TOKEN || window.FCM_TOKEN
+
+        if (nativeToken) {
+          console.log('폴링으로 FCM 토큰 발견!')
+          const saved = await saveFCMToken(nativeToken)
+          if (saved) {
+            console.log('FCM 토큰 폴링 저장 완료')
+            return // 성공하면 폴링 중지
+          }
+        }
+
+        pollCount++
+        if (pollCount < maxPolls) {
+          setTimeout(pollForToken, 500) // 0.5초마다 체크
+        } else {
+          console.log('FCM 토큰 폴링 종료 (토큰 없음)')
+        }
+      }
+
+      // 1초 후 폴링 시작 (페이지 초기화 대기)
+      setTimeout(pollForToken, 1000)
+    } else {
+      // 웹 브라우저: 웹 푸시
       requestPushNotificationPermission(authToken)
     }
   }
