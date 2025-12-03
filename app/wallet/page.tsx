@@ -263,6 +263,13 @@ export default function WalletPage() {
   const initPushNotifications = async (authToken: string) => {
     // 네이티브 앱에서 전달받은 FCM 토큰 처리
     const saveFCMToken = async (fcmToken: string) => {
+      // 이미 저장한 토큰인지 확인
+      const savedToken = localStorage.getItem('fcm_token_saved')
+      if (savedToken === fcmToken) {
+        console.log('FCM 토큰 이미 저장됨, 스킵')
+        return
+      }
+
       try {
         console.log('FCM 토큰 저장 시도:', fcmToken)
         const response = await fetch('/api/notifications/fcm-token', {
@@ -275,6 +282,7 @@ export default function WalletPage() {
         })
         if (response.ok) {
           console.log('FCM 토큰 저장 성공')
+          localStorage.setItem('fcm_token_saved', fcmToken)
         } else {
           console.error('FCM 토큰 저장 실패:', await response.text())
         }
@@ -283,21 +291,47 @@ export default function WalletPage() {
       }
     }
 
-    // 네이티브 앱에서 전달받은 토큰 처리 (Android WebView)
+    // 네이티브 앱 여부 확인 (Android WebView)
+    const isNativeApp = typeof window !== 'undefined' && (
+      // @ts-ignore
+      window.IS_NATIVE_APP === true ||
+      navigator.userAgent.includes('wv') ||
+      navigator.userAgent.includes('Android') && navigator.userAgent.includes('Version/')
+    )
+
+    console.log('네이티브 앱 여부:', isNativeApp, 'User-Agent:', navigator.userAgent)
+
+    // 네이티브 앱에서 이미 전달받은 토큰 처리
     // @ts-ignore
+    if (typeof window !== 'undefined' && window.NATIVE_FCM_TOKEN) {
+      console.log('이미 주입된 NATIVE_FCM_TOKEN 발견')
+      // @ts-ignore
+      await saveFCMToken(window.NATIVE_FCM_TOKEN)
+    }
+    // @ts-ignore - 레거시 지원
     if (typeof window !== 'undefined' && window.FCM_TOKEN) {
+      console.log('이미 주입된 FCM_TOKEN 발견')
       // @ts-ignore
       await saveFCMToken(window.FCM_TOKEN)
     }
 
-    // 네이티브 앱에서 나중에 토큰을 전달받을 때 처리
+    // 네이티브 앱에서 나중에 토큰을 전달받을 때 처리 (콜백 등록)
     // @ts-ignore
     window.onFCMToken = async (token: string) => {
+      console.log('onFCMToken 콜백 호출됨:', token)
       await saveFCMToken(token)
     }
 
-    // 웹 브라우저: 웹 푸시
-    if (typeof window !== 'undefined' && !navigator.userAgent.includes('wv')) {
+    // fcmToken 이벤트 리스너 등록 (CustomEvent)
+    window.addEventListener('fcmToken', async (event: any) => {
+      console.log('fcmToken 이벤트 수신:', event.detail)
+      if (event.detail) {
+        await saveFCMToken(event.detail)
+      }
+    })
+
+    // 웹 브라우저에서만 웹 푸시 (네이티브 앱 제외)
+    if (typeof window !== 'undefined' && !isNativeApp) {
       requestPushNotificationPermission(authToken)
     }
   }
