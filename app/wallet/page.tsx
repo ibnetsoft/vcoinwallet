@@ -261,55 +261,43 @@ export default function WalletPage() {
 
   // 푸시 알림 초기화 (웹/네이티브 분기)
   const initPushNotifications = async (authToken: string) => {
-    try {
-      // 동적 import로 Capacitor 확인
-      const { Capacitor } = await import('@capacitor/core')
-
-      if (Capacitor.isNativePlatform()) {
-        // 네이티브 앱: FCM 푸시
-        // @ts-ignore - 네이티브 환경에서만 사용되는 모듈
-        const { PushNotifications } = await import('@capacitor/push-notifications')
-
-        let permStatus = await PushNotifications.checkPermissions()
-        if (permStatus.receive === 'prompt') {
-          permStatus = await PushNotifications.requestPermissions()
+    // 네이티브 앱에서 전달받은 FCM 토큰 처리
+    const saveFCMToken = async (fcmToken: string) => {
+      try {
+        console.log('FCM 토큰 저장 시도:', fcmToken)
+        const response = await fetch('/api/notifications/fcm-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ fcmToken })
+        })
+        if (response.ok) {
+          console.log('FCM 토큰 저장 성공')
+        } else {
+          console.error('FCM 토큰 저장 실패:', await response.text())
         }
-        if (permStatus.receive !== 'granted') {
-          console.log('푸시 권한이 거부되었습니다.')
-          return
-        }
-
-        await PushNotifications.register()
-
-        PushNotifications.addListener('registration', async (token: any) => {
-          console.log('FCM 토큰:', token.value)
-          try {
-            await fetch('/api/notifications/fcm-token', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-              },
-              body: JSON.stringify({ fcmToken: token.value })
-            })
-          } catch (err) {
-            console.error('FCM 토큰 저장 실패:', err)
-          }
-        })
-
-        PushNotifications.addListener('registrationError', (error: any) => {
-          console.error('FCM 등록 오류:', error)
-        })
-
-        PushNotifications.addListener('pushNotificationReceived', (notification: any) => {
-          toast(notification.body || '새 알림이 도착했습니다.', { icon: '🔔' })
-        })
-      } else {
-        // 웹: 웹 푸시
-        requestPushNotificationPermission(authToken)
+      } catch (err) {
+        console.error('FCM 토큰 저장 오류:', err)
       }
-    } catch (error) {
-      // Capacitor 없는 환경 (일반 웹)
+    }
+
+    // 네이티브 앱에서 전달받은 토큰 처리 (Android WebView)
+    // @ts-ignore
+    if (typeof window !== 'undefined' && window.FCM_TOKEN) {
+      // @ts-ignore
+      await saveFCMToken(window.FCM_TOKEN)
+    }
+
+    // 네이티브 앱에서 나중에 토큰을 전달받을 때 처리
+    // @ts-ignore
+    window.onFCMToken = async (token: string) => {
+      await saveFCMToken(token)
+    }
+
+    // 웹 브라우저: 웹 푸시
+    if (typeof window !== 'undefined' && !navigator.userAgent.includes('wv')) {
       requestPushNotificationPermission(authToken)
     }
   }

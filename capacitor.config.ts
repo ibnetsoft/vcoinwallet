@@ -7,6 +7,11 @@ const config: CapacitorConfig = {
   server: {
     url: 'https://vcoinwallet.vercel.app',
     cleartext: true
+  },
+  plugins: {
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"]
+    }
   }
 };
 
