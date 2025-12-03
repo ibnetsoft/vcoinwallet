@@ -1,10 +1,72 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { sendFCMMessage } from '@/lib/firebase-admin'
 import { supabaseAdmin } from '@/lib/supabase'
+
+// Firebase Admin 직접 초기화
+let admin: any = null
+let messaging: any = null
+
+async function getFirebaseAdmin() {
+  if (messaging) return messaging
+
+  try {
+    const firebaseAdmin = require('firebase-admin')
+    admin = firebaseAdmin
+
+    if (!admin.apps.length) {
+      const projectId = process.env.FIREBASE_PROJECT_ID
+      const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
+      const privateKey = process.env.FIREBASE_PRIVATE_KEY
+
+      console.log('Firebase ENV check:', {
+        hasProjectId: !!projectId,
+        hasClientEmail: !!clientEmail,
+        hasPrivateKey: !!privateKey,
+        privateKeyLength: privateKey?.length,
+        privateKeyStart: privateKey?.substring(0, 50)
+      })
+
+      if (!projectId || !clientEmail || !privateKey) {
+        throw new Error(`Missing env: projectId=${!!projectId}, clientEmail=${!!clientEmail}, privateKey=${!!privateKey}`)
+      }
+
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId,
+          clientEmail,
+          privateKey: privateKey.replace(/\\n/g, '\n'),
+        }),
+      })
+      console.log('Firebase Admin initialized!')
+    }
+
+    messaging = admin.messaging()
+    return messaging
+  } catch (error: any) {
+    console.error('Firebase init error:', error)
+    throw error
+  }
+}
 
 // GET: FCM 테스트 푸시 전송
 export async function GET(request: NextRequest) {
   try {
+    // Firebase 초기화 먼저 시도
+    let firebaseMessaging
+    try {
+      firebaseMessaging = await getFirebaseAdmin()
+    } catch (initError: any) {
+      return NextResponse.json({
+        success: false,
+        error: 'Firebase 초기화 실패',
+        details: initError.message,
+        env: {
+          hasProjectId: !!process.env.FIREBASE_PROJECT_ID,
+          hasClientEmail: !!process.env.FIREBASE_CLIENT_EMAIL,
+          hasPrivateKey: !!process.env.FIREBASE_PRIVATE_KEY,
+        }
+      }, { status: 500 })
+    }
+
     // 모든 FCM 토큰 조회
     const { data: tokens, error: tokenError } = await supabaseAdmin
       .from('fcm_tokens')
@@ -34,7 +96,7 @@ export async function GET(request: NextRequest) {
       try {
         console.log(`토큰 전송 시도: ${tokenData.token.substring(0, 30)}...`)
 
-        const result = await sendFCMMessage({
+        const result = await firebaseMessaging.send({
           token: tokenData.token,
           notification: {
             title: '🔔 V COIN 테스트 알림',
@@ -43,6 +105,14 @@ export async function GET(request: NextRequest) {
           data: {
             type: 'TEST',
             timestamp: Date.now().toString()
+          },
+          android: {
+            priority: 'high' as const,
+            notification: {
+              channelId: 'vcoin_notifications',
+              icon: 'ic_launcher',
+              color: '#F59E0B'
+            }
           }
         })
 
