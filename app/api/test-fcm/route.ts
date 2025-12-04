@@ -47,7 +47,7 @@ async function getFirebaseAdmin() {
   }
 }
 
-// GET: FCM 테스트 푸시 전송
+// GET: FCM 테스트 푸시 전송 v2
 export async function GET(request: NextRequest) {
   try {
     // Firebase 초기화 먼저 시도
