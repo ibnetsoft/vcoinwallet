@@ -6,7 +6,7 @@ let messaging: any = null
 
 // 지연 초기화 함수
 async function initializeFirebaseAdmin() {
-  if (admin) return admin
+  if (admin && messaging) return admin
 
   // 서버 사이드에서만 실행
   if (typeof window !== 'undefined') {
@@ -19,16 +19,23 @@ async function initializeFirebaseAdmin() {
     const firebaseAdmin = require('firebase-admin')
     admin = firebaseAdmin
 
+    const projectId = process.env.FIREBASE_PROJECT_ID
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY
+
+    console.log('Firebase ENV:', {
+      hasProjectId: !!projectId,
+      hasClientEmail: !!clientEmail,
+      hasPrivateKey: !!privateKey,
+      privateKeyLength: privateKey?.length
+    })
+
+    if (!projectId || !clientEmail || !privateKey) {
+      console.error('Firebase Admin: 환경변수 누락 - projectId:', !!projectId, 'clientEmail:', !!clientEmail, 'privateKey:', !!privateKey)
+      return null
+    }
+
     if (!admin.apps.length) {
-      const projectId = process.env.FIREBASE_PROJECT_ID
-      const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
-      const privateKey = process.env.FIREBASE_PRIVATE_KEY
-
-      if (!projectId || !clientEmail || !privateKey) {
-        console.log('Firebase Admin: 환경변수가 설정되지 않았습니다.')
-        return null
-      }
-
       admin.initializeApp({
         credential: admin.credential.cert({
           projectId,
@@ -40,6 +47,7 @@ async function initializeFirebaseAdmin() {
     }
 
     messaging = admin.messaging()
+    console.log('Firebase Messaging ready')
     return admin
   } catch (error) {
     console.error('Firebase Admin initialization error:', error)
