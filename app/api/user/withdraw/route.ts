@@ -51,7 +51,49 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 사용자 비활성화 (완전 삭제 대신 비활성화 처리)
+    // 1. 이 회원으로 인해 지급된 추천 보너스 회수
+    const { data: referralBonusTransactions } = await supabaseAdmin
+      .from('transactions')
+      .select('*')
+      .eq('type', 'REFERRAL_BONUS')
+      .like('description', `%${user.name}%가입%`)
+
+    if (referralBonusTransactions && referralBonusTransactions.length > 0) {
+      for (const transaction of referralBonusTransactions) {
+        // 추천인 정보 조회
+        const { data: referrer } = await supabaseAdmin
+          .from('users')
+          .select('*')
+          .eq('id', transaction.user_id)
+          .single()
+
+        if (referrer) {
+          // 추천 보너스 금액 차감
+          const newSecurityCoins = Math.max(0, referrer.security_coins - transaction.amount)
+
+          await supabaseAdmin
+            .from('users')
+            .update({ security_coins: newSecurityCoins })
+            .eq('id', referrer.id)
+
+          // 회수 거래 기록
+          await supabaseAdmin.from('transactions').insert({
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            user_id: referrer.id,
+            type: 'BONUS_RECLAIM',
+            coin_type: 'SECURITY',
+            amount: -transaction.amount,
+            balance: newSecurityCoins,
+            description: `추천 보너스 회수 - ${user.name}님(회원번호: ${user.member_number}) 탈퇴`,
+            created_at: new Date().toISOString()
+          })
+
+          console.log(`추천인 ${referrer.name}의 보너스 ${transaction.amount}개 회수 완료`)
+        }
+      }
+    }
+
+    // 2. 사용자 비활성화 (완전 삭제 대신 비활성화 처리)
     const withdrawnEmail = `withdrawn_${userId}_${Date.now()}@deleted.com`
     const withdrawnPhone = `withdrawn_${Date.now()}`
 
