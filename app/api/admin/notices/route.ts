@@ -93,12 +93,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 모든 사용자에게 알림 전송
+    // 모든 사용자에게 알림 전송 (관리자 포함)
     try {
       const { data: allUsers } = await supabaseAdmin
         .from('users')
         .select('id')
-        .neq('role', 'ADMIN') // 관리자 제외
 
       if (allUsers && allUsers.length > 0) {
         // 모든 사용자에게 알림 생성 및 푸시 전송
