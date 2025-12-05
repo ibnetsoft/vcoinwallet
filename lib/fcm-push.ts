@@ -1,5 +1,5 @@
 import { supabaseAdmin } from './supabase'
-import { sendFCMMessage, sendFCMMulticast } from './firebase-admin'
+import { sendFCMMessageREST, sendFCMMulticastREST } from './fcm-rest'
 
 export interface FCMPayload {
   title: string
@@ -66,7 +66,7 @@ export async function sendFCMNotification(
     // 모든 토큰에 푸시 전송
     const sendPromises = tokens.map(async ({ token }) => {
       try {
-        await sendFCMMessage({
+        await sendFCMMessageREST({
           token,
           notification: {
             title: payload.title,
@@ -78,8 +78,8 @@ export async function sendFCMNotification(
       } catch (sendError: any) {
         // 토큰이 만료되었거나 유효하지 않은 경우 삭제
         if (
-          sendError.code === 'messaging/invalid-registration-token' ||
-          sendError.code === 'messaging/registration-token-not-registered'
+          sendError.message?.includes('UNREGISTERED') ||
+          sendError.message?.includes('INVALID_ARGUMENT')
         ) {
           console.log(`Removing invalid token: ${token}`)
           await supabaseAdmin
@@ -134,7 +134,7 @@ export async function sendFCMToAllUsers(payload: FCMPayload): Promise<void> {
       const chunk = tokenList.slice(i, i + chunkSize)
 
       try {
-        await sendFCMMulticast({
+        await sendFCMMulticastREST({
           tokens: chunk,
           notification: {
             title: payload.title,
