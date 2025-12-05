@@ -1,7 +1,6 @@
 // Firebase Cloud Messaging REST API 구현
 // firebase-admin SDK 대신 HTTP API를 직접 사용
-
-import * as crypto from 'crypto'
+// Web Crypto API 사용 (Edge Runtime 호환)
 
 interface JWTHeader {
   alg: string
@@ -17,17 +16,51 @@ interface JWTPayload {
 }
 
 // Base64 URL 인코딩
-function base64urlEncode(data: string | Buffer): string {
-  const base64 = Buffer.from(data).toString('base64')
+function base64urlEncode(data: string | ArrayBuffer): string {
+  let base64: string
+  if (typeof data === 'string') {
+    base64 = Buffer.from(data).toString('base64')
+  } else {
+    base64 = Buffer.from(data).toString('base64')
+  }
   return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
 }
 
-// RSA-SHA256 서명 생성
-function signRS256(data: string, privateKey: string): string {
-  const sign = crypto.createSign('RSA-SHA256')
-  sign.update(data)
-  const signature = sign.sign(privateKey, 'base64')
-  return signature.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+// PEM 형식의 private key에서 raw key 추출
+function pemToArrayBuffer(pem: string): ArrayBuffer {
+  const base64 = pem
+    .replace('-----BEGIN PRIVATE KEY-----', '')
+    .replace('-----END PRIVATE KEY-----', '')
+    .replace(/\s/g, '')
+  const binary = Buffer.from(base64, 'base64')
+  return binary.buffer.slice(binary.byteOffset, binary.byteOffset + binary.byteLength)
+}
+
+// RSA-SHA256 서명 생성 (Web Crypto API)
+async function signRS256(data: string, privateKeyPem: string): Promise<string> {
+  const keyData = pemToArrayBuffer(privateKeyPem)
+
+  const cryptoKey = await crypto.subtle.importKey(
+    'pkcs8',
+    keyData,
+    {
+      name: 'RSASSA-PKCS1-v1_5',
+      hash: 'SHA-256'
+    },
+    false,
+    ['sign']
+  )
+
+  const encoder = new TextEncoder()
+  const dataBuffer = encoder.encode(data)
+
+  const signature = await crypto.subtle.sign(
+    'RSASSA-PKCS1-v1_5',
+    cryptoKey,
+    dataBuffer
+  )
+
+  return base64urlEncode(signature)
 }
 
 // Google OAuth2 Access Token 생성
@@ -57,7 +90,7 @@ async function getAccessToken(): Promise<string> {
   const encodedHeader = base64urlEncode(JSON.stringify(header))
   const encodedPayload = base64urlEncode(JSON.stringify(payload))
   const signatureInput = `${encodedHeader}.${encodedPayload}`
-  const signature = signRS256(signatureInput, privateKey)
+  const signature = await signRS256(signatureInput, privateKey)
   const jwt = `${signatureInput}.${signature}`
 
   // Google OAuth2 토큰 요청
