@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Users, Coins, Gift, Search, ArrowLeft, Shield, Settings, Lock, Mail, Phone, X, ArrowUpDown, Bell, RefreshCw, Download } from 'lucide-react'
+import { Users, Coins, Gift, Search, ArrowLeft, Shield, Settings, Lock, Mail, Phone, X, ArrowUpDown, Bell, RefreshCw, Download, ArrowRightLeft } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import * as XLSX from 'xlsx'
 
@@ -47,7 +47,7 @@ export default function AdminPage() {
   const [roleChangeUserId, setRoleChangeUserId] = useState('')
   const [newRole, setNewRole] = useState<'USER' | 'TEAM_LEADER'>('USER')
   const [roleSearchTerm, setRoleSearchTerm] = useState('')
-  const [activeTab, setActiveTab] = useState<'users' | 'grant' | 'security-grant' | 'roles' | 'notice' | 'resources' | 'settings' | 'coin-settings' | 'team-stats'>('users')
+  const [activeTab, setActiveTab] = useState<'users' | 'grant' | 'security-grant' | 'roles' | 'notice' | 'resources' | 'settings' | 'coin-settings' | 'team-stats' | 'swap'>('users')
   const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'TEAM_LEADER' | 'USER'>('ALL')
   const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -92,6 +92,11 @@ export default function AdminPage() {
     newPassword: '',
     confirmPassword: ''
   })
+
+  // 스왑 요청 관련 상태
+  const [swapRequests, setSwapRequests] = useState<any[]>([])
+  const [swapFilter, setSwapFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL')
+  const [isSwapLoading, setIsSwapLoading] = useState(false)
 
   // 코인지급 설정 상태
   const [coinSettings, setCoinSettings] = useState({
@@ -227,6 +232,8 @@ export default function AdminPage() {
       fetchNotices()
     } else if (activeTab === 'resources') {
       fetchResources()
+    } else if (activeTab === 'swap') {
+      fetchSwapRequests()
     }
   }, [activeTab])
 
@@ -324,6 +331,86 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('자료 가져오기 실패:', error)
+    }
+  }
+
+  const fetchSwapRequests = async () => {
+    const token = localStorage.getItem('token')
+    try {
+      const response = await fetch('/api/admin/swap-requests', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setSwapRequests(data.requests || [])
+      }
+    } catch (error) {
+      console.error('스왑 요청 가져오기 실패:', error)
+    }
+  }
+
+  const handleSwapApprove = async (requestId: string) => {
+    if (!confirm('이 스왑 요청을 승인하시겠습니까?')) return
+
+    setIsSwapLoading(true)
+    const token = localStorage.getItem('token')
+
+    try {
+      const response = await fetch('/api/admin/swap/approve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ requestId })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '승인 실패')
+      }
+
+      toast.success(result.message)
+      fetchSwapRequests()
+      fetchUsers()
+    } catch (error: any) {
+      toast.error(error.message || '승인 중 오류가 발생했습니다.')
+    } finally {
+      setIsSwapLoading(false)
+    }
+  }
+
+  const handleSwapReject = async (requestId: string) => {
+    const reason = prompt('거절 사유를 입력해주세요 (선택사항):')
+
+    setIsSwapLoading(true)
+    const token = localStorage.getItem('token')
+
+    try {
+      const response = await fetch('/api/admin/swap/reject', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ requestId, reason })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '거절 실패')
+      }
+
+      toast.success(result.message)
+      fetchSwapRequests()
+    } catch (error: any) {
+      toast.error(error.message || '거절 중 오류가 발생했습니다.')
+    } finally {
+      setIsSwapLoading(false)
     }
   }
 
@@ -1437,6 +1524,27 @@ export default function AdminPage() {
                 <span>팀별통계</span>
               </div>
               {activeTab === 'team-stats' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
+              )}
+            </button>
+
+            {/* 스왑 관리 탭 */}
+            <button
+              onClick={() => setActiveTab('swap')}
+              className={`relative px-4 py-3 rounded-lg transition font-medium ${
+                activeTab === 'swap' ? 'bg-gray-700 text-yellow-400' : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <ArrowRightLeft className="w-4 h-4" />
+                <span>스왑관리</span>
+                {swapRequests.filter(r => r.status === 'PENDING').length > 0 && (
+                  <span className="ml-1 px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
+                    {swapRequests.filter(r => r.status === 'PENDING').length}
+                  </span>
+                )}
+              </div>
+              {activeTab === 'swap' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
               )}
             </button>
@@ -3278,6 +3386,138 @@ export default function AdminPage() {
                 })
               )}
             </div>
+          </div>
+        )}
+
+        {/* 스왑 관리 탭 */}
+        {activeTab === 'swap' && (
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 min-h-[600px]">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <ArrowRightLeft className="w-6 h-6 text-orange-400" />
+                <h2 className="text-xl font-bold text-white">스왑 요청 관리</h2>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                {/* 상태 필터 */}
+                <select
+                  value={swapFilter}
+                  onChange={(e) => setSwapFilter(e.target.value as 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED')}
+                  className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                >
+                  <option value="ALL">전체</option>
+                  <option value="PENDING">대기중</option>
+                  <option value="APPROVED">승인됨</option>
+                  <option value="REJECTED">거절됨</option>
+                </select>
+
+                {/* 새로고침 버튼 */}
+                <button
+                  onClick={fetchSwapRequests}
+                  className="p-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition"
+                  title="새로고침"
+                >
+                  <RefreshCw className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* 통계 카드 */}
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="bg-gray-700/50 rounded-lg p-4 text-center">
+                <p className="text-sm text-gray-400">전체 요청</p>
+                <p className="text-2xl font-bold text-white">{swapRequests.length}</p>
+              </div>
+              <div className="bg-yellow-500/10 rounded-lg p-4 text-center border border-yellow-500/30">
+                <p className="text-sm text-yellow-400">대기중</p>
+                <p className="text-2xl font-bold text-yellow-400">{swapRequests.filter(r => r.status === 'PENDING').length}</p>
+              </div>
+              <div className="bg-green-500/10 rounded-lg p-4 text-center border border-green-500/30">
+                <p className="text-sm text-green-400">승인됨</p>
+                <p className="text-2xl font-bold text-green-400">{swapRequests.filter(r => r.status === 'APPROVED').length}</p>
+              </div>
+              <div className="bg-red-500/10 rounded-lg p-4 text-center border border-red-500/30">
+                <p className="text-sm text-red-400">거절됨</p>
+                <p className="text-2xl font-bold text-red-400">{swapRequests.filter(r => r.status === 'REJECTED').length}</p>
+              </div>
+            </div>
+
+            {/* 스왑 요청 목록 */}
+            {swapRequests.filter(r => swapFilter === 'ALL' || r.status === swapFilter).length === 0 ? (
+              <div className="text-center py-12">
+                <ArrowRightLeft className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400">스왑 요청이 없습니다.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {swapRequests
+                  .filter(r => swapFilter === 'ALL' || r.status === swapFilter)
+                  .map((req) => {
+                    const statusColors: Record<string, string> = {
+                      'PENDING': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+                      'APPROVED': 'bg-green-500/20 text-green-400 border-green-500/30',
+                      'REJECTED': 'bg-red-500/20 text-red-400 border-red-500/30'
+                    }
+                    const statusLabels: Record<string, string> = {
+                      'PENDING': '대기중',
+                      'APPROVED': '승인됨',
+                      'REJECTED': '거절됨'
+                    }
+
+                    return (
+                      <div key={req.id} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-2">
+                              <span className="text-white font-semibold">{req.user?.name || '알 수 없음'}</span>
+                              <span className="text-gray-400 text-sm">#{req.user?.member_number}</span>
+                              <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${statusColors[req.status]}`}>
+                                {statusLabels[req.status]}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-4 text-sm">
+                              <span className="text-gray-400">요청: <span className="text-yellow-400 font-semibold">{req.amount.toLocaleString()}개</span></span>
+                              <span className="text-gray-500">|</span>
+                              <span className="text-gray-400">배당코인 → 증권코인</span>
+                              <span className="text-gray-500">|</span>
+                              <span className="text-gray-500">{new Date(req.created_at).toLocaleString('ko-KR')}</span>
+                            </div>
+                            {req.user && (
+                              <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                                <span>현재 배당코인: {req.user.dividend_coins?.toLocaleString() || 0}개</span>
+                                <span>|</span>
+                                <span>현재 증권코인: {req.user.security_coins?.toLocaleString() || 0}개</span>
+                              </div>
+                            )}
+                            {req.reject_reason && (
+                              <p className="text-sm text-red-400 mt-2">거절 사유: {req.reject_reason}</p>
+                            )}
+                          </div>
+
+                          {req.status === 'PENDING' && (
+                            <div className="flex items-center space-x-2 ml-4">
+                              <button
+                                onClick={() => handleSwapApprove(req.id)}
+                                disabled={isSwapLoading}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition font-semibold disabled:opacity-50"
+                              >
+                                승인
+                              </button>
+                              <button
+                                onClick={() => handleSwapReject(req.id)}
+                                disabled={isSwapLoading}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition font-semibold disabled:opacity-50"
+                              >
+                                거절
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+              </div>
+            )}
           </div>
         )}
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Wallet, Coins, TrendingUp, History, Copy, Share2, ArrowLeft, User as UserIcon, Lock, Mail, Phone, Users, Bell, ChevronDown, ChevronUp } from 'lucide-react'
+import { Wallet, Coins, TrendingUp, History, Copy, Share2, ArrowLeft, User as UserIcon, Lock, Mail, Phone, Users, Bell, ChevronDown, ChevronUp, ArrowRightLeft } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 
 export default function WalletPage() {
@@ -38,6 +38,12 @@ export default function WalletPage() {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
   const [withdrawConfirmText, setWithdrawConfirmText] = useState('')
 
+  // 스왑 요청 관련 상태
+  const [showSwapModal, setShowSwapModal] = useState(false)
+  const [swapAmount, setSwapAmount] = useState('')
+  const [swapRequests, setSwapRequests] = useState<any[]>([])
+  const [isSwapLoading, setIsSwapLoading] = useState(false)
+
   useEffect(() => {
     const token = localStorage.getItem('token')
     const userData = localStorage.getItem('user')
@@ -60,6 +66,9 @@ export default function WalletPage() {
 
     // 알림 가져오기
     fetchNotifications(token)
+
+    // 스왑 요청 목록 가져오기
+    fetchSwapRequests(token)
 
     // 푸시 알림 구독 요청 (웹/네이티브 분기)
     initPushNotifications(token)
@@ -215,6 +224,68 @@ export default function WalletPage() {
       }
     } catch (error) {
       console.error('알림 가져오기 실패:', error)
+    }
+  }
+
+  const fetchSwapRequests = async (token: string) => {
+    try {
+      const response = await fetch('/api/swap/my-requests', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setSwapRequests(data.requests || [])
+      }
+    } catch (error) {
+      console.error('스왑 요청 목록 가져오기 실패:', error)
+    }
+  }
+
+  const handleSwapRequest = async () => {
+    const amount = parseInt(swapAmount)
+
+    if (!amount || amount <= 0) {
+      toast.error('유효한 수량을 입력해주세요.')
+      return
+    }
+
+    if (amount > (user?.dividendCoins || 0)) {
+      toast.error('배당코인이 부족합니다.')
+      return
+    }
+
+    setIsSwapLoading(true)
+    const token = localStorage.getItem('token')
+
+    try {
+      const response = await fetch('/api/swap/request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ amount })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '스왑 요청 실패')
+      }
+
+      toast.success(result.message)
+      setShowSwapModal(false)
+      setSwapAmount('')
+
+      // 스왑 요청 목록 새로고침
+      fetchSwapRequests(token!)
+    } catch (error: any) {
+      toast.error(error.message || '스왑 요청 중 오류가 발생했습니다.')
+    } finally {
+      setIsSwapLoading(false)
     }
   }
 
@@ -915,8 +986,55 @@ export default function WalletPage() {
             <p className="text-xs text-gray-500 mt-2">
               연 15% 수익 • 월 배당 지급
             </p>
+            {/* 스왑 요청 버튼 */}
+            <button
+              onClick={() => setShowSwapModal(true)}
+              className="mt-4 w-full px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 rounded-lg hover:from-yellow-400 hover:to-orange-400 transition font-semibold flex items-center justify-center"
+            >
+              <ArrowRightLeft className="w-4 h-4 mr-2" />
+              증권코인으로 스왑 요청
+            </button>
           </div>
         </div>
+
+        {/* 스왑 요청 현황 */}
+        {swapRequests.length > 0 && (
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 mb-8">
+            <div className="flex items-center mb-4">
+              <ArrowRightLeft className="w-6 h-6 text-orange-400 mr-2" />
+              <h3 className="text-lg font-semibold text-white">스왑 요청 현황</h3>
+            </div>
+            <div className="space-y-3">
+              {swapRequests.slice(0, 3).map((req, index) => {
+                const statusColors: Record<string, string> = {
+                  'PENDING': 'bg-yellow-500/20 text-yellow-400',
+                  'APPROVED': 'bg-green-500/20 text-green-400',
+                  'REJECTED': 'bg-red-500/20 text-red-400'
+                }
+                const statusLabels: Record<string, string> = {
+                  'PENDING': '대기중',
+                  'APPROVED': '승인됨',
+                  'REJECTED': '거절됨'
+                }
+                return (
+                  <div key={req.id || index} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-b-0">
+                    <div>
+                      <p className="text-sm font-medium text-white">
+                        배당코인 {req.amount.toLocaleString()}개 → 증권코인
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {new Date(req.created_at).toLocaleDateString('ko-KR')}
+                      </p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[req.status]}`}>
+                      {statusLabels[req.status]}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* 예상 수익 - 주석처리 */}
         {/* {user?.dividendCoins > 0 && (
@@ -1687,6 +1805,99 @@ export default function WalletPage() {
                 }`}
               >
                 탈퇴하기
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* 스왑 요청 모달 */}
+      {showSwapModal && (
+        <>
+          {/* 배경 오버레이 */}
+          <div
+            className="fixed inset-0 bg-black/80 z-[9998]"
+            onClick={() => {
+              setShowSwapModal(false)
+              setSwapAmount('')
+            }}
+          ></div>
+
+          {/* 모달 */}
+          <div className="fixed left-4 right-4 sm:left-1/2 sm:right-auto top-1/2 -translate-y-1/2 sm:-translate-x-1/2 w-auto sm:w-[500px] bg-gray-900 border border-orange-500/50 rounded-xl shadow-xl z-[9999] p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ArrowRightLeft className="w-8 h-8 text-orange-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">스왑 요청</h3>
+              <p className="text-sm text-gray-400">배당코인을 증권코인으로 전환 요청합니다</p>
+            </div>
+
+            <div className="bg-gray-800/50 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-400">보유 배당코인</span>
+                <span className="text-lg font-bold text-yellow-400">{user?.dividendCoins?.toLocaleString() || 0}개</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-400">스왑 비율</span>
+                <span className="text-sm text-green-400">1:1 (배당코인 → 증권코인)</span>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm text-gray-300 mb-2">
+                스왑할 배당코인 수량
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={swapAmount}
+                  onChange={(e) => setSwapAmount(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-orange-500 focus:outline-none"
+                  placeholder="수량 입력"
+                  min="1"
+                  max={user?.dividendCoins || 0}
+                />
+                <button
+                  onClick={() => setSwapAmount(String(user?.dividendCoins || 0))}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-orange-500/20 text-orange-400 rounded text-sm hover:bg-orange-500/30 transition"
+                >
+                  전액
+                </button>
+              </div>
+              {swapAmount && parseInt(swapAmount) > 0 && (
+                <p className="text-sm text-green-400 mt-2">
+                  → 증권코인 {parseInt(swapAmount).toLocaleString()}개로 전환됩니다
+                </p>
+              )}
+            </div>
+
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
+              <p className="text-sm text-yellow-400">
+                스왑 요청은 관리자 승인 후 처리됩니다. 승인되면 알림을 받게 됩니다.
+              </p>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowSwapModal(false)
+                  setSwapAmount('')
+                }}
+                className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSwapRequest}
+                disabled={!swapAmount || parseInt(swapAmount) <= 0 || parseInt(swapAmount) > (user?.dividendCoins || 0) || isSwapLoading}
+                className={`flex-1 px-4 py-3 rounded-lg transition font-semibold ${
+                  swapAmount && parseInt(swapAmount) > 0 && parseInt(swapAmount) <= (user?.dividendCoins || 0) && !isSwapLoading
+                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 hover:from-yellow-400 hover:to-orange-400'
+                    : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {isSwapLoading ? '요청 중...' : '스왑 요청'}
               </button>
             </div>
           </div>
