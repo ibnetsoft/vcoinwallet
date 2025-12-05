@@ -1,13 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 export default function FCMTokenHandler() {
-  const [debug, setDebug] = useState<string[]>([])
-
   const addLog = (msg: string) => {
     console.log('[FCM]', msg)
-    setDebug(prev => [...prev.slice(-20), `${new Date().toLocaleTimeString()}: ${msg}`])
   }
 
   useEffect(() => {
@@ -169,32 +166,6 @@ export default function FCMTokenHandler() {
       clearInterval(pendingInterval)
     }
   }, [])
-
-  // 디버그 UI (개발용 - 나중에 제거)
-  if (typeof window !== 'undefined' && navigator.userAgent.includes('Android')) {
-    return (
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: 'rgba(0,0,0,0.9)',
-          color: '#0f0',
-          fontSize: '10px',
-          padding: '4px',
-          maxHeight: '100px',
-          overflow: 'auto',
-          zIndex: 99999,
-          fontFamily: 'monospace'
-        }}
-      >
-        {debug.map((log, i) => (
-          <div key={i}>{log}</div>
-        ))}
-      </div>
-    )
-  }
 
   return null
 }
