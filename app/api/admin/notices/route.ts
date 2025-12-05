@@ -100,29 +100,48 @@ export async function POST(request: NextRequest) {
         .select('id')
 
       if (allUsers && allUsers.length > 0) {
-        // 모든 사용자에게 알림 생성 및 푸시 전송
-        const notificationPromises = allUsers.map(async (user) => {
-          // 인앱 알림 생성
-          await db.createNotification(
-            user.id,
-            'SYSTEM',
-            `📢 새 공지사항: ${title}`,
-            content.length > 100 ? content.substring(0, 100) + '...' : content,
-            admin.id
-          )
+        // 모든 사용자에게 인앱 알림 생성
+        for (const user of allUsers) {
+          try {
+            await db.createNotification(
+              user.id,
+              'SYSTEM',
+              `📢 새 공지사항: ${title}`,
+              content.length > 100 ? content.substring(0, 100) + '...' : content,
+              admin.id
+            )
+          } catch (e) {
+            console.error(`Notification creation failed for user ${user.id}:`, e)
+          }
+        }
+      }
 
-          // 푸시 알림 전송
-          await sendPushNotification(user.id, {
-            title: `📢 새 공지사항: ${title}`,
-            body: content.length > 100 ? content.substring(0, 100) + '...' : content,
-            data: {
-              type: 'NOTICE',
-              noticeId: notice.id
-            }
-          })
-        })
+      // 모든 FCM 토큰에 푸시 전송
+      const { data: allTokens } = await supabaseAdmin
+        .from('fcm_tokens')
+        .select('token')
 
-        await Promise.all(notificationPromises)
+      if (allTokens && allTokens.length > 0) {
+        const { sendFCMMessageREST } = await import('@/lib/fcm-rest')
+
+        for (const tokenData of allTokens) {
+          try {
+            await sendFCMMessageREST({
+              token: tokenData.token,
+              notification: {
+                title: `📢 새 공지사항: ${title}`,
+                body: content.length > 100 ? content.substring(0, 100) + '...' : content
+              },
+              data: {
+                type: 'NOTICE',
+                noticeId: String(notice.id)
+              }
+            })
+            console.log(`FCM sent to token: ${tokenData.token.substring(0, 20)}...`)
+          } catch (e) {
+            console.error(`FCM send failed for token:`, e)
+          }
+        }
       }
     } catch (notificationError) {
       console.error('Send notifications error:', notificationError)

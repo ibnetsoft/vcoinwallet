@@ -97,25 +97,55 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 모든 사용자에게 알림 전송
+    // 모든 사용자에게 알림 전송 (관리자 포함)
     try {
       const { data: allUsers } = await supabaseAdmin
         .from('users')
         .select('id')
-        .neq('role', 'ADMIN')
 
       if (allUsers && allUsers.length > 0) {
-        const notificationPromises = allUsers.map(user =>
-          db.createNotification(
-            user.id,
-            'SYSTEM',
-            `📎 새 자료: ${title}`,
-            content.length > 100 ? content.substring(0, 100) + '...' : content,
-            admin.id
-          )
-        )
+        // 모든 사용자에게 인앱 알림 생성
+        for (const user of allUsers) {
+          try {
+            await db.createNotification(
+              user.id,
+              'SYSTEM',
+              `📎 새 자료: ${title}`,
+              content.length > 100 ? content.substring(0, 100) + '...' : content,
+              admin.id
+            )
+          } catch (e) {
+            console.error(`Notification creation failed for user ${user.id}:`, e)
+          }
+        }
+      }
 
-        await Promise.all(notificationPromises)
+      // 모든 FCM 토큰에 푸시 전송
+      const { data: allTokens } = await supabaseAdmin
+        .from('fcm_tokens')
+        .select('token')
+
+      if (allTokens && allTokens.length > 0) {
+        const { sendFCMMessageREST } = await import('@/lib/fcm-rest')
+
+        for (const tokenData of allTokens) {
+          try {
+            await sendFCMMessageREST({
+              token: tokenData.token,
+              notification: {
+                title: `📎 새 자료: ${title}`,
+                body: content.length > 100 ? content.substring(0, 100) + '...' : content
+              },
+              data: {
+                type: 'RESOURCE',
+                resourceId: String(resource.id)
+              }
+            })
+            console.log(`FCM sent to token: ${tokenData.token.substring(0, 20)}...`)
+          } catch (e) {
+            console.error(`FCM send failed for token:`, e)
+          }
+        }
       }
     } catch (notificationError) {
       console.error('Send notifications error:', notificationError)
