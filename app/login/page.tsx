@@ -54,7 +54,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center py-12 px-4 pt-[max(44px,env(safe-area-inset-top))]">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center py-12 px-4 pt-[max(22px,env(safe-area-inset-top))]">
       <KakaoBrowserWarning />
       <Toaster position="top-center" />
       
