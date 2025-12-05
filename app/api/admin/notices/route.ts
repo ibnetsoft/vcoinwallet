@@ -93,60 +93,64 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 모든 사용자에게 알림 전송 (관리자 포함)
-    try {
-      const { data: allUsers } = await supabaseAdmin
-        .from('users')
-        .select('id')
+    // 백그라운드에서 알림 전송 (응답 먼저 반환)
+    const noticeTitle = title
+    const noticeContent = content
+    const noticeId = notice.id
+    const adminId = admin.id
 
-      if (allUsers && allUsers.length > 0) {
-        // 모든 사용자에게 인앱 알림 생성
-        for (const user of allUsers) {
-          try {
-            await db.createNotification(
-              user.id,
-              'SYSTEM',
-              `📢 새 공지사항: ${title}`,
-              content.length > 100 ? content.substring(0, 100) + '...' : content,
-              admin.id
-            )
-          } catch (e) {
-            console.error(`Notification creation failed for user ${user.id}:`, e)
+    // 비동기로 처리 (await 없이)
+    ;(async () => {
+      try {
+        const { data: allUsers } = await supabaseAdmin
+          .from('users')
+          .select('id')
+
+        if (allUsers && allUsers.length > 0) {
+          for (const user of allUsers) {
+            try {
+              await db.createNotification(
+                user.id,
+                'SYSTEM',
+                `📢 새 공지사항: ${noticeTitle}`,
+                noticeContent.length > 100 ? noticeContent.substring(0, 100) + '...' : noticeContent,
+                adminId
+              )
+            } catch (e) {
+              console.error(`Notification creation failed for user ${user.id}:`, e)
+            }
           }
         }
-      }
 
-      // 모든 FCM 토큰에 푸시 전송
-      const { data: allTokens } = await supabaseAdmin
-        .from('fcm_tokens')
-        .select('token')
+        const { data: allTokens } = await supabaseAdmin
+          .from('fcm_tokens')
+          .select('token')
 
-      if (allTokens && allTokens.length > 0) {
-        const { sendFCMMessageREST } = await import('@/lib/fcm-rest')
+        if (allTokens && allTokens.length > 0) {
+          const { sendFCMMessageREST } = await import('@/lib/fcm-rest')
 
-        for (const tokenData of allTokens) {
-          try {
-            await sendFCMMessageREST({
-              token: tokenData.token,
-              notification: {
-                title: `📢 새 공지사항: ${title}`,
-                body: content.length > 100 ? content.substring(0, 100) + '...' : content
-              },
-              data: {
-                type: 'NOTICE',
-                noticeId: String(notice.id)
-              }
-            })
-            console.log(`FCM sent to token: ${tokenData.token.substring(0, 20)}...`)
-          } catch (e) {
-            console.error(`FCM send failed for token:`, e)
+          for (const tokenData of allTokens) {
+            try {
+              await sendFCMMessageREST({
+                token: tokenData.token,
+                notification: {
+                  title: `📢 새 공지사항: ${noticeTitle}`,
+                  body: noticeContent.length > 100 ? noticeContent.substring(0, 100) + '...' : noticeContent
+                },
+                data: {
+                  type: 'NOTICE',
+                  noticeId: String(noticeId)
+                }
+              })
+            } catch (e) {
+              console.error(`FCM send failed:`, e)
+            }
           }
         }
+      } catch (error) {
+        console.error('Background notification error:', error)
       }
-    } catch (notificationError) {
-      console.error('Send notifications error:', notificationError)
-      // 알림 전송 실패해도 공지사항 작성은 성공으로 처리
-    }
+    })()
 
     return NextResponse.json({
       success: true,
