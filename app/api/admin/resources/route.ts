@@ -97,64 +97,60 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 백그라운드에서 알림 전송 (응답 먼저 반환)
+    // 알림 전송 (응답 전에 처리 - Vercel serverless 호환)
     const resourceTitle = title
     const resourceContent = content
     const resourceId = resource.id
     const adminId = admin.id
 
-    // 비동기로 처리 (await 없이)
-    ;(async () => {
-      try {
-        const { data: allUsers } = await supabaseAdmin
-          .from('users')
-          .select('id')
+    try {
+      // 인앱 알림과 FCM 토큰을 병렬로 조회
+      const [usersResult, tokensResult] = await Promise.all([
+        supabaseAdmin.from('users').select('id'),
+        supabaseAdmin.from('fcm_tokens').select('token')
+      ])
 
-        if (allUsers && allUsers.length > 0) {
-          for (const user of allUsers) {
-            try {
-              await db.createNotification(
-                user.id,
-                'SYSTEM',
-                `📎 새 자료: ${resourceTitle}`,
-                resourceContent.length > 100 ? resourceContent.substring(0, 100) + '...' : resourceContent,
-                adminId
-              )
-            } catch (e) {
-              console.error(`Notification creation failed for user ${user.id}:`, e)
-            }
-          }
-        }
+      const allUsers = usersResult.data
+      const allTokens = tokensResult.data
 
-        const { data: allTokens } = await supabaseAdmin
-          .from('fcm_tokens')
-          .select('token')
-
-        if (allTokens && allTokens.length > 0) {
-          const { sendFCMMessageREST } = await import('@/lib/fcm-rest')
-
-          for (const tokenData of allTokens) {
-            try {
-              await sendFCMMessageREST({
-                token: tokenData.token,
-                notification: {
-                  title: `📎 새 자료: ${resourceTitle}`,
-                  body: resourceContent.length > 100 ? resourceContent.substring(0, 100) + '...' : resourceContent
-                },
-                data: {
-                  type: 'RESOURCE',
-                  resourceId: String(resourceId)
-                }
-              })
-            } catch (e) {
-              console.error(`FCM send failed:`, e)
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Background notification error:', error)
+      // 인앱 알림 생성 (병렬)
+      if (allUsers && allUsers.length > 0) {
+        await Promise.all(
+          allUsers.map(user =>
+            db.createNotification(
+              user.id,
+              'SYSTEM',
+              `📎 새 자료: ${resourceTitle}`,
+              resourceContent.length > 100 ? resourceContent.substring(0, 100) + '...' : resourceContent,
+              adminId
+            ).catch(e => console.error(`Notification failed for ${user.id}:`, e))
+          )
+        )
       }
-    })()
+
+      // FCM 푸시 전송 (병렬)
+      if (allTokens && allTokens.length > 0) {
+        const { sendFCMMessageREST } = await import('@/lib/fcm-rest')
+
+        await Promise.all(
+          allTokens.map(tokenData =>
+            sendFCMMessageREST({
+              token: tokenData.token,
+              notification: {
+                title: `📎 새 자료: ${resourceTitle}`,
+                body: resourceContent.length > 100 ? resourceContent.substring(0, 100) + '...' : resourceContent
+              },
+              data: {
+                type: 'RESOURCE',
+                resourceId: String(resourceId)
+              }
+            }).catch(e => console.error(`FCM send failed:`, e))
+          )
+        )
+      }
+    } catch (error) {
+      console.error('Notification error:', error)
+    }
 
     return NextResponse.json({
       success: true,
