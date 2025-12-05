@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { sendFCMMessage } from '@/lib/firebase-admin'
+import { sendFCMMessageREST } from '@/lib/fcm-rest'
 
-// GET: FCM 테스트 푸시 전송 v3
+// GET: FCM 테스트 푸시 전송 (REST API 사용)
 export async function GET(request: NextRequest) {
   try {
     // 환경변수 확인
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       FIREBASE_PRIVATE_KEY_LENGTH: process.env.FIREBASE_PRIVATE_KEY?.length || 0
     }
 
-    console.log('FCM Test - Environment check:', envCheck)
+    console.log('FCM Test (REST API) - Environment check:', envCheck)
 
     // 모든 FCM 토큰 조회
     const { data: tokens, error: tokenError } = await supabaseAdmin
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       try {
         console.log(`토큰 전송 시도: ${tokenData.token.substring(0, 30)}...`)
 
-        const result = await sendFCMMessage({
+        const messageId = await sendFCMMessageREST({
           token: tokenData.token,
           notification: {
             title: '🔔 V COIN 테스트 알림',
@@ -62,22 +62,22 @@ export async function GET(request: NextRequest) {
           token: tokenData.token.substring(0, 30) + '...',
           user_id: tokenData.user_id,
           success: true,
-          messageId: result
+          messageId
         })
-        console.log(`토큰 전송 성공: ${result}`)
+        console.log(`토큰 전송 성공: ${messageId}`)
       } catch (sendError: any) {
         console.error(`토큰 전송 실패:`, sendError)
         results.push({
           token: tokenData.token.substring(0, 30) + '...',
           user_id: tokenData.user_id,
           success: false,
-          error: sendError.message || sendError.code || 'Unknown error'
+          error: sendError.message || 'Unknown error'
         })
 
         // 유효하지 않은 토큰은 삭제
         if (
-          sendError.code === 'messaging/invalid-registration-token' ||
-          sendError.code === 'messaging/registration-token-not-registered'
+          sendError.message?.includes('UNREGISTERED') ||
+          sendError.message?.includes('INVALID_ARGUMENT')
         ) {
           await supabaseAdmin
             .from('fcm_tokens')
