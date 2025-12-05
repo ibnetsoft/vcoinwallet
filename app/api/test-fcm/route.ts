@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { sendFCMMessageREST } from '@/lib/fcm-rest'
+import { sendFCMNotification } from '@/lib/fcm-push'
 
 // GET: FCM 테스트 푸시 전송 (REST API 사용)
 export async function GET(request: NextRequest) {
@@ -109,6 +110,58 @@ export async function GET(request: NextRequest) {
         FIREBASE_CLIENT_EMAIL: !!process.env.FIREBASE_CLIENT_EMAIL,
         FIREBASE_PRIVATE_KEY: !!process.env.FIREBASE_PRIVATE_KEY
       }
+    }, { status: 500 })
+  }
+}
+
+// POST: 특정 userId로 FCM 테스트 (추천인 알림 테스트용)
+export async function POST(request: NextRequest) {
+  try {
+    const { userId } = await request.json()
+
+    if (!userId) {
+      return NextResponse.json({
+        success: false,
+        error: 'userId가 필요합니다'
+      }, { status: 400 })
+    }
+
+    console.log(`[테스트] userId ${userId}로 FCM 전송 시도`)
+
+    // 해당 userId의 토큰 확인
+    const { data: tokens } = await supabaseAdmin
+      .from('fcm_tokens')
+      .select('*')
+      .eq('user_id', userId)
+
+    console.log(`[테스트] userId ${userId}의 토큰:`, tokens)
+
+    // sendFCMNotification 사용 (추천인 알림과 동일한 방식)
+    const result = await sendFCMNotification(userId, {
+      title: '🎉 추천인 알림 테스트',
+      body: `테스트: 새 회원이 가입했습니다! 시간: ${new Date().toLocaleTimeString('ko-KR')}`,
+      data: {
+        type: 'REFERRAL_SIGNUP',
+        test: 'true'
+      }
+    })
+
+    return NextResponse.json({
+      success: result,
+      message: result ? 'FCM 전송 성공' : 'FCM 전송 실패 (토큰 없음 또는 오류)',
+      userId,
+      tokensFound: tokens?.length || 0,
+      tokens: tokens?.map(t => ({
+        token: t.token.substring(0, 30) + '...',
+        user_id: t.user_id,
+        created_at: t.created_at
+      }))
+    })
+  } catch (error: any) {
+    console.error('FCM userId 테스트 오류:', error)
+    return NextResponse.json({
+      success: false,
+      error: error.message || error.toString()
     }, { status: 500 })
   }
 }
