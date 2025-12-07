@@ -1216,7 +1216,7 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-4 py-8 max-w-[1600px]">
         {/* 기간 필터 */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700 mb-6">
           <div className="flex flex-wrap items-center gap-4">
@@ -1610,6 +1610,7 @@ export default function AdminPage() {
                   <tr className="border-b border-gray-700">
                     <th className="text-left py-3 px-2 text-sm text-gray-400">회원번호</th>
                     <th className="text-left py-3 px-2 text-sm text-gray-400">이름</th>
+                    <th className="text-left py-3 px-2 text-sm text-gray-400">이메일</th>
                     <th className="text-left py-3 px-2 text-sm text-gray-400">추천인</th>
                     <th className="text-left py-3 px-2 text-sm text-gray-400">등급</th>
                     <th className="text-left py-3 px-2 text-sm text-gray-400">휴대폰</th>
@@ -1691,6 +1692,7 @@ export default function AdminPage() {
                               {u.status === 'DELETED' && <span className="text-gray-500 text-xs">❌</span>}
                             </div>
                           </td>
+                          <td className="py-3 px-2 text-sm text-gray-300">{u.email || '-'}</td>
                           <td className="py-3 px-2 text-sm text-gray-300">
                             {referrer ? referrer.name : '-'}
                           </td>
