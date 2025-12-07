@@ -75,8 +75,7 @@ export async function POST(request: NextRequest) {
       .update({
         status: 'REJECTED',
         processed_at: new Date().toISOString(),
-        processed_by: payload.userId,
-        reject_reason: reason || null
+        processed_by: payload.userId
       })
       .eq('id', requestId)
 
