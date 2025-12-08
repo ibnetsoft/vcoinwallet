@@ -13,7 +13,7 @@ interface User {
   securityCoins: number
   dividendCoins: number
   memberNumber: number
-  role: 'ADMIN' | 'TEAM_LEADER' | 'USER'
+  role: 'ADMIN' | 'GROUP_LEADER' | 'TEAM_LEADER' | 'USER'
   isAdmin: boolean
   status?: 'ACTIVE' | 'BLOCKED' | 'DELETED'
   is_active?: boolean
