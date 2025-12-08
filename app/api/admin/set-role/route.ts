@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     // role 유효성 검사
-    if (!['ADMIN', 'TEAM_LEADER', 'USER'].includes(role)) {
+    if (!['ADMIN', 'GROUP_LEADER', 'TEAM_LEADER', 'USER'].includes(role)) {
       return NextResponse.json(
         { error: '유효하지 않은 등급입니다.' },
         { status: 400 }
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     // 사용자 등급 업데이트
     const updatedUser = await db.updateUser(userId, {
-      role: role as 'ADMIN' | 'TEAM_LEADER' | 'USER',
+      role: role as 'ADMIN' | 'GROUP_LEADER' | 'TEAM_LEADER' | 'USER',
       isAdmin: role === 'ADMIN'  // 하위 호환성
     })
 
@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
 
     const roleNames: Record<string, string> = {
       'ADMIN': '관리자',
+      'GROUP_LEADER': '그룹장',
       'TEAM_LEADER': '팀장',
       'USER': '일반회원'
     }
