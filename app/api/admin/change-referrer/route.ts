@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
-import { db } from '@/lib/db'
 
 // POST: 회원의 추천인 변경
 export async function POST(request: NextRequest) {
@@ -137,12 +136,15 @@ export async function POST(request: NextRequest) {
         bonusGranted = true
 
         // 거래 기록 생성
-        await db.createTransaction({
-          userId: newReferrerId,
+        await supabaseAdmin.from('transactions').insert({
+          id: `${Date.now()}${Math.random().toString(36).substring(2, 9)}`,
+          user_id: newReferrerId,
           type: 'REFERRAL_BONUS',
+          coin_type: 'SECURITY',
           amount: bonusAmount,
+          balance: (newReferrer.security_coins || 0) + bonusAmount,
           description: `추천인 변경 보너스 (${targetUser.name}님 추천)`,
-          createdBy: payload.userId
+          created_at: new Date().toISOString()
         })
       }
     }
