@@ -60,6 +60,12 @@ export default function AdminPage() {
     idNumber: ''
   })
 
+  // 추천인 변경 상태
+  const [isChangingReferrer, setIsChangingReferrer] = useState(false)
+  const [newReferrerId, setNewReferrerId] = useState('')
+  const [referrerSearchTerm, setReferrerSearchTerm] = useState('')
+  const [grantReferrerBonus, setGrantReferrerBonus] = useState(true)
+
   // 페이지네이션
   const [currentPage, setCurrentPage] = useState(1)
   const usersPerPage = 30
@@ -872,6 +878,48 @@ export default function AdminPage() {
       setSelectedUserDetail(updatedUser)
     } catch (error: any) {
       toast.error(error.message || '회원 정보 수정 중 오류가 발생했습니다')
+    }
+  }
+
+  // 추천인 변경 처리
+  const handleChangeReferrer = async () => {
+    if (!selectedUserDetail) return
+
+    const token = localStorage.getItem('token')
+
+    try {
+      const response = await fetch('/api/admin/change-referrer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId: selectedUserDetail.id,
+          newReferrerId: newReferrerId || null,
+          grantBonus: grantReferrerBonus && newReferrerId
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '추천인 변경 실패')
+      }
+
+      toast.success(result.message)
+      setIsChangingReferrer(false)
+      setNewReferrerId('')
+      setReferrerSearchTerm('')
+
+      // 회원 목록 새로고침
+      await fetchUsers()
+
+      // 상세 정보 업데이트
+      const updatedUser = { ...selectedUserDetail, referrerId: newReferrerId || undefined }
+      setSelectedUserDetail(updatedUser)
+    } catch (error: any) {
+      toast.error(error.message || '추천인 변경 중 오류가 발생했습니다')
     }
   }
 
@@ -3635,16 +3683,96 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-400">추천인</p>
-                  <p className="text-base font-medium text-white">
-                    {(() => {
-                      // referrerId는 user.id로 저장됨
-                      const referrer = selectedUserDetail.referrerId
-                        ? users.find(u => u.id === selectedUserDetail.referrerId)
-                        : null
-                      return referrer ? `${referrer.name} (회원번호: ${referrer.memberNumber})` : '없음'
-                    })()}
-                  </p>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm text-gray-400">추천인</p>
+                    {selectedUserDetail.role !== 'ADMIN' && !isChangingReferrer && (
+                      <button
+                        onClick={() => {
+                          setIsChangingReferrer(true)
+                          setNewReferrerId(selectedUserDetail.referrerId || '')
+                        }}
+                        className="text-xs text-yellow-400 hover:text-yellow-300"
+                      >
+                        변경
+                      </button>
+                    )}
+                  </div>
+                  {isChangingReferrer ? (
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        placeholder="이름, 휴대폰, 추천코드 검색"
+                        value={referrerSearchTerm}
+                        onChange={(e) => setReferrerSearchTerm(e.target.value)}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                      />
+                      <select
+                        value={newReferrerId}
+                        onChange={(e) => setNewReferrerId(e.target.value)}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                      >
+                        <option value="">추천인 없음</option>
+                        {users
+                          .filter(u => u.id !== selectedUserDetail.id)
+                          .filter(u => {
+                            if (!referrerSearchTerm) return true
+                            const term = referrerSearchTerm.toLowerCase()
+                            return (
+                              u.name.toLowerCase().includes(term) ||
+                              u.phone.includes(term) ||
+                              u.referralCode.toLowerCase().includes(term)
+                            )
+                          })
+                          .slice(0, 50)
+                          .map(u => (
+                            <option key={u.id} value={u.id}>
+                              {u.name} ({u.phone}) - #{u.memberNumber}
+                            </option>
+                          ))
+                        }
+                      </select>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="grantBonus"
+                          checked={grantReferrerBonus}
+                          onChange={(e) => setGrantReferrerBonus(e.target.checked)}
+                          className="w-4 h-4"
+                        />
+                        <label htmlFor="grantBonus" className="text-sm text-gray-300">
+                          새 추천인에게 보너스 지급
+                        </label>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleChangeReferrer}
+                          className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm"
+                        >
+                          저장
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsChangingReferrer(false)
+                            setNewReferrerId('')
+                            setReferrerSearchTerm('')
+                          }}
+                          className="flex-1 px-3 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm"
+                        >
+                          취소
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-base font-medium text-white">
+                      {(() => {
+                        // referrerId는 user.id로 저장됨
+                        const referrer = selectedUserDetail.referrerId
+                          ? users.find(u => u.id === selectedUserDetail.referrerId)
+                          : null
+                        return referrer ? `${referrer.name} (회원번호: ${referrer.memberNumber})` : '없음'
+                      })()}
+                    </p>
+                  )}
                 </div>
 
                 <div>
