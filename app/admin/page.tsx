@@ -18,7 +18,7 @@ interface User {
   securityCoins: number
   dividendCoins: number
   memberNumber: number
-  role: 'ADMIN' | 'TEAM_LEADER' | 'USER'
+  role: 'ADMIN' | 'GROUP_LEADER' | 'TEAM_LEADER' | 'USER'
   isAdmin: boolean
   status?: 'ACTIVE' | 'BLOCKED' | 'DELETED'
   createdAt: string
@@ -45,10 +45,10 @@ export default function AdminPage() {
   const [securityGrantDescription, setSecurityGrantDescription] = useState('')
   const [securityGrantMode, setSecurityGrantMode] = useState<'add' | 'set'>('add')
   const [roleChangeUserId, setRoleChangeUserId] = useState('')
-  const [newRole, setNewRole] = useState<'USER' | 'TEAM_LEADER'>('USER')
+  const [newRole, setNewRole] = useState<'USER' | 'TEAM_LEADER' | 'GROUP_LEADER'>('USER')
   const [roleSearchTerm, setRoleSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState<'users' | 'grant' | 'security-grant' | 'roles' | 'notice' | 'resources' | 'settings' | 'coin-settings' | 'team-stats' | 'swap'>('users')
-  const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'TEAM_LEADER' | 'USER'>('ALL')
+  const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'GROUP_LEADER' | 'TEAM_LEADER' | 'USER'>('ALL')
   const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
@@ -1561,11 +1561,12 @@ export default function AdminPage() {
                 {/* 등급 필터 */}
                 <select
                   value={userRoleFilter}
-                  onChange={(e) => setUserRoleFilter(e.target.value as 'ALL' | 'ADMIN' | 'TEAM_LEADER' | 'USER')}
+                  onChange={(e) => setUserRoleFilter(e.target.value as 'ALL' | 'ADMIN' | 'GROUP_LEADER' | 'TEAM_LEADER' | 'USER')}
                   className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
                 >
                   <option value="ALL">전체 등급</option>
                   <option value="ADMIN">관리자</option>
+                  <option value="GROUP_LEADER">그룹장</option>
                   <option value="TEAM_LEADER">팀장</option>
                   <option value="USER">일반회원</option>
                 </select>
@@ -1626,11 +1627,13 @@ export default function AdminPage() {
                     const renderUserRow = (u: User, depth: number = 0): React.ReactNode[] => {
                       const roleLabels: Record<string, string> = {
                         'ADMIN': '관리자',
+                        'GROUP_LEADER': '그룹장',
                         'TEAM_LEADER': '팀장',
                         'USER': '일반회원'
                       }
                       const roleColors: Record<string, string> = {
                         'ADMIN': 'bg-red-500/20 text-red-400',
+                        'GROUP_LEADER': 'bg-purple-500/20 text-purple-400',
                         'TEAM_LEADER': 'bg-blue-500/20 text-blue-400',
                         'USER': 'bg-gray-500/20 text-gray-400'
                       }
@@ -1879,6 +1882,7 @@ export default function AdminPage() {
             {selectedUser && (() => {
               const roleLabels: Record<string, string> = {
                 'ADMIN': '관리자',
+                'GROUP_LEADER': '그룹장',
                 'TEAM_LEADER': '팀장',
                 'USER': '일반회원'
               }
@@ -2125,6 +2129,7 @@ export default function AdminPage() {
             {securitySelectedUser && (() => {
               const roleLabels: Record<string, string> = {
                 'ADMIN': '관리자',
+                'GROUP_LEADER': '그룹장',
                 'TEAM_LEADER': '팀장',
                 'USER': '일반회원'
               }
@@ -2279,6 +2284,7 @@ export default function AdminPage() {
                 {(roleSearchTerm ? roleFilteredUsers : users.filter(u => !u.isAdmin)).map(u => {
                   const roleLabels: Record<string, string> = {
                     'ADMIN': '관리자',
+                    'GROUP_LEADER': '그룹장',
                     'TEAM_LEADER': '팀장',
                     'USER': '일반회원'
                   }
@@ -2296,11 +2302,12 @@ export default function AdminPage() {
               <label className="block text-sm text-gray-300 mb-2">변경할 등급</label>
               <select
                 value={newRole}
-                onChange={(e) => setNewRole(e.target.value as 'USER' | 'TEAM_LEADER')}
+                onChange={(e) => setNewRole(e.target.value as 'USER' | 'TEAM_LEADER' | 'GROUP_LEADER')}
                 className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
               >
                 <option value="USER">일반회원</option>
                 <option value="TEAM_LEADER">팀장</option>
+                <option value="GROUP_LEADER">그룹장</option>
               </select>
             </div>
           </div>

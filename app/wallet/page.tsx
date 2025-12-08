@@ -1308,11 +1308,13 @@ export default function WalletPage() {
                   {referredUsers.map((referredUser, index) => {
                     const roleLabels: Record<string, string> = {
                       'ADMIN': '관리자',
+                      'GROUP_LEADER': '그룹장',
                       'TEAM_LEADER': '팀장',
                       'USER': '일반회원'
                     }
                     const roleColors: Record<string, string> = {
                       'ADMIN': 'bg-red-500/20 text-red-400',
+                      'GROUP_LEADER': 'bg-purple-500/20 text-purple-400',
                       'TEAM_LEADER': 'bg-blue-500/20 text-blue-400',
                       'USER': 'bg-gray-500/20 text-gray-400'
                     }
@@ -1513,6 +1515,19 @@ export default function WalletPage() {
         {/* 마이페이지 탭 내용 */}
         {activeTab === 'mypage' && (
           <div className="min-h-[800px]">
+            {/* 그룹장 관리 버튼 */}
+            {user?.role === 'GROUP_LEADER' && (
+              <div className="mb-6">
+                <button
+                  onClick={() => router.push('/group-leader')}
+                  className="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition"
+                >
+                  <Users className="w-6 h-6" />
+                  그룹장 관리 페이지
+                </button>
+              </div>
+            )}
+
             {/* 내 정보 카드 */}
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 mb-6">
               <div className="flex items-center justify-between mb-6">
