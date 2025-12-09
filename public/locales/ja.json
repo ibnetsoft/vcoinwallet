@@ -116,7 +116,15 @@
     "fullTransactionHistory": "全取引履歴",
     "myReferralCode": "マイ紹介コード",
     "balanceLabel": "残高:",
-    "noTransactionsDesc": "コインを受け取ると、ここに取引が表示されます。"
+    "noTransactionsDesc": "コインを受け取ると、ここに取引が表示されます。",
+    "swapRequestTitle": "スワップリクエスト",
+    "swapRequestDesc": "配当コインを証券コインに変換するリクエスト",
+    "swapRatio": "スワップ比率",
+    "enterAmount": "数量を入力",
+    "fullAmount": "全額",
+    "swapNotice": "スワップリクエストは管理者の承認後に処理されます。承認されると通知されます。",
+    "requesting": "リクエスト中...",
+    "swapRequestStatus": "スワップリクエスト状況"
   },
   "referral": {
     "title": "紹介",

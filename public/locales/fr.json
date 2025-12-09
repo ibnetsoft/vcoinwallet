@@ -112,7 +112,15 @@
     "fullTransactionHistory": "Historique complet des transactions",
     "myReferralCode": "Mon code de parrainage",
     "balanceLabel": "Solde:",
-    "noTransactionsDesc": "Les transactions apparaîtront ici lorsque vous recevrez des pièces."
+    "noTransactionsDesc": "Les transactions apparaîtront ici lorsque vous recevrez des pièces.",
+    "swapRequestTitle": "Demande d'échange",
+    "swapRequestDesc": "Demander la conversion de Pièces de Dividende en Pièces de Sécurité",
+    "swapRatio": "Ratio d'échange",
+    "enterAmount": "Entrer le montant",
+    "fullAmount": "Montant total",
+    "swapNotice": "Les demandes d'échange sont traitées après approbation de l'admin. Vous serez notifié lors de l'approbation.",
+    "requesting": "Demande en cours...",
+    "swapRequestStatus": "Statut de la demande d'échange"
   },
   "referral": {
     "title": "Parrainage",

@@ -112,7 +112,15 @@
     "fullTransactionHistory": "Riwayat Transaksi Lengkap",
     "myReferralCode": "Kode Referral Saya",
     "balanceLabel": "Saldo:",
-    "noTransactionsDesc": "Transaksi akan muncul di sini saat Anda menerima koin."
+    "noTransactionsDesc": "Transaksi akan muncul di sini saat Anda menerima koin.",
+    "swapRequestTitle": "Permintaan Tukar",
+    "swapRequestDesc": "Minta konversi Koin Dividen ke Koin Keamanan",
+    "swapRatio": "Rasio Tukar",
+    "enterAmount": "Masukkan Jumlah",
+    "fullAmount": "Jumlah Penuh",
+    "swapNotice": "Permintaan tukar diproses setelah persetujuan admin. Anda akan diberi tahu saat disetujui.",
+    "requesting": "Meminta...",
+    "swapRequestStatus": "Status Permintaan Tukar"
   },
   "referral": {
     "title": "Referral",

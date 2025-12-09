@@ -112,7 +112,15 @@
     "fullTransactionHistory": "पूर्ण लेन-देन इतिहास",
     "myReferralCode": "मेरा रेफरल कोड",
     "balanceLabel": "बैलेंस:",
-    "noTransactionsDesc": "जब आप कॉइन प्राप्त करते हैं तो लेनदेन यहां दिखाई देंगे।"
+    "noTransactionsDesc": "जब आप कॉइन प्राप्त करते हैं तो लेनदेन यहां दिखाई देंगे।",
+    "swapRequestTitle": "स्वैप अनुरोध",
+    "swapRequestDesc": "डिविडेंड कॉइन को सिक्योरिटी कॉइन में बदलने का अनुरोध करें",
+    "swapRatio": "स्वैप अनुपात",
+    "enterAmount": "राशि दर्ज करें",
+    "fullAmount": "पूरी राशि",
+    "swapNotice": "स्वैप अनुरोध प्रशासक की मंजूरी के बाद संसाधित किए जाते हैं। स्वीकृत होने पर आपको सूचित किया जाएगा।",
+    "requesting": "अनुरोध कर रहे हैं...",
+    "swapRequestStatus": "स्वैप अनुरोध स्थिति"
   },
   "referral": {
     "title": "रेफरल",

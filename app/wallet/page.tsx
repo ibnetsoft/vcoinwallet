@@ -1008,7 +1008,7 @@ export default function WalletPage() {
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 mb-8">
             <div className="flex items-center mb-4">
               <ArrowRightLeft className="w-6 h-6 text-orange-400 mr-2" />
-              <h3 className="text-lg font-semibold text-white">스왑 요청 현황</h3>
+              <h3 className="text-lg font-semibold text-white">{t('wallet.swapRequestStatus')}</h3>
             </div>
             <div className="space-y-3">
               {swapRequests.slice(0, 3).map((req, index) => {
@@ -1849,8 +1849,8 @@ export default function WalletPage() {
               <div className="w-16 h-16 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ArrowRightLeft className="w-8 h-8 text-orange-400" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">스왑 요청</h3>
-              <p className="text-sm text-gray-400">배당코인을 증권코인으로 전환 요청합니다</p>
+              <h3 className="text-2xl font-bold text-white mb-2">{t('wallet.swapRequestTitle')}</h3>
+              <p className="text-sm text-gray-400">{t('wallet.swapRequestDesc')}</p>
             </div>
 
             <div className="bg-gray-800/50 rounded-lg p-4 mb-6">
@@ -1859,8 +1859,8 @@ export default function WalletPage() {
                 <span className="text-lg font-bold text-yellow-400">{user?.dividendCoins?.toLocaleString() || 0}개</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">스왑 비율</span>
-                <span className="text-sm text-green-400">1:1 (배당코인 → 증권코인)</span>
+                <span className="text-sm text-gray-400">{t('wallet.swapRatio')}</span>
+                <span className="text-sm text-green-400">1:1 ({t('wallet.dividendCoins')} → {t('wallet.securityCoins')})</span>
               </div>
             </div>
 
@@ -1874,7 +1874,7 @@ export default function WalletPage() {
                   value={swapAmount}
                   onChange={(e) => setSwapAmount(e.target.value)}
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-orange-500 focus:outline-none"
-                  placeholder="수량 입력"
+                  placeholder={t('wallet.enterAmount')}
                   min="1"
                   max={user?.dividendCoins || 0}
                 />
@@ -1882,7 +1882,7 @@ export default function WalletPage() {
                   onClick={() => setSwapAmount(String(user?.dividendCoins || 0))}
                   className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-orange-500/20 text-orange-400 rounded text-sm hover:bg-orange-500/30 transition"
                 >
-                  전액
+                  {t('wallet.fullAmount')}
                 </button>
               </div>
               {swapAmount && parseInt(swapAmount) > 0 && (
@@ -1894,7 +1894,7 @@ export default function WalletPage() {
 
             <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
               <p className="text-sm text-yellow-400">
-                스왑 요청은 관리자 승인 후 처리됩니다. 승인되면 알림을 받게 됩니다.
+                {t('wallet.swapNotice')}
               </p>
             </div>
 
@@ -1917,7 +1917,7 @@ export default function WalletPage() {
                     : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                 }`}
               >
-                {isSwapLoading ? '요청 중...' : '스왑 요청'}
+                {isSwapLoading ? t('wallet.requesting') : t('wallet.swapRequestTitle')}
               </button>
             </div>
           </div>

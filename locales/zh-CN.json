@@ -116,7 +116,15 @@
     "fullTransactionHistory": "完整交易历史",
     "myReferralCode": "我的推荐码",
     "balanceLabel": "余额:",
-    "noTransactionsDesc": "当您收到币时，交易将显示在此处。"
+    "noTransactionsDesc": "当您收到币时，交易将显示在此处。",
+    "swapRequestTitle": "兑换请求",
+    "swapRequestDesc": "请求将分红币转换为证券币",
+    "swapRatio": "兑换比率",
+    "enterAmount": "输入数量",
+    "fullAmount": "全部金额",
+    "swapNotice": "兑换请求在管理员批准后处理。批准后您将收到通知。",
+    "requesting": "请求中...",
+    "swapRequestStatus": "兑换请求状态"
   },
   "referral": {
     "title": "推荐",

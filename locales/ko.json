@@ -116,7 +116,15 @@
     "people": "명",
     "share": "공유",
     "signupBonus": "회원가입 보너스",
-    "myReferralCode": "내 추천 코드"
+    "myReferralCode": "내 추천 코드",
+    "swapRequestTitle": "스왑 요청",
+    "swapRequestDesc": "배당코인을 증권코인으로 전환 요청합니다",
+    "swapRatio": "스왑 비율",
+    "enterAmount": "수량 입력",
+    "fullAmount": "전액",
+    "swapNotice": "스왑 요청은 관리자 승인 후 처리됩니다. 승인되면 알림을 받게 됩니다.",
+    "requesting": "요청 중...",
+    "swapRequestStatus": "스왑 요청 현황"
   },
   "referral": {
     "title": "추천인",

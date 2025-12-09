@@ -112,7 +112,15 @@
     "fullTransactionHistory": "Vollständige Transaktionshistorie",
     "myReferralCode": "Mein Empfehlungscode",
     "balanceLabel": "Guthaben:",
-    "noTransactionsDesc": "Transaktionen werden hier angezeigt, wenn Sie Münzen erhalten."
+    "noTransactionsDesc": "Transaktionen werden hier angezeigt, wenn Sie Münzen erhalten.",
+    "swapRequestTitle": "Tausch-Anfrage",
+    "swapRequestDesc": "Antrag auf Umwandlung von Dividendenmünzen in Sicherheitsmünzen",
+    "swapRatio": "Tauschverhältnis",
+    "enterAmount": "Betrag eingeben",
+    "fullAmount": "Voller Betrag",
+    "swapNotice": "Tauschanfragen werden nach Admin-Genehmigung verarbeitet. Sie werden benachrichtigt, wenn sie genehmigt wurde.",
+    "requesting": "Wird angefordert...",
+    "swapRequestStatus": "Tausch-Anfragestatus"
   },
   "referral": {
     "title": "Empfehlung",

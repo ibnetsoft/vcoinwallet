@@ -116,7 +116,15 @@
     "fullTransactionHistory": "Full Transaction History",
     "myReferralCode": "My Referral Code",
     "balanceLabel": "Balance:",
-    "noTransactionsDesc": "Transactions will appear here when you receive coins."
+    "noTransactionsDesc": "Transactions will appear here when you receive coins.",
+    "swapRequestTitle": "Swap Request",
+    "swapRequestDesc": "Request to convert Dividend Coins to Security Coins",
+    "swapRatio": "Swap Ratio",
+    "enterAmount": "Enter Amount",
+    "fullAmount": "Full Amount",
+    "swapNotice": "Swap requests are processed after admin approval. You will be notified when approved.",
+    "requesting": "Requesting...",
+    "swapRequestStatus": "Swap Request Status"
   },
   "referral": {
     "title": "Referral",

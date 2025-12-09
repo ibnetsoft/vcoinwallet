@@ -116,7 +116,15 @@
     "fullTransactionHistory": "سجل المعاملات الكامل",
     "myReferralCode": "رمز الإحالة الخاص بي",
     "balanceLabel": "الرصيد:",
-    "noTransactionsDesc": "ستظهر المعاملات هنا عندما تتلقى العملات."
+    "noTransactionsDesc": "ستظهر المعاملات هنا عندما تتلقى العملات.",
+    "swapRequestTitle": "طلب مبادلة",
+    "swapRequestDesc": "طلب تحويل عملات الأرباح إلى عملات الأمان",
+    "swapRatio": "نسبة المبادلة",
+    "enterAmount": "أدخل المبلغ",
+    "fullAmount": "المبلغ الكامل",
+    "swapNotice": "تتم معالجة طلبات المبادلة بعد موافقة المسؤول. سيتم إخطارك عند الموافقة.",
+    "requesting": "جارٍ الطلب...",
+    "swapRequestStatus": "حالة طلب المبادلة"
   },
   "referral": {
     "title": "الإحالة",
