@@ -8,6 +8,8 @@ import toast, { Toaster } from 'react-hot-toast'
 import Link from 'next/link'
 import PrivacyConsentModal from '@/components/PrivacyConsentModal'
 import KakaoBrowserWarning from '@/components/KakaoBrowserWarning'
+import LanguageSelector from '@/components/LanguageSelector'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 type SignupForm = {
   name: string
@@ -20,6 +22,7 @@ type SignupForm = {
 }
 
 export default function SignupPage() {
+  const { t } = useLanguage()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false)
@@ -40,7 +43,7 @@ export default function SignupPage() {
     const refCode = params.get('ref')
     if (refCode) {
       setValue('referralCode', refCode)
-      toast.success(`추천 코드 "${refCode}"가 자동으로 입력되었습니다!`)
+      toast.success(t('auth.referralCodeApplied', { code: refCode }))
     }
   }, [setValue])
 
@@ -74,7 +77,7 @@ export default function SignupPage() {
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || '회원가입 실패')
+        throw new Error(result.error || t('auth.signupFailedError'))
       }
 
       // 로컬 스토리지에 토큰과 사용자 정보 저장
@@ -84,8 +87,8 @@ export default function SignupPage() {
 
       toast.success(
         <div>
-          <p className="font-semibold">🎉 회원가입 완료!</p>
-          <p className="text-sm">증권코인 {result.user.securityCoins}개가 지급되었습니다!</p>
+          <p className="font-semibold">🎉 {t('auth.signupComplete')}</p>
+          <p className="text-sm">{t('auth.coinsGrantedMessage', { amount: result.user.securityCoins })}</p>
         </div>
       )
 
@@ -95,7 +98,7 @@ export default function SignupPage() {
       }, 1000)
 
     } catch (error: any) {
-      toast.error(error.message || '회원가입 중 오류가 발생했습니다.')
+      toast.error(error.message || t('auth.signupError'))
     } finally {
       setIsLoading(false)
     }
@@ -105,6 +108,11 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center py-12 px-4 pt-[max(22px,env(safe-area-inset-top))]">
       <KakaoBrowserWarning />
       <Toaster position="top-center" />
+
+      {/* 언어 선택기 - 우측 상단 */}
+      <div className="absolute top-4 right-4 z-10">
+        <LanguageSelector />
+      </div>
       
       <div className="max-w-md w-full">
         {/* 로고 */}
@@ -112,8 +120,8 @@ export default function SignupPage() {
           <div className="flex justify-center mb-4">
             <img src="/vcoin_logo.png" alt="V COIN Logo" className="w-32 h-32 object-contain" />
           </div>
-          <h1 className="text-3xl font-bold text-white">V COIN 회원가입</h1>
-          <p className="text-gray-400 mt-2">3D SOLAR 투자 플랫폼</p>
+          <h1 className="text-3xl font-bold text-white">{t('auth.signupHeading')}</h1>
+          <p className="text-gray-400 mt-2">{t('auth.platformSubtitle')}</p>
         </div>
 
         {/* 보너스 안내 */}
@@ -121,8 +129,8 @@ export default function SignupPage() {
           <div className="flex items-center">
             <Gift className="w-6 h-6 text-yellow-400 mr-3" />
             <div>
-              <p className="text-yellow-400 font-semibold">가입 즉시 증권코인 500개 지급!</p>
-              <p className="text-yellow-300/70 text-sm">추천인 등록 시 1,000개 추가</p>
+              <p className="text-yellow-400 font-semibold">{t('auth.signupInstantBonus')}</p>
+              <p className="text-yellow-300/70 text-sm">{t('auth.signupReferralBonus')}</p>
             </div>
           </div>
         </div>
@@ -132,17 +140,17 @@ export default function SignupPage() {
           {/* 이름 */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              이름 *
+              {t('auth.nameLabel')} *
             </label>
             <div className="relative">
               <User className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
               <input
                 type="text"
                 {...register('name', {
-                  required: '이름을 입력해주세요.',
+                  required: t('auth.nameRequiredError'),
                   minLength: {
                     value: 2,
-                    message: '이름은 2자 이상이어야 합니다.'
+                    message: t('auth.nameMinLengthError')
                   }
                 })}
                 className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-white placeholder-gray-500"
@@ -157,17 +165,17 @@ export default function SignupPage() {
           {/* 휴대폰 번호 */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              휴대폰 번호 *
+              {t('auth.phoneLabel')} *
             </label>
             <div className="relative">
               <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
               <input
                 type="tel"
                 {...register('phone', {
-                  required: '휴대폰 번호를 입력해주세요.',
+                  required: t('auth.phoneRequiredError'),
                   pattern: {
                     value: /^[0-9]{10,11}$/,
-                    message: '올바른 전화번호 형식이 아닙니다. (숫자만 10-11자리)'
+                    message: t('auth.phoneFormatError')
                   }
                 })}
                 className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-white placeholder-gray-500"
@@ -182,17 +190,17 @@ export default function SignupPage() {
           {/* 주민등록번호 */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              주민등록번호 *
+              {t('auth.idNumberLabel')} *
             </label>
             <div className="relative">
               <User className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
               <input
                 type="text"
                 {...register('idNumber', {
-                  required: '주민등록번호를 입력해주세요.',
+                  required: t('auth.idNumberRequiredError'),
                   pattern: {
                     value: /^[0-9]{6}-[0-9]{1}$/,
-                    message: '올바른 주민등록번호 형식이 아닙니다. (예: 900101-1)'
+                    message: t('auth.idNumberFormatError')
                   }
                 })}
                 onChange={handleIdNumberChange}
@@ -209,7 +217,7 @@ export default function SignupPage() {
           {/* 이메일 (선택) */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              이메일 *
+              {t('auth.emailLabel')} *
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
@@ -218,7 +226,7 @@ export default function SignupPage() {
                 {...register('email', {
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: '올바른 이메일 형식이 아닙니다.'
+                    message: t('auth.emailFormatError')
                   }
                 })}
                 className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-white placeholder-gray-500"
@@ -233,17 +241,17 @@ export default function SignupPage() {
           {/* 비밀번호 */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              비밀번호 *
+              {t('auth.passwordLabel')} *
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
               <input
                 type="password"
                 {...register('password', {
-                  required: '비밀번호를 입력해주세요.',
+                  required: t('auth.passwordRequiredError'),
                   minLength: {
                     value: 6,
-                    message: '비밀번호는 6자 이상이어야 합니다.'
+                    message: t('auth.passwordMinLengthError')
                   }
                 })}
                 className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-white placeholder-gray-500"
@@ -258,15 +266,15 @@ export default function SignupPage() {
           {/* 비밀번호 확인 */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              비밀번호 확인 *
+              {t('auth.confirmPasswordLabel')} *
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
               <input
                 type="password"
                 {...register('confirmPassword', {
-                  required: '비밀번호 확인을 입력해주세요.',
-                  validate: value => value === password || '비밀번호가 일치하지 않습니다.'
+                  required: t('auth.confirmPasswordRequiredError'),
+                  validate: value => value === password || t('auth.passwordsDoNotMatch')
                 })}
                 className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-white placeholder-gray-500"
                 placeholder="••••••••"
@@ -280,7 +288,7 @@ export default function SignupPage() {
           {/* 추천인 코드 */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              추천인 코드 (선택)
+              {t('auth.referralCodeLabel')}
             </label>
             <div className="relative">
               <Gift className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
@@ -292,7 +300,7 @@ export default function SignupPage() {
               />
             </div>
             <p className="mt-1 text-sm text-gray-400">
-              추천인 코드 입력 시 증권코인 1,000개 추가 지급
+              {t('auth.referralCodePlaceholder')}
             </p>
           </div>
 
@@ -307,13 +315,13 @@ export default function SignupPage() {
                 className="mt-1 w-4 h-4 text-yellow-500 bg-gray-700 border-gray-600 rounded focus:ring-yellow-500 focus:ring-2"
               />
               <label htmlFor="privacyConsent" className="ml-3 text-sm text-gray-300">
-                <span className="font-medium text-white">[필수]</span> 개인정보 수집 및 이용에 동의합니다.{' '}
+                {t('auth.privacyConsentRequired')}{' '}
                 <button
                   type="button"
                   onClick={() => setIsPrivacyModalOpen(true)}
                   className="text-yellow-400 hover:text-yellow-300 underline font-medium"
                 >
-                  자세히 보기
+                  {t('auth.privacyConsentDetails')}
                 </button>
               </label>
             </div>
@@ -331,12 +339,12 @@ export default function SignupPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                처리 중...
+                {t('auth.processing')}
               </span>
             ) : (
               <>
                 <UserPlus className="w-5 h-5 mr-2" />
-                회원가입
+                {t('auth.signupButton')}
               </>
             )}
           </button>
@@ -345,9 +353,9 @@ export default function SignupPage() {
         {/* 로그인 링크 */}
         <div className="mt-6 text-center">
           <p className="text-gray-400">
-            이미 계정이 있으신가요?{' '}
+            {t('auth.alreadyHaveAccount')}{' '}
             <Link href="/login" className="text-yellow-400 hover:text-yellow-300 font-medium">
-              로그인
+              {t('auth.loginButton')}
             </Link>
           </p>
         </div>
