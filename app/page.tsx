@@ -6,9 +6,11 @@ import { Coins, TrendingUp, Users, Wallet, X, Sparkles, Power, WalletIcon, Bell 
 import toast, { Toaster } from 'react-hot-toast'
 import CoinValueChart from '@/components/CoinValueChart'
 import LanguageSelector from '@/components/LanguageSelector'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function HomePage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
@@ -185,7 +187,7 @@ export default function HomePage() {
                     onClick={() => router.push('/notices')}
                     className="hidden sm:block px-4 py-2 text-white hover:text-yellow-400 transition"
                   >
-                    공지사항
+                    {t('home.notice')}
                   </button>
                   {/* 알림 벨 아이콘 */}
                   <div className="relative">
@@ -213,14 +215,14 @@ export default function HomePage() {
                     onClick={() => router.push('/resources')}
                     className="hidden sm:block px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
                   >
-                    게시판
+                    {t('home.board')}
                   </button>
                   {user.isAdmin && (
                     <button
                       onClick={() => router.push('/admin')}
                       className="hidden sm:block px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
                     >
-                      관리자
+                      {t('home.admin')}
                     </button>
                   )}
                   <button
@@ -248,19 +250,19 @@ export default function HomePage() {
                     onClick={() => router.push('/notices')}
                     className="hidden sm:block px-4 py-2 text-white hover:text-yellow-400 transition"
                   >
-                    공지사항
+                    {t('home.notice')}
                   </button>
                   <button
                     onClick={() => router.push('/login')}
                     className="px-3 py-2 sm:px-4 text-sm sm:text-base text-white hover:text-yellow-400 transition"
                   >
-                    로그인
+                    {t('common.login')}
                   </button>
                   <button
                     onClick={() => router.push('/signup')}
                     className="px-3 py-2 sm:px-4 text-sm sm:text-base bg-yellow-500 text-gray-900 rounded-lg font-semibold hover:bg-yellow-400 transition"
                   >
-                    회원가입
+                    {t('common.signup')}
                   </button>
                   <LanguageSelector />
                 </>
@@ -276,17 +278,17 @@ export default function HomePage() {
                   onClick={() => router.push('/notices')}
                   className="text-gray-300 hover:text-yellow-400 transition"
                 >
-                  공지사항
+                  {t('home.notice')}
                 </button>
                 <button
                   onClick={() => router.push('/resources')}
                   className="text-gray-300 hover:text-yellow-400 transition"
                 >
-                  게시판
+                  {t('home.board')}
                 </button>
               </div>
               <div className="text-gray-300">
-                안녕하세요, <span className="text-white font-semibold">{user.name}</span>님
+                {t('home.hello')}, <span className="text-white font-semibold">{user.name}</span>님
               </div>
             </div>
           )}
@@ -295,7 +297,7 @@ export default function HomePage() {
           {user && (
             <div className="hidden sm:flex items-center justify-end text-sm">
               <div className="text-gray-300">
-                안녕하세요, <span className="text-white font-semibold">{user.name}</span>님
+                {t('home.hello')}, <span className="text-white font-semibold">{user.name}</span>님
               </div>
             </div>
           )}
@@ -307,7 +309,7 @@ export default function HomePage() {
                 onClick={() => router.push('/notices')}
                 className="text-gray-300 hover:text-yellow-400 transition"
               >
-                공지사항
+                {t('home.notice')}
               </button>
             </div>
           )}
