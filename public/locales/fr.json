@@ -39,7 +39,14 @@
     "loginSuccess": "Connexion réussie",
     "loginFailed": "Échec de la connexion",
     "signupSuccess": "Inscription réussie",
-    "signupFailed": "Échec de l'inscription"
+    "signupFailed": "Échec de l'inscription",
+    "platformSubtitle": "Plateforme d'investissement 3D SOLAR",
+    "welcomeMessage": "Bienvenue, {name}!",
+    "loginError": "Une erreur s'est produite lors de la connexion",
+    "signupBenefitsTitle": "Avantages d'inscription",
+    "benefit500Coins": "500 Pièces de Sécurité instantanément",
+    "benefit1000Coins": "1 000 pièces supplémentaires avec code de parrainage",
+    "benefitEarlyMember": "Avantages spéciaux membres précoces"
   },
   "wallet": {
     "title": "Portefeuille",

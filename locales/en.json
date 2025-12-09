@@ -39,7 +39,14 @@
     "loginSuccess": "Login successful",
     "loginFailed": "Login failed",
     "signupSuccess": "Sign up successful",
-    "signupFailed": "Sign up failed"
+    "signupFailed": "Sign up failed",
+    "platformSubtitle": "3D SOLAR Investment Platform",
+    "welcomeMessage": "Welcome, {name}!",
+    "loginError": "An error occurred during login",
+    "signupBenefitsTitle": "Sign Up Benefits",
+    "benefit500Coins": "500 Security Coins instantly",
+    "benefit1000Coins": "Additional 1,000 coins with referral code",
+    "benefitEarlyMember": "Early member special benefits"
   },
   "wallet": {
     "title": "Wallet",

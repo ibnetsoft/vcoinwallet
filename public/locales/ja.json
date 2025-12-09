@@ -39,7 +39,14 @@
     "loginSuccess": "ログインに成功しました",
     "loginFailed": "ログインに失敗しました",
     "signupSuccess": "サインアップに成功しました",
-    "signupFailed": "サインアップに失敗しました"
+    "signupFailed": "サインアップに失敗しました",
+    "platformSubtitle": "3D SOLAR 投資プラットフォーム",
+    "welcomeMessage": "ようこそ, {name}さん!",
+    "loginError": "ログイン中にエラーが発生しました",
+    "signupBenefitsTitle": "会員登録特典",
+    "benefit500Coins": "証券コイン500個を即座に付与",
+    "benefit1000Coins": "紹介コード入力で1,000個追加",
+    "benefitEarlyMember": "初期会員特別特典"
   },
   "wallet": {
     "title": "ウォレット",

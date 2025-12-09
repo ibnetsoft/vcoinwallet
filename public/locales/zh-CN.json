@@ -39,7 +39,14 @@
     "loginSuccess": "登录成功",
     "loginFailed": "登录失败",
     "signupSuccess": "注册成功",
-    "signupFailed": "注册失败"
+    "signupFailed": "注册失败",
+    "platformSubtitle": "3D SOLAR 投资平台",
+    "welcomeMessage": "欢迎, {name}!",
+    "loginError": "登录时发生错误",
+    "signupBenefitsTitle": "注册福利",
+    "benefit500Coins": "立即获得500个证券币",
+    "benefit1000Coins": "输入推荐码额外获得1,000个",
+    "benefitEarlyMember": "早期会员特别福利"
   },
   "wallet": {
     "title": "钱包",

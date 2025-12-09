@@ -35,14 +35,14 @@ export default function LoginPage() {
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || '로그인 실패')
+        throw new Error(result.error || t('auth.loginFailed'))
       }
 
       // 로컬 스토리지에 토큰과 사용자 정보 저장
       localStorage.setItem('token', result.token)
       localStorage.setItem('user', JSON.stringify(result.user))
 
-      toast.success(`환영합니다, ${result.user.name}님! 👋`)
+      toast.success(`${t('auth.welcomeMessage', { name: result.user.name })} 👋`)
 
       // 1초 후 메인 페이지로 이동 (강력한 새로고침)
       setTimeout(() => {
@@ -50,7 +50,7 @@ export default function LoginPage() {
       }, 1000)
 
     } catch (error: any) {
-      toast.error(error.message || '로그인 중 오류가 발생했습니다.')
+      toast.error(error.message || t('auth.loginError'))
     } finally {
       setIsLoading(false)
     }
@@ -73,7 +73,7 @@ export default function LoginPage() {
             <img src="/vcoin_logo.png" alt="V COIN Logo" className="w-32 h-32 object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-white">V COIN {t('auth.loginTitle')}</h1>
-          <p className="text-gray-400 mt-2">3D SOLAR 투자 플랫폼</p>
+          <p className="text-gray-400 mt-2">{t('auth.platformSubtitle')}</p>
         </div>
 
         {/* 로그인 폼 */}
@@ -159,11 +159,11 @@ export default function LoginPage() {
 
         {/* 추가 안내 */}
         <div className="mt-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-          <h3 className="text-sm font-semibold text-yellow-400 mb-2">🎁 회원가입 혜택</h3>
+          <h3 className="text-sm font-semibold text-yellow-400 mb-2">🎁 {t('auth.signupBenefitsTitle')}</h3>
           <ul className="text-sm text-gray-300 space-y-1">
-            <li>• 증권코인 500개 즉시 지급</li>
-            <li>• 추천인 코드 입력 시 1,000개 추가</li>
-            <li>• 초기 회원 특별 혜택</li>
+            <li>• {t('auth.benefit500Coins')}</li>
+            <li>• {t('auth.benefit1000Coins')}</li>
+            <li>• {t('auth.benefitEarlyMember')}</li>
           </ul>
         </div>
       </div>
