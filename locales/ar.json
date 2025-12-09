@@ -178,6 +178,7 @@
     "theme": "المظهر",
     "logout": "تسجيل الخروج",
     "withdraw": "حذف العضوية",
+    "withdrawButton": "انسحاب",
     "idNumber": "رقم الهوية",
     "referralCode": "رمز الإحالة",
     "memberNumber": "رقم العضو",
@@ -187,7 +188,11 @@
     "updateError": "حدث خطأ أثناء تحديث المعلومات",
     "name": "الاسم",
     "phone": "رقم الهاتف",
-    "email": "البريد الإلكتروني"
+    "email": "البريد الإلكتروني",
+    "withdrawConfirmMessage": "للمتابعة مع الانسحاب، يرجى الكتابة أدناه",
+    "withdrawConfirmKeyword": "انسحاب",
+    "withdrawConfirmPlaceholder": "انسحاب",
+    "withdrawConfirmError": "يرجى كتابة \"انسحاب\" بالضبط."
   },
   "errors": {
     "networkError": "حدث خطأ في الشبكة",

@@ -178,6 +178,7 @@
     "theme": "थिम",
     "logout": "लगआउट",
     "withdraw": "सदस्यता रद्द गर्नुहोस्",
+    "withdrawButton": "निकासी गर्नुहोस्",
     "idNumber": "ID नम्बर",
     "referralCode": "रेफरल कोड",
     "memberNumber": "सदस्य नम्बर",
@@ -187,7 +188,11 @@
     "updateError": "जानकारी अपडेट गर्दा त्रुटि भयो",
     "name": "नाम",
     "phone": "फोन नम्बर",
-    "email": "इमेल"
+    "email": "इमेल",
+    "withdrawConfirmMessage": "निकासी जारी राख्न, कृपया तल टाइप गर्नुहोस्",
+    "withdrawConfirmKeyword": "निकासी",
+    "withdrawConfirmPlaceholder": "निकासी",
+    "withdrawConfirmError": "कृपया ठीक \"निकासी\" टाइप गर्नुहोस्।"
   },
   "errors": {
     "networkError": "नेटवर्क त्रुटि भयो",

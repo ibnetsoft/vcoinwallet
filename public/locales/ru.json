@@ -178,6 +178,7 @@
     "theme": "Тема",
     "logout": "Выйти",
     "withdraw": "Удалить Учетную Запись",
+    "withdrawButton": "Выйти",
     "idNumber": "ID Номер",
     "referralCode": "Реферальный Код",
     "memberNumber": "Номер Участника",
@@ -187,7 +188,11 @@
     "updateError": "Произошла ошибка при обновлении информации",
     "name": "Имя",
     "phone": "Номер телефона",
-    "email": "Электронная почта"
+    "email": "Электронная почта",
+    "withdrawConfirmMessage": "Чтобы продолжить выход, введите ниже",
+    "withdrawConfirmKeyword": "ВЫХОД",
+    "withdrawConfirmPlaceholder": "ВЫХОД",
+    "withdrawConfirmError": "Пожалуйста, введите точно \"ВЫХОД\"."
   },
   "errors": {
     "networkError": "Произошла сетевая ошибка",

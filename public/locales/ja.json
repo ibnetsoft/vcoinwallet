@@ -178,6 +178,7 @@
     "theme": "テーマ",
     "logout": "ログアウト",
     "withdraw": "退会",
+    "withdrawButton": "退会する",
     "idNumber": "ID番号",
     "referralCode": "紹介コード",
     "memberNumber": "会員番号",
@@ -187,7 +188,11 @@
     "updateError": "情報更新中にエラーが発生しました",
     "name": "名前",
     "phone": "電話番号",
-    "email": "メール"
+    "email": "メール",
+    "withdrawConfirmMessage": "退会を進めるには、以下に入力してください",
+    "withdrawConfirmKeyword": "退会",
+    "withdrawConfirmPlaceholder": "退会",
+    "withdrawConfirmError": "正確に\"退会\"と入力してください。"
   },
   "errors": {
     "networkError": "ネットワークエラーが発生しました",

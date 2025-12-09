@@ -674,8 +674,8 @@ export default function WalletPage() {
   }
 
   const handleWithdraw = async () => {
-    if (withdrawConfirmText !== '회원탈퇴') {
-      toast.error('정확히 "회원탈퇴"를 입력해주세요.')
+    if (withdrawConfirmText !== t('profile.withdrawConfirmKeyword')) {
+      toast.error(t('profile.withdrawConfirmError'))
       return
     }
 
@@ -1710,7 +1710,7 @@ export default function WalletPage() {
             <button
               onClick={() => setShowWithdrawModal(true)}
               className="w-full px-4 py-3 bg-red-600/20 border border-red-500/50 text-red-400 rounded-lg hover:bg-red-600/30 transition font-semibold flex items-center justify-center space-x-2"
-              title="회원탈퇴"
+              title={t('profile.withdraw')}
             >
               <svg
                 className="w-5 h-5"
@@ -1724,7 +1724,7 @@ export default function WalletPage() {
                 <line x1="18" y1="8" x2="23" y2="13" strokeLinecap="round" strokeLinejoin="round"/>
                 <line x1="23" y1="8" x2="18" y2="13" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span>회원탈퇴</span>
+              <span>{t('profile.withdraw')}</span>
             </button>
           </div>
         )}
@@ -1793,14 +1793,14 @@ export default function WalletPage() {
 
             <div className="mb-6">
               <label className="block text-sm text-gray-300 mb-2">
-                탈퇴를 진행하시려면 아래에 <span className="text-red-400 font-bold">"회원탈퇴"</span>를 입력해주세요.
+                {t('profile.withdrawConfirmMessage')} <span className="text-red-400 font-bold">"{t('profile.withdrawConfirmKeyword')}"</span>를 입력해주세요.
               </label>
               <input
                 type="text"
                 value={withdrawConfirmText}
                 onChange={(e) => setWithdrawConfirmText(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-red-500 focus:outline-none"
-                placeholder="회원탈퇴"
+                placeholder={t('profile.withdrawConfirmPlaceholder')}
                 autoFocus
               />
             </div>
@@ -1817,14 +1817,14 @@ export default function WalletPage() {
               </button>
               <button
                 onClick={handleWithdraw}
-                disabled={withdrawConfirmText !== '회원탈퇴'}
+                disabled={withdrawConfirmText !== t('profile.withdrawConfirmKeyword')}
                 className={`flex-1 px-4 py-3 rounded-lg transition font-semibold ${
-                  withdrawConfirmText === '회원탈퇴'
+                  withdrawConfirmText === t('profile.withdrawConfirmKeyword')
                     ? 'bg-red-600 text-white hover:bg-red-500'
                     : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                 }`}
               >
-                탈퇴하기
+                {t('profile.withdrawButton')}
               </button>
             </div>
           </div>
