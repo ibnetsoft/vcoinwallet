@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import FCMTokenHandler from "@/components/FCMTokenHandler";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export const metadata: Metadata = {
   title: "V COIN - 3D SOLAR",
@@ -40,8 +41,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="V COIN" />
       </head>
       <body className="antialiased">
-        <FCMTokenHandler />
-        {children}
+        <LanguageProvider>
+          <FCMTokenHandler />
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );
