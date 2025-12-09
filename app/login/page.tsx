@@ -6,6 +6,7 @@ import { LogIn, Phone, Lock } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import Link from 'next/link'
 import KakaoBrowserWarning from '@/components/KakaoBrowserWarning'
+import LanguageSelector from '@/components/LanguageSelector'
 
 type LoginForm = {
   phone: string
@@ -54,10 +55,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center py-12 px-4 pt-[max(22px,env(safe-area-inset-top))]">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center py-12 px-4 pt-[max(22px,env(safe-area-inset-top))] relative">
       <KakaoBrowserWarning />
       <Toaster position="top-center" />
-      
+
+      {/* 언어 선택기 - 우측 상단 */}
+      <div className="absolute top-4 right-4 z-10">
+        <LanguageSelector />
+      </div>
+
       <div className="max-w-md w-full">
         {/* 로고 */}
         <div className="text-center mb-8">

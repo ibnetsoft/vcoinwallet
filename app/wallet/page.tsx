@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Wallet, Coins, TrendingUp, History, Copy, Share2, ArrowLeft, User as UserIcon, Lock, Mail, Phone, Users, Bell, ChevronDown, ChevronUp, ArrowRightLeft } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
+import LanguageSelector from '@/components/LanguageSelector'
 
 export default function WalletPage() {
   const router = useRouter()
@@ -734,7 +735,10 @@ export default function WalletPage() {
               </button>
               <h1 className="text-xl font-bold text-white">내 지갑</h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              {/* 언어 선택 */}
+              <LanguageSelector />
+
               {/* 알림 아이콘 */}
               <button
                 onClick={() => setShowNotifications(!showNotifications)}

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Users, Coins, Gift, Search, ArrowLeft, Shield, Settings, Lock, Mail, Phone, X, ArrowUpDown, Bell, RefreshCw, Download, ArrowRightLeft } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import * as XLSX from 'xlsx'
+import LanguageSelector from '@/components/LanguageSelector'
 
 interface User {
   id: string
@@ -1264,8 +1265,11 @@ export default function AdminPage() {
                 <h1 className="text-xl font-bold text-white">관리자 패널</h1>
               </div>
             </div>
-            <div className="text-sm text-gray-400">
-              관리자: {user?.name}
+            <div className="flex items-center space-x-3">
+              <div className="text-sm text-gray-400">
+                관리자: {user?.name}
+              </div>
+              <LanguageSelector />
             </div>
           </div>
         </div>
