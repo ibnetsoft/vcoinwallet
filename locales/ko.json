@@ -108,7 +108,9 @@
     "yearlyReturn": "연 15% 수익 • 월 배당 지급",
     "inviteBonus": "친구 초대하고 보너스 받기!",
     "inviteBonusDesc": "친구가 가입하면 증권코인을 드립니다.\n배당코인 구매 시에도 추천보너스가 지급됩니다!",
-    "shareReferralLink": "추천 링크 공유하기"
+    "shareReferralLink": "추천 링크 공유하기",
+    "pieces": "개",
+    "signupBonus": "회원가입 보너스"
   },
   "referral": {
     "title": "추천인",
@@ -121,7 +123,10 @@
     "copyLink": "링크 복사",
     "shareReferral": "추천 공유하기",
     "referralEarnings": "추천 수익",
-    "noReferrals": "추천한 회원이 없습니다"
+    "noReferrals": "추천한 회원이 없습니다",
+    "directReferrals": "직접 추천한 인원",
+    "receivedBonus": "받은 추천 보너스",
+    "referredList": "추천한 회원 목록"
   },
   "admin": {
     "title": "관리자",
@@ -156,14 +161,23 @@
   },
   "profile": {
     "title": "프로필",
-    "myProfile": "내 프로필",
-    "editProfile": "프로필 수정",
+    "myProfile": "내 정보",
+    "editProfile": "정보 수정",
     "changePassword": "비밀번호 변경",
     "accountInfo": "계정 정보",
     "personalInfo": "개인 정보",
     "securitySettings": "보안 설정",
     "language": "언어",
-    "theme": "테마"
+    "theme": "테마",
+    "logout": "로그아웃",
+    "withdraw": "회원탈퇴",
+    "idNumber": "주민등록번호",
+    "referralCode": "추천 코드",
+    "memberNumber": "회원번호",
+    "joinDate": "가입일",
+    "updateSuccess": "정보가 수정되었습니다",
+    "updateFailed": "정보 수정 실패",
+    "updateError": "정보 수정 중 오류가 발생했습니다"
   },
   "errors": {
     "networkError": "네트워크 오류가 발생했습니다",

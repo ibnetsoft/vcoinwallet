@@ -108,7 +108,9 @@
     "yearlyReturn": "年收益15% • 月度分红",
     "inviteBonus": "邀请好友获得奖励！",
     "inviteBonusDesc": "好友注册即可获得证券币。\n购买分红币时也会发放推荐奖励！",
-    "shareReferralLink": "分享推荐链接"
+    "shareReferralLink": "分享推荐链接",
+    "pieces": "个",
+    "signupBonus": "注册奖励"
   },
   "referral": {
     "title": "推荐",
@@ -121,7 +123,10 @@
     "copyLink": "复制链接",
     "shareReferral": "分享推荐",
     "referralEarnings": "推荐收益",
-    "noReferrals": "暂无推荐"
+    "noReferrals": "暂无推荐",
+    "directReferrals": "直接推荐人数",
+    "receivedBonus": "已获得推荐奖励",
+    "referredList": "推荐会员列表"
   },
   "admin": {
     "title": "管理员",
@@ -156,14 +161,23 @@
   },
   "profile": {
     "title": "个人资料",
-    "myProfile": "我的个人资料",
-    "editProfile": "编辑个人资料",
+    "myProfile": "我的信息",
+    "editProfile": "编辑信息",
     "changePassword": "更改密码",
     "accountInfo": "账户信息",
     "personalInfo": "个人信息",
     "securitySettings": "安全设置",
     "language": "语言",
-    "theme": "主题"
+    "theme": "主题",
+    "logout": "登出",
+    "withdraw": "注销账户",
+    "idNumber": "身份证号",
+    "referralCode": "推荐码",
+    "memberNumber": "会员编号",
+    "joinDate": "加入日期",
+    "updateSuccess": "信息更新成功",
+    "updateFailed": "信息更新失败",
+    "updateError": "更新信息时发生错误"
   },
   "errors": {
     "networkError": "网络错误",

@@ -35,7 +35,7 @@
     "noAccount": "Vous n'avez pas de compte?",
     "phoneRequired": "Veuillez entrer votre numéro de téléphone",
     "passwordRequired": "Veuillez entrer votre mot de passe",
-    "nameRequired": "Veuillez entrer votre nom",
+    "nameRequired": "Veuillez entrer votre nom.",
     "loginSuccess": "Connexion réussie",
     "loginFailed": "Échec de la connexion",
     "signupSuccess": "Inscription réussie",
@@ -65,7 +65,6 @@
     "coinsGrantedMessage": "{amount} Pièces de Sécurité ont été accordées!",
     "signupError": "Une erreur s'est produite lors de l'inscription.",
     "referralCodeApplied": "Le code de parrainage \"{code}\" a été automatiquement saisi!",
-    "nameRequired": "Veuillez entrer votre nom.",
     "nameMinLength": "Le nom doit contenir au moins 2 caractères.",
     "phoneFormatError": "Format de numéro de téléphone invalide. (chiffres uniquement, 10-11 caractères)",
     "idNumberRequired": "Veuillez entrer votre numéro d'identification.",
@@ -105,7 +104,9 @@
     "yearlyReturn": "Rendement annuel de 15% • Dividende mensuel",
     "inviteBonus": "Invitez des amis et obtenez un bonus!",
     "inviteBonusDesc": "Recevez des pièces de sécurité lorsque vos amis s'inscrivent.\nDes bonus de parrainage sont également accordés lors de l'achat de pièces de dividende!",
-    "shareReferralLink": "Partager le lien de parrainage"
+    "shareReferralLink": "Partager le lien de parrainage",
+    "pieces": "pcs",
+    "signupBonus": "Bonus d'Inscription"
   },
   "referral": {
     "title": "Parrainage",
@@ -118,7 +119,10 @@
     "copyLink": "Copier le lien",
     "shareReferral": "Partager le parrainage",
     "referralEarnings": "Gains de parrainage",
-    "noReferrals": "Aucun parrainage pour le moment"
+    "noReferrals": "Aucun parrainage pour le moment",
+    "directReferrals": "Parrainages Directs",
+    "receivedBonus": "Bonus de Parrainage Reçu",
+    "referredList": "Liste des Membres Parrainés"
   },
   "admin": {
     "title": "Administrateur",
@@ -153,14 +157,23 @@
   },
   "profile": {
     "title": "Profil",
-    "myProfile": "Mon profil",
-    "editProfile": "Modifier le profil",
+    "myProfile": "Mes Informations",
+    "editProfile": "Modifier les Informations",
     "changePassword": "Changer le mot de passe",
     "accountInfo": "Informations du compte",
     "personalInfo": "Informations personnelles",
     "securitySettings": "Paramètres de sécurité",
     "language": "Langue",
-    "theme": "Thème"
+    "theme": "Thème",
+    "logout": "Déconnexion",
+    "withdraw": "Supprimer le Compte",
+    "idNumber": "Numéro d'Identification",
+    "referralCode": "Code de Parrainage",
+    "memberNumber": "Numéro de Membre",
+    "joinDate": "Date d'Inscription",
+    "updateSuccess": "Informations mises à jour avec succès",
+    "updateFailed": "Échec de la mise à jour des informations",
+    "updateError": "Une erreur s'est produite lors de la mise à jour des informations"
   },
   "errors": {
     "networkError": "Erreur réseau",

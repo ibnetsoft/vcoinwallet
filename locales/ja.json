@@ -108,7 +108,9 @@
     "yearlyReturn": "年利15% • 月次配当",
     "inviteBonus": "友達を招待してボーナスをゲット！",
     "inviteBonusDesc": "友達が登録すると証券コインがもらえます。\n配当コイン購入時にも紹介ボーナスが付与されます！",
-    "shareReferralLink": "紹介リンクを共有"
+    "shareReferralLink": "紹介リンクを共有",
+    "pieces": "個",
+    "signupBonus": "登録ボーナス"
   },
   "referral": {
     "title": "紹介",
@@ -121,7 +123,10 @@
     "copyLink": "リンクをコピー",
     "shareReferral": "紹介を共有",
     "referralEarnings": "紹介収益",
-    "noReferrals": "紹介はまだありません"
+    "noReferrals": "紹介はまだありません",
+    "directReferrals": "直接紹介人数",
+    "receivedBonus": "獲得した紹介ボーナス",
+    "referredList": "紹介会員リスト"
   },
   "admin": {
     "title": "管理者",
@@ -156,14 +161,23 @@
   },
   "profile": {
     "title": "プロフィール",
-    "myProfile": "マイプロフィール",
-    "editProfile": "プロフィール編集",
+    "myProfile": "マイ情報",
+    "editProfile": "情報編集",
     "changePassword": "パスワード変更",
     "accountInfo": "アカウント情報",
     "personalInfo": "個人情報",
     "securitySettings": "セキュリティ設定",
     "language": "言語",
-    "theme": "テーマ"
+    "theme": "テーマ",
+    "logout": "ログアウト",
+    "withdraw": "退会",
+    "idNumber": "ID番号",
+    "referralCode": "紹介コード",
+    "memberNumber": "会員番号",
+    "joinDate": "登録日",
+    "updateSuccess": "情報が更新されました",
+    "updateFailed": "情報の更新に失敗しました",
+    "updateError": "情報更新中にエラーが発生しました"
   },
   "errors": {
     "networkError": "ネットワークエラーが発生しました",

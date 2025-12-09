@@ -108,7 +108,9 @@
     "yearlyReturn": "वार्षिक 15% प्रतिफल • मासिक लाभांश",
     "inviteBonus": "साथीहरू निमन्त्रणा गर्नुहोस् र बोनस पाउनुहोस्!",
     "inviteBonusDesc": "तपाईंका साथीहरू साइन अप गर्दा सुरक्षा कोइन्स प्राप्त गर्नुहोस्।\nलाभांश कोइन खरिदमा पनि रेफरल बोनस प्रदान गरिन्छ!",
-    "shareReferralLink": "रेफरल लिंक साझा गर्नुहोस्"
+    "shareReferralLink": "रेफरल लिंक साझा गर्नुहोस्",
+    "pieces": "थान",
+    "signupBonus": "दर्ता बोनस"
   },
   "referral": {
     "title": "रेफरल",
@@ -121,7 +123,10 @@
     "copyLink": "लिंक प्रतिलिपि गर्नुहोस्",
     "shareReferral": "रेफरल साझा गर्नुहोस्",
     "referralEarnings": "रेफरल आम्दानी",
-    "noReferrals": "अहिलेसम्म कुनै रेफरल छैन"
+    "noReferrals": "अहिलेसम्म कुनै रेफरल छैन",
+    "directReferrals": "प्रत्यक्ष रेफरल",
+    "receivedBonus": "प्राप्त रेफरल बोनस",
+    "referredList": "रेफर गरिएका सदस्य सूची"
   },
   "admin": {
     "title": "प्रशासक",
@@ -156,14 +161,23 @@
   },
   "profile": {
     "title": "प्रोफाइल",
-    "myProfile": "मेरो प्रोफाइल",
-    "editProfile": "प्रोफाइल सम्पादन गर्नुहोस्",
+    "myProfile": "मेरो जानकारी",
+    "editProfile": "जानकारी सम्पादन गर्नुहोस्",
     "changePassword": "पासवर्ड परिवर्तन गर्नुहोस्",
     "accountInfo": "खाता जानकारी",
     "personalInfo": "व्यक्तिगत जानकारी",
     "securitySettings": "सुरक्षा सेटिङहरू",
     "language": "भाषा",
-    "theme": "थिम"
+    "theme": "थिम",
+    "logout": "लगआउट",
+    "withdraw": "सदस्यता रद्द गर्नुहोस्",
+    "idNumber": "ID नम्बर",
+    "referralCode": "रेफरल कोड",
+    "memberNumber": "सदस्य नम्बर",
+    "joinDate": "सामेल भएको मिति",
+    "updateSuccess": "जानकारी सफलतापूर्वक अपडेट गरियो",
+    "updateFailed": "जानकारी अपडेट गर्न असफल भयो",
+    "updateError": "जानकारी अपडेट गर्दा त्रुटि भयो"
   },
   "errors": {
     "networkError": "नेटवर्क त्रुटि भयो",

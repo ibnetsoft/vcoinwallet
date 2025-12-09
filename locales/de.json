@@ -35,7 +35,7 @@
     "noAccount": "Noch kein Konto?",
     "phoneRequired": "Bitte geben Sie Ihre Telefonnummer ein",
     "passwordRequired": "Bitte geben Sie Ihr Passwort ein",
-    "nameRequired": "Bitte geben Sie Ihren Namen ein",
+    "nameRequired": "Bitte geben Sie Ihren Namen ein.",
     "loginSuccess": "Anmeldung erfolgreich",
     "loginFailed": "Anmeldung fehlgeschlagen",
     "signupSuccess": "Registrierung erfolgreich",
@@ -65,7 +65,6 @@
     "coinsGrantedMessage": "{amount} Sicherheitsmünzen wurden gewährt!",
     "signupError": "Bei der Registrierung ist ein Fehler aufgetreten.",
     "referralCodeApplied": "Empfehlungscode \"{code}\" wurde automatisch eingegeben!",
-    "nameRequired": "Bitte geben Sie Ihren Namen ein.",
     "nameMinLength": "Der Name muss mindestens 2 Zeichen lang sein.",
     "phoneFormatError": "Ungültiges Telefonnummernformat. (nur Zahlen, 10-11 Zeichen)",
     "idNumberRequired": "Bitte geben Sie Ihre ID-Nummer ein.",
@@ -105,7 +104,9 @@
     "yearlyReturn": "15% Jahresrendite • Monatliche Dividende",
     "inviteBonus": "Freunde einladen & Bonus erhalten!",
     "inviteBonusDesc": "Erhalte Sicherheitsmünzen, wenn sich deine Freunde anmelden.\nEmpfehlungsboni werden auch beim Kauf von Dividendenmünzen vergeben!",
-    "shareReferralLink": "Empfehlungslink teilen"
+    "shareReferralLink": "Empfehlungslink teilen",
+    "pieces": "Stk",
+    "signupBonus": "Registrierungsbonus"
   },
   "referral": {
     "title": "Empfehlung",
@@ -118,7 +119,10 @@
     "copyLink": "Link kopieren",
     "shareReferral": "Empfehlung teilen",
     "referralEarnings": "Empfehlungseinnahmen",
-    "noReferrals": "Noch keine Empfehlungen"
+    "noReferrals": "Noch keine Empfehlungen",
+    "directReferrals": "Direkte Empfehlungen",
+    "receivedBonus": "Empfangener Empfehlungsbonus",
+    "referredList": "Liste empfohlener Mitglieder"
   },
   "admin": {
     "title": "Administrator",
@@ -153,14 +157,23 @@
   },
   "profile": {
     "title": "Profil",
-    "myProfile": "Mein Profil",
-    "editProfile": "Profil bearbeiten",
+    "myProfile": "Meine Informationen",
+    "editProfile": "Informationen Bearbeiten",
     "changePassword": "Passwort ändern",
     "accountInfo": "Kontoinformationen",
     "personalInfo": "Persönliche Informationen",
     "securitySettings": "Sicherheitseinstellungen",
     "language": "Sprache",
-    "theme": "Design"
+    "theme": "Design",
+    "logout": "Abmelden",
+    "withdraw": "Mitgliedschaft Löschen",
+    "idNumber": "ID-Nummer",
+    "referralCode": "Empfehlungscode",
+    "memberNumber": "Mitgliedsnummer",
+    "joinDate": "Beitrittsdatum",
+    "updateSuccess": "Informationen erfolgreich aktualisiert",
+    "updateFailed": "Aktualisierung der Informationen fehlgeschlagen",
+    "updateError": "Beim Aktualisieren der Informationen ist ein Fehler aufgetreten"
   },
   "errors": {
     "networkError": "Netzwerkfehler aufgetreten",

@@ -35,7 +35,7 @@
     "noAccount": "क्या आपके पास खाता नहीं है?",
     "phoneRequired": "कृपया अपना फोन नंबर दर्ज करें",
     "passwordRequired": "कृपया अपना पासवर्ड दर्ज करें",
-    "nameRequired": "कृपया अपना नाम दर्ज करें",
+    "nameRequired": "कृपया अपना नाम दर्ज करें।",
     "loginSuccess": "लॉगिन सफल",
     "loginFailed": "लॉगिन विफल",
     "signupSuccess": "साइन अप सफल",
@@ -65,7 +65,6 @@
     "coinsGrantedMessage": "{amount} सिक्योरिटी कॉइन्स दिए गए हैं!",
     "signupError": "साइन अप के दौरान एक त्रुटि हुई।",
     "referralCodeApplied": "रेफरल कोड \"{code}\" स्वचालित रूप से दर्ज किया गया है!",
-    "nameRequired": "कृपया अपना नाम दर्ज करें।",
     "nameMinLength": "नाम कम से कम 2 वर्णों का होना चाहिए।",
     "phoneFormatError": "अमान्य फोन नंबर प्रारूप। (केवल संख्या, 10-11 वर्ण)",
     "idNumberRequired": "कृपया अपना आईडी नंबर दर्ज करें।",
@@ -105,7 +104,9 @@
     "yearlyReturn": "वार्षिक 15% रिटर्न • मासिक लाभांश",
     "inviteBonus": "दोस्तों को आमंत्रित करें और बोनस पाएं!",
     "inviteBonusDesc": "जब आपके दोस्त साइन अप करते हैं तो सिक्योरिटी कॉइन्स प्राप्त करें।\nडिविडेंड कॉइन खरीद पर भी रेफरल बोनस दिया जाता है!",
-    "shareReferralLink": "रेफरल लिंक शेयर करें"
+    "shareReferralLink": "रेफरल लिंक शेयर करें",
+    "pieces": "पीस",
+    "signupBonus": "साइन अप बोनस"
   },
   "referral": {
     "title": "रेफरल",
@@ -118,7 +119,10 @@
     "copyLink": "लिंक कॉपी करें",
     "shareReferral": "रेफरल शेयर करें",
     "referralEarnings": "रेफरल कमाई",
-    "noReferrals": "अभी तक कोई रेफरल नहीं"
+    "noReferrals": "अभी तक कोई रेफरल नहीं",
+    "directReferrals": "प्रत्यक्ष रेफरल",
+    "receivedBonus": "प्राप्त रेफरल बोनस",
+    "referredList": "रेफर किए गए सदस्य सूची"
   },
   "admin": {
     "title": "एडमिन",
@@ -153,14 +157,23 @@
   },
   "profile": {
     "title": "प्रोफ़ाइल",
-    "myProfile": "मेरी प्रोफ़ाइल",
-    "editProfile": "प्रोफ़ाइल संपादित करें",
+    "myProfile": "मेरी जानकारी",
+    "editProfile": "जानकारी संपादित करें",
     "changePassword": "पासवर्ड बदलें",
     "accountInfo": "खाता जानकारी",
     "personalInfo": "व्यक्तिगत जानकारी",
     "securitySettings": "सुरक्षा सेटिंग्स",
     "language": "भाषा",
-    "theme": "थीम"
+    "theme": "थीम",
+    "logout": "लॉग आउट",
+    "withdraw": "सदस्यता समाप्त करें",
+    "idNumber": "आईडी नंबर",
+    "referralCode": "रेफरल कोड",
+    "memberNumber": "सदस्य संख्या",
+    "joinDate": "शामिल होने की तारीख",
+    "updateSuccess": "जानकारी सफलतापूर्वक अपडेट की गई",
+    "updateFailed": "जानकारी अपडेट करने में विफल",
+    "updateError": "जानकारी अपडेट करते समय एक त्रुटि हुई"
   },
   "errors": {
     "networkError": "नेटवर्क त्रुटि हुई",

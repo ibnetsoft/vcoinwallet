@@ -108,7 +108,9 @@
     "yearlyReturn": "عائد سنوي 15% • توزيعات شهرية",
     "inviteBonus": "ادعُ الأصدقاء واحصل على مكافأة!",
     "inviteBonusDesc": "احصل على عملات الأمان عندما يسجل أصدقاؤك.\nتُمنح مكافآت الإحالة أيضًا عند شراء عملات الأرباح!",
-    "shareReferralLink": "مشاركة رابط الإحالة"
+    "shareReferralLink": "مشاركة رابط الإحالة",
+    "pieces": "قطعة",
+    "signupBonus": "مكافأة التسجيل"
   },
   "referral": {
     "title": "الإحالة",
@@ -121,7 +123,10 @@
     "copyLink": "نسخ الرابط",
     "shareReferral": "مشاركة الإحالة",
     "referralEarnings": "أرباح الإحالة",
-    "noReferrals": "لا توجد إحالات حتى الآن"
+    "noReferrals": "لا توجد إحالات حتى الآن",
+    "directReferrals": "الإحالات المباشرة",
+    "receivedBonus": "مكافأة الإحالة المستلمة",
+    "referredList": "قائمة الأعضاء المُحالين"
   },
   "admin": {
     "title": "المدير",
@@ -156,14 +161,23 @@
   },
   "profile": {
     "title": "الملف الشخصي",
-    "myProfile": "ملفي الشخصي",
-    "editProfile": "تعديل الملف الشخصي",
+    "myProfile": "معلوماتي",
+    "editProfile": "تحرير المعلومات",
     "changePassword": "تغيير كلمة المرور",
     "accountInfo": "معلومات الحساب",
     "personalInfo": "المعلومات الشخصية",
     "securitySettings": "إعدادات الأمان",
     "language": "اللغة",
-    "theme": "المظهر"
+    "theme": "المظهر",
+    "logout": "تسجيل الخروج",
+    "withdraw": "حذف العضوية",
+    "idNumber": "رقم الهوية",
+    "referralCode": "رمز الإحالة",
+    "memberNumber": "رقم العضو",
+    "joinDate": "تاريخ الانضمام",
+    "updateSuccess": "تم تحديث المعلومات بنجاح",
+    "updateFailed": "فشل تحديث المعلومات",
+    "updateError": "حدث خطأ أثناء تحديث المعلومات"
   },
   "errors": {
     "networkError": "حدث خطأ في الشبكة",

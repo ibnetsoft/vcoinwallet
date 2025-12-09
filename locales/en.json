@@ -108,7 +108,9 @@
     "yearlyReturn": "15% Annual Return • Monthly Dividend",
     "inviteBonus": "Invite Friends & Get Bonus!",
     "inviteBonusDesc": "Receive Security Coins when your friends sign up.\nReferral bonuses are also awarded on Dividend Coin purchases!",
-    "shareReferralLink": "Share Referral Link"
+    "shareReferralLink": "Share Referral Link",
+    "pieces": "pcs",
+    "signupBonus": "Sign-up Bonus"
   },
   "referral": {
     "title": "Referral",
@@ -121,7 +123,10 @@
     "copyLink": "Copy Link",
     "shareReferral": "Share Referral",
     "referralEarnings": "Referral Earnings",
-    "noReferrals": "No referrals yet"
+    "noReferrals": "No referrals yet",
+    "directReferrals": "Direct Referrals",
+    "receivedBonus": "Received Referral Bonus",
+    "referredList": "Referred Member List"
   },
   "admin": {
     "title": "Admin",
@@ -156,14 +161,23 @@
   },
   "profile": {
     "title": "Profile",
-    "myProfile": "My Profile",
-    "editProfile": "Edit Profile",
+    "myProfile": "My Information",
+    "editProfile": "Edit Information",
     "changePassword": "Change Password",
     "accountInfo": "Account Information",
     "personalInfo": "Personal Information",
     "securitySettings": "Security Settings",
     "language": "Language",
-    "theme": "Theme"
+    "theme": "Theme",
+    "logout": "Logout",
+    "withdraw": "Withdraw Membership",
+    "idNumber": "ID Number",
+    "referralCode": "Referral Code",
+    "memberNumber": "Member Number",
+    "joinDate": "Join Date",
+    "updateSuccess": "Information updated successfully",
+    "updateFailed": "Failed to update information",
+    "updateError": "An error occurred while updating information"
   },
   "errors": {
     "networkError": "Network error occurred",

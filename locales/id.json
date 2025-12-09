@@ -35,7 +35,7 @@
     "noAccount": "Belum punya akun?",
     "phoneRequired": "Silakan masukkan nomor telepon Anda",
     "passwordRequired": "Silakan masukkan kata sandi Anda",
-    "nameRequired": "Silakan masukkan nama Anda",
+    "nameRequired": "Silakan masukkan nama Anda.",
     "loginSuccess": "Login berhasil",
     "loginFailed": "Login gagal",
     "signupSuccess": "Pendaftaran berhasil",
@@ -65,7 +65,6 @@
     "coinsGrantedMessage": "{amount} Koin Keamanan telah diberikan!",
     "signupError": "Terjadi kesalahan saat pendaftaran.",
     "referralCodeApplied": "Kode referral \"{code}\" telah dimasukkan secara otomatis!",
-    "nameRequired": "Silakan masukkan nama Anda.",
     "nameMinLength": "Nama harus minimal 2 karakter.",
     "phoneFormatError": "Format nomor telepon tidak valid. (hanya angka, 10-11 karakter)",
     "idNumberRequired": "Silakan masukkan nomor ID Anda.",
@@ -105,7 +104,9 @@
     "yearlyReturn": "Return Tahunan 15% • Dividen Bulanan",
     "inviteBonus": "Undang Teman & Dapatkan Bonus!",
     "inviteBonusDesc": "Dapatkan Koin Keamanan saat teman Anda mendaftar.\nBonus referral juga diberikan saat pembelian Koin Dividen!",
-    "shareReferralLink": "Bagikan Link Referral"
+    "shareReferralLink": "Bagikan Link Referral",
+    "pieces": "pcs",
+    "signupBonus": "Bonus Pendaftaran"
   },
   "referral": {
     "title": "Referral",
@@ -118,7 +119,10 @@
     "copyLink": "Salin Link",
     "shareReferral": "Bagikan Referral",
     "referralEarnings": "Penghasilan Referral",
-    "noReferrals": "Belum ada referral"
+    "noReferrals": "Belum ada referral",
+    "directReferrals": "Referral Langsung",
+    "receivedBonus": "Bonus Referral Diterima",
+    "referredList": "Daftar Anggota yang Direferensikan"
   },
   "admin": {
     "title": "Admin",
@@ -153,14 +157,23 @@
   },
   "profile": {
     "title": "Profil",
-    "myProfile": "Profil Saya",
-    "editProfile": "Edit Profil",
+    "myProfile": "Informasi Saya",
+    "editProfile": "Edit Informasi",
     "changePassword": "Ubah Kata Sandi",
     "accountInfo": "Informasi Akun",
     "personalInfo": "Informasi Pribadi",
     "securitySettings": "Pengaturan Keamanan",
     "language": "Bahasa",
-    "theme": "Tema"
+    "theme": "Tema",
+    "logout": "Keluar",
+    "withdraw": "Hapus Keanggotaan",
+    "idNumber": "Nomor ID",
+    "referralCode": "Kode Referral",
+    "memberNumber": "Nomor Anggota",
+    "joinDate": "Tanggal Bergabung",
+    "updateSuccess": "Informasi berhasil diperbarui",
+    "updateFailed": "Gagal memperbarui informasi",
+    "updateError": "Terjadi kesalahan saat memperbarui informasi"
   },
   "errors": {
     "networkError": "Terjadi kesalahan jaringan",
