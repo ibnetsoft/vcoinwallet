@@ -7,5 +7,11 @@
   "notification": {"title": "Уведомления", "notifications": "Уведомления", "noNotifications": "Нет уведомлений", "markAsRead": "Отметить как прочитанное", "markAllAsRead": "Отметить все как прочитанные", "newReferralSignup": "Новый участник зарегистрирован!", "coinGranted": "Монеты выданы!", "systemNotification": "Системное уведомление"},
   "profile": {"title": "Профиль", "myProfile": "Мой профиль", "editProfile": "Редактировать профиль", "changePassword": "Изменить пароль", "accountInfo": "Информация об аккаунте", "personalInfo": "Личная информация", "securitySettings": "Настройки безопасности", "language": "Язык", "theme": "Тема"},
   "errors": {"networkError": "Произошла сетевая ошибка", "serverError": "Произошла ошибка сервера", "unauthorized": "Неавторизованный доступ", "notFound": "Страница не найдена", "validationError": "Пожалуйста, проверьте ваш ввод", "tryAgain": "Пожалуйста, попробуйте еще раз"},
-  "validation": {"required": "Это поле обязательно", "invalidPhone": "Пожалуйста, введите действительный номер телефона", "invalidEmail": "Пожалуйста, введите действительный email", "passwordMinLength": "Пароль должен содержать не менее 8 символов", "passwordMismatch": "Пароли не совпадают"}
+  "validation": {"required": "Это поле обязательно", "invalidPhone": "Пожалуйста, введите действительный номер телефона", "invalidEmail": "Пожалуйста, введите действительный email", "passwordMinLength": "Пароль должен содержать не менее 8 символов", "passwordMismatch": "Пароли не совпадают"},
+  "home": {
+    "notice": "Объявления",
+    "board": "Форум",
+    "admin": "Администратор",
+    "hello": "Привет"
+  }
 }

@@ -7,5 +7,11 @@
   "notification": {"title": "Notifikasi", "notifications": "Notifikasi", "noNotifications": "Tidak ada notifikasi", "markAsRead": "Tandai Sudah Dibaca", "markAllAsRead": "Tandai Semua Sudah Dibaca", "newReferralSignup": "Anggota baru mendaftar!", "coinGranted": "Koin diberikan!", "systemNotification": "Notifikasi Sistem"},
   "profile": {"title": "Profil", "myProfile": "Profil Saya", "editProfile": "Edit Profil", "changePassword": "Ubah Kata Sandi", "accountInfo": "Informasi Akun", "personalInfo": "Informasi Pribadi", "securitySettings": "Pengaturan Keamanan", "language": "Bahasa", "theme": "Tema"},
   "errors": {"networkError": "Terjadi kesalahan jaringan", "serverError": "Terjadi kesalahan server", "unauthorized": "Akses tidak sah", "notFound": "Halaman tidak ditemukan", "validationError": "Silakan periksa input Anda", "tryAgain": "Silakan coba lagi"},
-  "validation": {"required": "Bidang ini wajib diisi", "invalidPhone": "Silakan masukkan nomor telepon yang valid", "invalidEmail": "Silakan masukkan email yang valid", "passwordMinLength": "Kata sandi harus minimal 8 karakter", "passwordMismatch": "Kata sandi tidak cocok"}
+  "validation": {"required": "Bidang ini wajib diisi", "invalidPhone": "Silakan masukkan nomor telepon yang valid", "invalidEmail": "Silakan masukkan email yang valid", "passwordMinLength": "Kata sandi harus minimal 8 karakter", "passwordMismatch": "Kata sandi tidak cocok"},
+  "home": {
+    "notice": "Pengumuman",
+    "board": "Papan",
+    "admin": "Admin",
+    "hello": "Halo"
+  }
 }

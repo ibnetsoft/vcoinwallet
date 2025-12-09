@@ -142,5 +142,11 @@
     "invalidEmail": "请输入有效的电子邮件",
     "passwordMinLength": "密码至少需要8个字符",
     "passwordMismatch": "密码不匹配"
+  },
+  "home": {
+    "notice": "公告",
+    "board": "留言板",
+    "admin": "管理员",
+    "hello": "您好"
   }
 }

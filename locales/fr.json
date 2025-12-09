@@ -142,5 +142,11 @@
     "invalidEmail": "Veuillez entrer un e-mail valide",
     "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères",
     "passwordMismatch": "Les mots de passe ne correspondent pas"
+  },
+  "home": {
+    "notice": "Annonces",
+    "board": "Forum",
+    "admin": "Administrateur",
+    "hello": "Bonjour"
   }
 }

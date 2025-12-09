@@ -7,5 +7,11 @@
   "notification": {"title": "Benachrichtigungen", "notifications": "Benachrichtigungen", "noNotifications": "Keine Benachrichtigungen", "markAsRead": "Als gelesen markieren", "markAllAsRead": "Alle als gelesen markieren", "newReferralSignup": "Neues Mitglied registriert!", "coinGranted": "Münzen gewährt!", "systemNotification": "Systembenachrichtigung"},
   "profile": {"title": "Profil", "myProfile": "Mein Profil", "editProfile": "Profil bearbeiten", "changePassword": "Passwort ändern", "accountInfo": "Kontoinformationen", "personalInfo": "Persönliche Informationen", "securitySettings": "Sicherheitseinstellungen", "language": "Sprache", "theme": "Design"},
   "errors": {"networkError": "Netzwerkfehler aufgetreten", "serverError": "Serverfehler aufgetreten", "unauthorized": "Unbefugter Zugriff", "notFound": "Seite nicht gefunden", "validationError": "Bitte überprüfen Sie Ihre Eingabe", "tryAgain": "Bitte versuchen Sie es erneut"},
-  "validation": {"required": "Dieses Feld ist erforderlich", "invalidPhone": "Bitte geben Sie eine gültige Telefonnummer ein", "invalidEmail": "Bitte geben Sie eine gültige E-Mail ein", "passwordMinLength": "Passwort muss mindestens 8 Zeichen lang sein", "passwordMismatch": "Passwörter stimmen nicht überein"}
+  "validation": {"required": "Dieses Feld ist erforderlich", "invalidPhone": "Bitte geben Sie eine gültige Telefonnummer ein", "invalidEmail": "Bitte geben Sie eine gültige E-Mail ein", "passwordMinLength": "Passwort muss mindestens 8 Zeichen lang sein", "passwordMismatch": "Passwörter stimmen nicht überein"},
+  "home": {
+    "notice": "Ankündigungen",
+    "board": "Forum",
+    "admin": "Administrator",
+    "hello": "Hallo"
+  }
 }

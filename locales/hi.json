@@ -7,5 +7,11 @@
   "notification": {"title": "सूचनाएं", "notifications": "सूचनाएं", "noNotifications": "कोई सूचना नहीं", "markAsRead": "पढ़ा हुआ चिह्नित करें", "markAllAsRead": "सभी को पढ़ा हुआ चिह्नित करें", "newReferralSignup": "नया सदस्य साइन अप हुआ!", "coinGranted": "कॉइन्स प्रदान किए गए!", "systemNotification": "सिस्टम सूचना"},
   "profile": {"title": "प्रोफ़ाइल", "myProfile": "मेरी प्रोफ़ाइल", "editProfile": "प्रोफ़ाइल संपादित करें", "changePassword": "पासवर्ड बदलें", "accountInfo": "खाता जानकारी", "personalInfo": "व्यक्तिगत जानकारी", "securitySettings": "सुरक्षा सेटिंग्स", "language": "भाषा", "theme": "थीम"},
   "errors": {"networkError": "नेटवर्क त्रुटि हुई", "serverError": "सर्वर त्रुटि हुई", "unauthorized": "अनधिकृत पहुंच", "notFound": "पेज नहीं मिला", "validationError": "कृपया अपना इनपुट जांचें", "tryAgain": "कृपया पुनः प्रयास करें"},
-  "validation": {"required": "यह फ़ील्ड आवश्यक है", "invalidPhone": "कृपया मान्य फोन नंबर दर्ज करें", "invalidEmail": "कृपया मान्य ईमेल दर्ज करें", "passwordMinLength": "पासवर्ड कम से कम 8 वर्णों का होना चाहिए", "passwordMismatch": "पासवर्ड मेल नहीं खाते"}
+  "validation": {"required": "यह फ़ील्ड आवश्यक है", "invalidPhone": "कृपया मान्य फोन नंबर दर्ज करें", "invalidEmail": "कृपया मान्य ईमेल दर्ज करें", "passwordMinLength": "पासवर्ड कम से कम 8 वर्णों का होना चाहिए", "passwordMismatch": "पासवर्ड मेल नहीं खाते"},
+  "home": {
+    "notice": "सूचना",
+    "board": "बोर्ड",
+    "admin": "एडमिन",
+    "hello": "नमस्ते"
+  }
 }

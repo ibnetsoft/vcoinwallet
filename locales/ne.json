@@ -7,5 +7,11 @@
   "notification": {"title": "सूचनाहरू", "notifications": "सूचनाहरू", "noNotifications": "कुनै सूचना छैन", "markAsRead": "पढिएको रूपमा चिन्ह लगाउनुहोस्", "markAllAsRead": "सबैलाई पढिएको रूपमा चिन्ह लगाउनुहोस्", "newReferralSignup": "नयाँ सदस्य साइन अप भयो!", "coinGranted": "कोइन्स प्रदान गरियो!", "systemNotification": "प्रणाली सूचना"},
   "profile": {"title": "प्रोफाइल", "myProfile": "मेरो प्रोफाइल", "editProfile": "प्रोफाइल सम्पादन गर्नुहोस्", "changePassword": "पासवर्ड परिवर्तन गर्नुहोस्", "accountInfo": "खाता जानकारी", "personalInfo": "व्यक्तिगत जानकारी", "securitySettings": "सुरक्षा सेटिङहरू", "language": "भाषा", "theme": "थिम"},
   "errors": {"networkError": "नेटवर्क त्रुटि भयो", "serverError": "सर्भर त्रुटि भयो", "unauthorized": "अनधिकृत पहुँच", "notFound": "पृष्ठ भेटिएन", "validationError": "कृपया आफ्नो इनपुट जाँच गर्नुहोस्", "tryAgain": "कृपया फेरि प्रयास गर्नुहोस्"},
-  "validation": {"required": "यो फिल्ड आवश्यक छ", "invalidPhone": "कृपया मान्य फोन नम्बर प्रविष्ट गर्नुहोस्", "invalidEmail": "कृपया मान्य इमेल प्रविष्ट गर्नुहोस्", "passwordMinLength": "पासवर्ड कम्तिमा ८ वर्णको हुनुपर्छ", "passwordMismatch": "पासवर्डहरू मेल खाँदैनन्"}
+  "validation": {"required": "यो फिल्ड आवश्यक छ", "invalidPhone": "कृपया मान्य फोन नम्बर प्रविष्ट गर्नुहोस्", "invalidEmail": "कृपया मान्य इमेल प्रविष्ट गर्नुहोस्", "passwordMinLength": "पासवर्ड कम्तिमा ८ वर्णको हुनुपर्छ", "passwordMismatch": "पासवर्डहरू मेल खाँदैनन्"},
+  "home": {
+    "notice": "सूचना",
+    "board": "बोर्ड",
+    "admin": "प्रशासक",
+    "hello": "नमस्ते"
+  }
 }

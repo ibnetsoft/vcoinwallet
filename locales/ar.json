@@ -7,5 +7,11 @@
   "notification": {"title": "الإشعارات", "notifications": "الإشعارات", "noNotifications": "لا توجد إشعارات", "markAsRead": "وضع علامة كمقروء", "markAllAsRead": "وضع علامة على الكل كمقروء", "newReferralSignup": "عضو جديد سجل!", "coinGranted": "تم منح العملات!", "systemNotification": "إشعار النظام"},
   "profile": {"title": "الملف الشخصي", "myProfile": "ملفي الشخصي", "editProfile": "تعديل الملف الشخصي", "changePassword": "تغيير كلمة المرور", "accountInfo": "معلومات الحساب", "personalInfo": "المعلومات الشخصية", "securitySettings": "إعدادات الأمان", "language": "اللغة", "theme": "المظهر"},
   "errors": {"networkError": "حدث خطأ في الشبكة", "serverError": "حدث خطأ في الخادم", "unauthorized": "وصول غير مصرح به", "notFound": "الصفحة غير موجودة", "validationError": "يرجى التحقق من إدخالك", "tryAgain": "يرجى المحاولة مرة أخرى"},
-  "validation": {"required": "هذا الحقل مطلوب", "invalidPhone": "يرجى إدخال رقم هاتف صالح", "invalidEmail": "يرجى إدخال بريد إلكتروني صالح", "passwordMinLength": "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل", "passwordMismatch": "كلمات المرور غير متطابقة"}
+  "validation": {"required": "هذا الحقل مطلوب", "invalidPhone": "يرجى إدخال رقم هاتف صالح", "invalidEmail": "يرجى إدخال بريد إلكتروني صالح", "passwordMinLength": "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل", "passwordMismatch": "كلمات المرور غير متطابقة"},
+  "home": {
+    "notice": "الإعلانات",
+    "board": "اللوحة",
+    "admin": "المدير",
+    "hello": "مرحبا"
+  }
 }
