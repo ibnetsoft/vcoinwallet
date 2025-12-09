@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 import { Wallet, Coins, TrendingUp, History, Copy, Share2, ArrowLeft, User as UserIcon, Lock, Mail, Phone, Users, Bell, ChevronDown, ChevronUp, ArrowRightLeft } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import LanguageSelector from '@/components/LanguageSelector'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function WalletPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [user, setUser] = useState<any>(null)
   const [transactions, setTransactions] = useState<any[]>([])
   const [referredUsers, setReferredUsers] = useState<any[]>([])
@@ -628,7 +630,7 @@ export default function WalletPage() {
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
-    toast.success('로그아웃되었습니다.')
+    toast.success(t('common.logout'))
     router.push('/login')
   }
 
@@ -733,7 +735,7 @@ export default function WalletPage() {
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
-              <h1 className="text-xl font-bold text-white">내 지갑</h1>
+              <h1 className="text-xl font-bold text-white">{t('wallet.myWallet')}</h1>
             </div>
             <div className="flex items-center space-x-2">
               {/* 언어 선택 */}
@@ -768,20 +770,20 @@ export default function WalletPage() {
           {/* 알림 팝업 */}
           <div className="fixed left-4 right-4 sm:left-auto sm:right-4 top-20 w-auto sm:w-96 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-[9999] max-h-96 overflow-y-auto">
                     <div className="p-4 border-b border-gray-700 flex items-center justify-between bg-gray-900">
-                      <h3 className="text-white font-semibold">알림</h3>
+                      <h3 className="text-white font-semibold">{t('notification.notifications')}</h3>
                       {unreadCount > 0 && (
                         <button
                           onClick={markAllNotificationsAsRead}
                           className="text-xs text-yellow-400 hover:text-yellow-300"
                         >
-                          모두 읽음
+                          {t('notification.markAllAsRead')}
                         </button>
                       )}
                     </div>
 
                     {notifications.filter(n => !n.isRead).length === 0 ? (
                       <div className="p-8 text-center text-gray-400 bg-gray-900">
-                        읽지 않은 알림이 없습니다.
+                        {t('notification.noNotifications')}
                       </div>
                     ) : (
                       <div className="divide-y divide-gray-700">
@@ -824,7 +826,7 @@ export default function WalletPage() {
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <Wallet className="w-5 h-5" />
-              <span className="text-xs sm:text-base mt-1 sm:mt-0">지갑</span>
+              <span className="text-xs sm:text-base mt-1 sm:mt-0">{t('wallet.title')}</span>
             </div>
             {activeTab === 'wallet' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -841,7 +843,7 @@ export default function WalletPage() {
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <History className="w-5 h-5" />
-              <span className="text-xs sm:text-base mt-1 sm:mt-0">거래<span className="hidden sm:inline">내역</span></span>
+              <span className="text-xs sm:text-base mt-1 sm:mt-0">{t('wallet.transaction')}</span>
             </div>
             {activeTab === 'transactions' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -858,7 +860,7 @@ export default function WalletPage() {
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <Users className="w-5 h-5" />
-              <span className="text-xs sm:text-base mt-1 sm:mt-0">추천</span>
+              <span className="text-xs sm:text-base mt-1 sm:mt-0">{t('referral.title')}</span>
             </div>
             {activeTab === 'referral' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -875,7 +877,7 @@ export default function WalletPage() {
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <Bell className="w-5 h-5" />
-              <span className="text-xs sm:text-base mt-1 sm:mt-0">공지<span className="hidden sm:inline">사항</span></span>
+              <span className="text-xs sm:text-base mt-1 sm:mt-0">{t('notification.title').substring(0, 2)}</span>
             </div>
             {activeTab === 'notice' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -892,7 +894,7 @@ export default function WalletPage() {
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <UserIcon className="w-5 h-5" />
-              <span className="text-xs sm:text-base mt-1 sm:mt-0">마이<span className="hidden sm:inline">페이지</span></span>
+              <span className="text-xs sm:text-base mt-1 sm:mt-0">{t('profile.title')}</span>
             </div>
             {activeTab === 'mypage' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -909,12 +911,12 @@ export default function WalletPage() {
         <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl p-6 mb-8 text-gray-900">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-sm opacity-80">안녕하세요!</p>
+              <p className="text-sm opacity-80">{t('common.info')}!</p>
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold">{user?.name}님</h2>
+                <h2 className="text-2xl font-bold">{user?.name}</h2>
                 {user?.role === 'TEAM_LEADER' && (
                   <span className="flex items-center gap-1 px-2 py-1 bg-yellow-600 rounded-lg text-sm font-semibold">
-                    ⭐ 팀장
+                    ⭐ {t('admin.role')}
                   </span>
                 )}
               </div>
@@ -926,7 +928,7 @@ export default function WalletPage() {
           {/* 추천 코드 */}
           <div className="bg-black/20 rounded-lg p-3 flex items-center justify-between">
             <div>
-              <p className="text-xs opacity-80">내 추천 코드</p>
+              <p className="text-xs opacity-80">{t('referral.myReferralCode')}</p>
               <p className="text-lg font-bold">{user?.referralCode}</p>
             </div>
             <div className="flex space-x-2">
@@ -956,7 +958,7 @@ export default function WalletPage() {
                   <Coins className="w-6 h-6 text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400">증권코인</p>
+                  <p className="text-sm text-gray-400">{t('wallet.securityCoins')}</p>
                   <p className="text-xs text-gray-500">Security Coins</p>
                 </div>
               </div>
@@ -978,7 +980,7 @@ export default function WalletPage() {
                   <TrendingUp className="w-6 h-6 text-yellow-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400">배당코인</p>
+                  <p className="text-sm text-gray-400">{t('wallet.dividendCoins')}</p>
                   <p className="text-xs text-gray-500">Dividend Coins</p>
                 </div>
               </div>
@@ -1066,7 +1068,7 @@ export default function WalletPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
               <History className="w-6 h-6 text-gray-400 mr-2" />
-              <h3 className="text-lg font-semibold text-white">최근 내역</h3>
+              <h3 className="text-lg font-semibold text-white">{t('wallet.transactionHistory')}</h3>
             </div>
             <button
               onClick={() => setActiveTab('transactions')}
@@ -1098,7 +1100,7 @@ export default function WalletPage() {
                       <p className={`text-sm font-semibold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}개
                       </p>
-                      <p className="text-xs text-gray-500">{tx.coinType === 'SECURITY' ? '증권코인' : '배당코인'}</p>
+                      <p className="text-xs text-gray-500">{tx.coinType === 'SECURITY' ? t('wallet.securityCoins') : t('wallet.dividendCoins')}</p>
                     </div>
                   </div>
                 )
@@ -1662,7 +1664,7 @@ export default function WalletPage() {
                       onClick={handleUpdateProfile}
                       className="flex-1 px-4 py-3 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-semibold"
                     >
-                      저장
+                      {t('common.save')}
                     </button>
                     <button
                       onClick={() => {
@@ -1678,7 +1680,7 @@ export default function WalletPage() {
                       }}
                       className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
                     >
-                      취소
+                      {t('common.cancel')}
                     </button>
                   </div>
                 </div>
@@ -1702,7 +1704,7 @@ export default function WalletPage() {
                 <polyline points="16 17 21 12 16 7" strokeLinecap="round" strokeLinejoin="round"/>
                 <line x1="21" y1="12" x2="9" y2="12" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span>로그아웃</span>
+              <span>{t('common.logout')}</span>
             </button>
 
             {/* 회원탈퇴 버튼 */}
@@ -1812,7 +1814,7 @@ export default function WalletPage() {
                 }}
                 className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
               >
-                취소
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleWithdraw}
@@ -1905,7 +1907,7 @@ export default function WalletPage() {
                 }}
                 className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
               >
-                취소
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleSwapRequest}

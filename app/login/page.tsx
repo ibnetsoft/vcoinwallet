@@ -7,6 +7,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import Link from 'next/link'
 import KakaoBrowserWarning from '@/components/KakaoBrowserWarning'
 import LanguageSelector from '@/components/LanguageSelector'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 type LoginForm = {
   phone: string
@@ -14,6 +15,7 @@ type LoginForm = {
 }
 
 export default function LoginPage() {
+  const { t } = useLanguage()
   const [isLoading, setIsLoading] = useState(false)
   const {
     register,
@@ -70,7 +72,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-4">
             <img src="/vcoin_logo.png" alt="V COIN Logo" className="w-32 h-32 object-contain" />
           </div>
-          <h1 className="text-3xl font-bold text-white">V COIN 로그인</h1>
+          <h1 className="text-3xl font-bold text-white">V COIN {t('auth.loginTitle')}</h1>
           <p className="text-gray-400 mt-2">3D SOLAR 투자 플랫폼</p>
         </div>
 
@@ -79,17 +81,17 @@ export default function LoginPage() {
           {/* 휴대폰 번호 */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              휴대폰 번호
+              {t('auth.phone')}
             </label>
             <div className="relative">
               <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
               <input
                 type="tel"
                 {...register('phone', {
-                  required: '휴대폰 번호를 입력해주세요.',
+                  required: t('auth.phoneRequired'),
                   pattern: {
                     value: /^[0-9]{10,11}$/,
-                    message: '올바른 전화번호 형식이 아닙니다.'
+                    message: t('validation.invalidPhone')
                   }
                 })}
                 className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-white placeholder-gray-500"
@@ -104,14 +106,14 @@ export default function LoginPage() {
           {/* 비밀번호 */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              비밀번호
+              {t('auth.password')}
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
               <input
                 type="password"
                 {...register('password', {
-                  required: '비밀번호를 입력해주세요.'
+                  required: t('auth.passwordRequired')
                 })}
                 className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-white placeholder-gray-500"
                 placeholder="••••••••"
@@ -134,12 +136,12 @@ export default function LoginPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                처리 중...
+                {t('common.loading')}
               </span>
             ) : (
               <>
                 <LogIn className="w-5 h-5 mr-2" />
-                로그인
+                {t('auth.loginButton')}
               </>
             )}
           </button>
@@ -148,9 +150,9 @@ export default function LoginPage() {
         {/* 회원가입 링크 */}
         <div className="mt-6 text-center">
           <p className="text-gray-400">
-            아직 계정이 없으신가요?{' '}
+            {t('auth.noAccount')}{' '}
             <Link href="/signup" className="text-yellow-400 hover:text-yellow-300 font-medium">
-              회원가입
+              {t('auth.signupButton')}
             </Link>
           </p>
         </div>

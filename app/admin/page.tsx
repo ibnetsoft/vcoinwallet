@@ -6,6 +6,7 @@ import { Users, Coins, Gift, Search, ArrowLeft, Shield, Settings, Lock, Mail, Ph
 import toast, { Toaster } from 'react-hot-toast'
 import * as XLSX from 'xlsx'
 import LanguageSelector from '@/components/LanguageSelector'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface User {
   id: string
@@ -28,6 +29,7 @@ interface User {
 
 export default function AdminPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [user, setUser] = useState<User | null>(null)
   const [users, setUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -1262,12 +1264,12 @@ export default function AdminPage() {
               </button>
               <div className="flex items-center space-x-2">
                 <Shield className="w-6 h-6 text-purple-400" />
-                <h1 className="text-xl font-bold text-white">관리자 패널</h1>
+                <h1 className="text-xl font-bold text-white">{t('admin.title')}</h1>
               </div>
             </div>
             <div className="flex items-center space-x-3">
               <div className="text-sm text-gray-400">
-                관리자: {user?.name}
+                {t('admin.title')}: {user?.name}
               </div>
               <LanguageSelector />
             </div>
@@ -1440,7 +1442,7 @@ export default function AdminPage() {
             >
               <div className="flex items-center space-x-2">
                 <Users className="w-4 h-4" />
-                <span>회원</span>
+                <span>{t('admin.users')}</span>
               </div>
               {activeTab === 'users' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -1457,7 +1459,7 @@ export default function AdminPage() {
             >
               <div className="flex items-center space-x-2">
                 <Gift className="w-4 h-4" />
-                <span>배당코인</span>
+                <span>{t('wallet.dividendCoins')}</span>
               </div>
               {activeTab === 'grant' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -1474,7 +1476,7 @@ export default function AdminPage() {
             >
               <div className="flex items-center space-x-2">
                 <Coins className="w-4 h-4" />
-                <span>증권코인</span>
+                <span>{t('wallet.securityCoins')}</span>
               </div>
               {activeTab === 'security-grant' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -1491,7 +1493,7 @@ export default function AdminPage() {
             >
               <div className="flex items-center space-x-2">
                 <Shield className="w-4 h-4" />
-                <span>등급관리</span>
+                <span>{t('admin.role')}</span>
               </div>
               {activeTab === 'roles' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -1508,7 +1510,7 @@ export default function AdminPage() {
             >
               <div className="flex items-center space-x-2">
                 <Bell className="w-4 h-4" />
-                <span>공지사항</span>
+                <span>{t('notification.title')}</span>
               </div>
               {activeTab === 'notice' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
@@ -1544,7 +1546,7 @@ export default function AdminPage() {
             >
               <div className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
-                <span>관리자설정</span>
+                <span>{t('admin.settings')}</span>
               </div>
               {activeTab === 'settings' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
