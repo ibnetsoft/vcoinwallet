@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Coins, TrendingUp, Users, Wallet, X, Sparkles, Power, WalletIcon, Bell } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import CoinValueChart from '@/components/CoinValueChart'
+import LanguageSelector from '@/components/LanguageSelector'
 
 export default function HomePage() {
   const router = useRouter()
@@ -249,6 +250,7 @@ export default function HomePage() {
                   >
                     공지사항
                   </button>
+                  <LanguageSelector />
                   <button
                     onClick={() => router.push('/login')}
                     className="px-3 py-2 sm:px-4 text-sm sm:text-base text-white hover:text-yellow-400 transition"
