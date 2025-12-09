@@ -830,6 +830,7 @@ export default function AdminPage() {
   }
 
   const handleUserClick = (selectedUser: any) => {
+    console.log('Selected user:', selectedUser)
     setSelectedUserDetail(selectedUser)
     setIsDetailModalOpen(true)
     setIsEditingUserInfo(false)
@@ -886,6 +887,12 @@ export default function AdminPage() {
     if (!selectedUserDetail) return
 
     const token = localStorage.getItem('token')
+
+    console.log('Sending change referrer request:', {
+      userId: selectedUserDetail.id,
+      newReferrerId: newReferrerId || null,
+      grantBonus: grantReferrerBonus && newReferrerId
+    })
 
     try {
       const response = await fetch('/api/admin/change-referrer', {

@@ -25,6 +25,8 @@ export async function POST(request: NextRequest) {
 
     const { userId, newReferrerId, grantBonus } = await request.json()
 
+    console.log('Change referrer request:', { userId, newReferrerId, grantBonus })
+
     if (!userId) {
       return NextResponse.json(
         { error: '회원 ID가 필요합니다.' },
@@ -35,9 +37,11 @@ export async function POST(request: NextRequest) {
     // 대상 회원 조회
     const { data: targetUser, error: targetError } = await supabaseAdmin
       .from('users')
-      .select('id, name, phone, referrer_id')
+      .select('id, name, phone, referred_by')
       .eq('id', userId)
       .single()
+
+    console.log('Target user query result:', { targetUser, targetError })
 
     if (targetError || !targetUser) {
       return NextResponse.json(
@@ -85,23 +89,23 @@ export async function POST(request: NextRequest) {
 
         const { data: checkUser } = await supabaseAdmin
           .from('users')
-          .select('referrer_id')
+          .select('referred_by')
           .eq('id', currentId)
           .single()
 
-        currentId = checkUser?.referrer_id
+        currentId = checkUser?.referred_by
       }
 
       newReferrer = referrer
     }
 
     // 이전 추천인 정보
-    const oldReferrerId = targetUser.referrer_id
+    const oldReferrerId = targetUser.referred_by
 
     // 추천인 변경
     const { error: updateError } = await supabaseAdmin
       .from('users')
-      .update({ referrer_id: newReferrerId || null })
+      .update({ referred_by: newReferrerId || null })
       .eq('id', userId)
 
     if (updateError) {
