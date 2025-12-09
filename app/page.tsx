@@ -325,12 +325,12 @@ export default function HomePage() {
       <section className="container mx-auto px-4 py-20">
         <div className="text-center max-w-4xl mx-auto">
           <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            <span className="text-yellow-400">3배 효율</span> 태양광 발전
+            <span className="text-yellow-400">{t('home.efficiency3x')}</span> {t('home.solarPower')}
             <br />
-            <span className="text-yellow-400">V COIN</span>과 함께
+            <span className="text-yellow-400">V COIN</span> {t('home.withVCoin')}
           </h2>
           <p className="text-xl text-gray-300 mb-8">
-            유휴부지 태양광 발전사업으로 안정적인 수익을 창출합니다
+            {t('home.stableIncome')}
           </p>
           
           <div className="grid md:grid-cols-3 gap-6 mt-12">
@@ -339,23 +339,23 @@ export default function HomePage() {
                 <TrendingUp className="w-8 h-8 text-yellow-400" />
               </div>
               <h3 className="text-2xl font-bold text-yellow-400 mb-2">15%</h3>
-              <p className="text-gray-400">연간 투자 수익률</p>
+              <p className="text-gray-400">{t('home.annualReturn')}</p>
             </div>
-            
+
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
               <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Coins className="w-8 h-8 text-blue-400" />
               </div>
-              <h3 className="text-2xl font-bold text-blue-400 mb-2">2종 코인</h3>
-              <p className="text-gray-400">배당코인 & 증권코인</p>
+              <h3 className="text-2xl font-bold text-blue-400 mb-2">{t('home.twoCoins')}</h3>
+              <p className="text-gray-400">{t('home.dividendAndSecurity')}</p>
             </div>
-            
+
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
               <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-green-400" />
               </div>
-              <h3 className="text-2xl font-bold text-green-400 mb-2">추천 보너스</h3>
-              <p className="text-gray-400">친구 초대 시 코인 지급</p>
+              <h3 className="text-2xl font-bold text-green-400 mb-2">{t('home.referralBonus')}</h3>
+              <p className="text-gray-400">{t('home.inviteFriendsCoin')}</p>
             </div>
           </div>
         </div>
@@ -365,9 +365,9 @@ export default function HomePage() {
       <section className="bg-gray-800/30 py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center text-white mb-12">
-            V COIN 시스템
+            {t('home.vcoinSystem')}
           </h2>
-          
+
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* 배당코인 */}
             <div className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 rounded-2xl p-8 border border-yellow-500/30">
@@ -375,25 +375,25 @@ export default function HomePage() {
                 <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center mr-4">
                   <Coins className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-yellow-400">배당코인</h3>
+                <h3 className="text-2xl font-bold text-yellow-400">{t('home.dividend')}</h3>
               </div>
-              
+
               <ul className="space-y-3 text-gray-300">
                 <li className="flex items-start">
                   <span className="text-yellow-400 mr-2">✓</span>
-                  100만원 투자 시 10,000개 코인 지급
+                  {t('home.investment100M')}
                 </li>
                 <li className="flex items-start">
                   <span className="text-yellow-400 mr-2">✓</span>
-                  연 15% 수익 보장 (월 배당)
+                  {t('home.return15')}
                 </li>
                 <li className="flex items-start">
                   <span className="text-yellow-400 mr-2">✓</span>
-                  10만개 소유 시 연 150만원 수익
+                  {t('home.income150M')}
                 </li>
                 <li className="flex items-start">
                   <span className="text-yellow-400 mr-2">✓</span>
-                  추천인 1,000개 추가 지급
+                  {t('home.referrer1000')}
                 </li>
               </ul>
             </div>
@@ -404,25 +404,25 @@ export default function HomePage() {
                 <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4">
                   <Wallet className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-blue-400">증권코인</h3>
+                <h3 className="text-2xl font-bold text-blue-400">{t('home.security')}</h3>
               </div>
-              
+
               <ul className="space-y-3 text-gray-300">
                 <li className="flex items-start">
                   <span className="text-blue-400 mr-2">✓</span>
-                  회원가입 시 500개 무료 지급
+                  {t('home.signup500')}
                 </li>
                 <li className="flex items-start">
                   <span className="text-blue-400 mr-2">✓</span>
-                  추천 시 1,000개 추가 지급
+                  {t('home.referral1000')}
                 </li>
                 <li className="flex items-start">
                   <span className="text-blue-400 mr-2">✓</span>
-                  회사 순익의 15% 배당
+                  {t('home.profit15')}
                 </li>
                 <li className="flex items-start">
                   <span className="text-blue-400 mr-2">✓</span>
-                  연말 정산 후 익년 월별 지급
+                  {t('home.yearEndPayout')}
                 </li>
               </ul>
             </div>
@@ -434,10 +434,10 @@ export default function HomePage() {
       <section className="container mx-auto px-4 py-20">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-4xl font-bold text-center text-white mb-4">
-            3D 태양광 기술 소개
+            {t('home.techIntro')}
           </h2>
           <p className="text-center text-gray-400 mb-12">
-            V COIN의 혁신적인 3배 효율 태양광 발전 시스템을 영상으로 확인하세요
+            {t('home.techDesc')}
           </p>
 
           <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
@@ -458,16 +458,16 @@ export default function HomePage() {
         <section className="container mx-auto px-4 py-20">
           <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-3xl p-12 text-center">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              지금 가입하고 증권코인 500개를 받으세요!
+              {t('home.joinNow')}
             </h2>
             <p className="text-xl text-gray-800 mb-8">
-              초기 회원 특별 혜택 • 추천인 등록 시 1,000개 추가
+              {t('home.earlyBenefit')}
             </p>
             <button
               onClick={() => router.push('/signup')}
               className="px-8 py-4 bg-gray-900 text-yellow-400 rounded-xl text-lg font-bold hover:bg-gray-800 transition transform hover:scale-105"
             >
-              무료 회원가입 →
+              {t('home.freeSignup')}
             </button>
           </div>
         </section>
@@ -477,8 +477,8 @@ export default function HomePage() {
       <footer className="border-t border-gray-700 bg-gray-800/50">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center text-gray-400">
-            <p>© 2025 3D SUN TECH. All rights reserved.</p>
-            <p className="mt-2">www.3dvcoin.com</p>
+            <p>{t('home.copyright')}</p>
+            <p className="mt-2">{t('home.website')}</p>
           </div>
         </div>
       </footer>
@@ -513,7 +513,7 @@ export default function HomePage() {
 
               {/* 환영 메시지 */}
               <h2 className="text-3xl font-bold text-white text-center mb-2">
-                환영합니다! 🎉
+                {t('home.welcome')} 🎉
               </h2>
               <p className="text-xl text-yellow-400 text-center font-semibold mb-6">
                 {user.name}님
@@ -523,22 +523,22 @@ export default function HomePage() {
               <div className="bg-gray-700/50 rounded-2xl p-6 mb-6 border border-gray-600">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">회원번호</span>
+                    <span className="text-gray-300">{t('home.memberNum')}</span>
                     <span className="text-white font-bold text-lg">#{user.memberNumber}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">추천코드</span>
+                    <span className="text-gray-300">{t('auth.referralCode')}</span>
                     <span className="text-yellow-400 font-mono font-bold text-lg">{user.referralCode}</span>
                   </div>
                   <div className="border-t border-gray-600 pt-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-300">가입 보너스</span>
+                      <span className="text-gray-300">{t('home.signupBonus')}</span>
                       <span className="text-green-400 font-bold text-xl">
                         🎁 {user.securityCoins?.toLocaleString()}개
                       </span>
                     </div>
                     <p className="text-sm text-gray-400 mt-2 text-center">
-                      증권코인이 지급되었습니다!
+                      {t('home.coinsGranted')}
                     </p>
                   </div>
                 </div>
@@ -552,7 +552,7 @@ export default function HomePage() {
                 }}
                 className="w-full py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 font-bold rounded-xl hover:from-yellow-400 hover:to-yellow-500 transition transform hover:scale-105 shadow-lg"
               >
-                내 지갑 보러가기 →
+                {t('home.goToWallet')}
               </button>
             </div>
           </div>
