@@ -1,5 +1,6 @@
 import { supabaseAdmin } from './supabase'
 import { generateReferralCode, calculateSignupBonus } from './auth'
+import { sendReferralSignupNotification } from './push-notification'
 
 interface User {
   id: string
@@ -216,14 +217,12 @@ export const db = {
         created_at: new Date().toISOString()
       })
 
-      // 추천인에게 알림 전송
+      // 추천인에게 알림 전송 (인앱 알림 + 푸시 알림)
       try {
-        await this.createNotification(
+        await sendReferralSignupNotification(
           referrer.id,
-          'REFERRAL_SIGNUP',
-          '🎉 새로운 회원이 가입했습니다!',
-          `${newUser.name}님(회원번호: ${memberNumber})이 회원님의 추천으로 가입했습니다. 증권코인 ${referralBonus}개가 지급되었습니다.`,
-          newUserId
+          newUser.name,
+          memberNumber
         )
       } catch (notifError) {
         console.error('추천인 알림 전송 실패:', notifError)
