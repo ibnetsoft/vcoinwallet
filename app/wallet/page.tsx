@@ -968,7 +968,7 @@ export default function WalletPage() {
               <span className="text-sm text-gray-400 ml-2">개</span>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              회사 순익 15% 배당 • 연말 정산
+              {t('wallet.companyProfit')}
             </p>
           </div>
 
@@ -990,7 +990,7 @@ export default function WalletPage() {
               <span className="text-sm text-gray-400 ml-2">개</span>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              연 15% 수익 • 월 배당 지급
+              {t('wallet.yearlyReturn')}
             </p>
             {/* 스왑 요청 버튼 */}
             <button
@@ -998,7 +998,7 @@ export default function WalletPage() {
               className="mt-4 w-full px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 rounded-lg hover:from-yellow-400 hover:to-orange-400 transition font-semibold flex items-center justify-center"
             >
               <ArrowRightLeft className="w-4 h-4 mr-2" />
-              증권코인으로 스왑 요청
+              {t('wallet.swapRequest')}
             </button>
           </div>
         </div>
@@ -1074,7 +1074,7 @@ export default function WalletPage() {
               onClick={() => setActiveTab('transactions')}
               className="text-sm text-yellow-400 hover:text-yellow-300 transition"
             >
-              전체보기 →
+              {t('wallet.viewAll')} →
             </button>
           </div>
 
@@ -1115,17 +1115,16 @@ export default function WalletPage() {
 
         {/* 추천 유도 */}
         <div className="mt-8 bg-gradient-to-r from-purple-500/10 to-purple-600/10 rounded-2xl p-6 border border-purple-500/30">
-          <h3 className="text-lg font-semibold text-purple-400 mb-2">🎁 친구 초대하고 보너스 받기!</h3>
+          <h3 className="text-lg font-semibold text-purple-400 mb-2">🎁 {t('wallet.inviteBonus')}</h3>
           <p className="text-sm text-gray-300 mb-4">
-            친구가 가입하면 증권코인을 드립니다.
-            배당코인 구매 시에도 추천보너스가 지급됩니다!
+            {t('wallet.inviteBonusDesc')}
           </p>
           <button
             onClick={shareReferralLink}
             className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center"
           >
             <Share2 className="w-4 h-4 mr-2" />
-            추천 링크 공유하기
+            {t('wallet.shareReferralLink')}
           </button>
         </div>
           </div>
@@ -1204,8 +1203,8 @@ export default function WalletPage() {
             <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl p-6 mb-8 text-white">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">친구 초대하고 보너스 받기!</h2>
-                  <p className="text-sm opacity-90">친구가 가입하면 증권코인을 드립니다</p>
+                  <h2 className="text-2xl font-bold mb-2">{t('wallet.inviteBonus')}</h2>
+                  <p className="text-sm opacity-90">{t('wallet.inviteBonusDesc').split('\n')[0]}</p>
                 </div>
                 <Users className="w-12 h-12 opacity-20" />
               </div>
