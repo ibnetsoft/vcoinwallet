@@ -17,7 +17,7 @@ export default function LanguageSelector() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 p-2 rounded-lg hover:bg-gray-700 transition-colors"
+        className="flex items-center gap-1 p-2 rounded-lg bg-gray-800 border border-gray-700 hover:bg-gray-700 transition-colors"
         aria-label="Select language"
       >
         <span className="text-xl">{LANGUAGES[language].flag}</span>

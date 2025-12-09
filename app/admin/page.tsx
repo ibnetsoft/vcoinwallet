@@ -3593,7 +3593,7 @@ export default function AdminPage() {
 
         {/* 회원 상세 정보 모달 */}
         {isDetailModalOpen && selectedUserDetail && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[100000] p-4">
             <div className="bg-gray-800 rounded-2xl p-6 max-w-md w-full border border-gray-700 relative">
               {/* 닫기 버튼 */}
               <button
@@ -3860,7 +3860,7 @@ export default function AdminPage() {
 
       {/* 공지사항 작성 모달 */}
       {isNoticeModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100000] p-4">
           <div className="bg-gray-800 rounded-2xl p-6 max-w-2xl w-full border border-gray-700">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white flex items-center">
@@ -3960,7 +3960,7 @@ export default function AdminPage() {
 
       {/* 자료 작성/수정 모달 */}
       {isResourceModalOpen && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setIsResourceModalOpen(false)}>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[100000] p-4" onClick={() => setIsResourceModalOpen(false)}>
           <div className="bg-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-xl font-bold text-white mb-4">
               {editingResourceId ? '자료 수정' : '새 자료 등록'}
