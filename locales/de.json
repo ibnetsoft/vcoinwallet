@@ -110,7 +110,9 @@
     "share": "Teilen",
     "signupBonus": "Registrierungsbonus",
     "fullTransactionHistory": "Vollständige Transaktionshistorie",
-    "myReferralCode": "Mein Empfehlungscode"
+    "myReferralCode": "Mein Empfehlungscode",
+    "balanceLabel": "Guthaben:",
+    "noTransactionsDesc": "Transaktionen werden hier angezeigt, wenn Sie Münzen erhalten."
   },
   "referral": {
     "title": "Empfehlung",
@@ -126,7 +128,8 @@
     "noReferrals": "Noch keine Empfehlungen",
     "directReferrals": "Direkte Empfehlungen",
     "receivedBonus": "Empfangener Empfehlungsbonus",
-    "referredList": "Liste empfohlener Mitglieder"
+    "referredList": "Liste empfohlener Mitglieder",
+    "noReferralsDesc": "Laden Sie Freunde ein und erhalten Sie Boni!"
   },
   "admin": {
     "title": "Administrator",

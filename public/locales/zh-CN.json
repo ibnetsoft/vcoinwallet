@@ -114,7 +114,9 @@
     "people": "人",
     "share": "分享",
     "fullTransactionHistory": "完整交易历史",
-    "myReferralCode": "我的推荐码"
+    "myReferralCode": "我的推荐码",
+    "balanceLabel": "余额:",
+    "noTransactionsDesc": "当您收到币时，交易将显示在此处。"
   },
   "referral": {
     "title": "推荐",
@@ -130,7 +132,8 @@
     "noReferrals": "暂无推荐",
     "directReferrals": "直接推荐人数",
     "receivedBonus": "已获得推荐奖励",
-    "referredList": "推荐会员列表"
+    "referredList": "推荐会员列表",
+    "noReferralsDesc": "邀请朋友并获得奖金！"
   },
   "admin": {
     "title": "管理员",

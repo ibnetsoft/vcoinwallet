@@ -110,7 +110,9 @@
     "people": "लोग",
     "share": "साझा करें",
     "fullTransactionHistory": "पूर्ण लेन-देन इतिहास",
-    "myReferralCode": "मेरा रेफरल कोड"
+    "myReferralCode": "मेरा रेफरल कोड",
+    "balanceLabel": "बैलेंस:",
+    "noTransactionsDesc": "जब आप कॉइन प्राप्त करते हैं तो लेनदेन यहां दिखाई देंगे।"
   },
   "referral": {
     "title": "रेफरल",
@@ -126,7 +128,8 @@
     "noReferrals": "अभी तक कोई रेफरल नहीं",
     "directReferrals": "प्रत्यक्ष रेफरल",
     "receivedBonus": "प्राप्त रेफरल बोनस",
-    "referredList": "रेफर किए गए सदस्य सूची"
+    "referredList": "रेफर किए गए सदस्य सूची",
+    "noReferralsDesc": "दोस्तों को आमंत्रित करें और बोनस पाएं!"
   },
   "admin": {
     "title": "एडमिन",

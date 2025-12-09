@@ -114,7 +114,9 @@
     "people": "जना",
     "share": "साझा गर्नुहोस्",
     "fullTransactionHistory": "पूर्ण लेनदेन इतिहास",
-    "myReferralCode": "मेरो रेफरल कोड"
+    "myReferralCode": "मेरो रेफरल कोड",
+    "balanceLabel": "ब्यालेन्स:",
+    "noTransactionsDesc": "तपाईंले सिक्का प्राप्त गर्दा कारोबार यहाँ देखा पर्नेछ।"
   },
   "referral": {
     "title": "रेफरल",
@@ -130,7 +132,8 @@
     "noReferrals": "अहिलेसम्म कुनै रेफरल छैन",
     "directReferrals": "प्रत्यक्ष रेफरल",
     "receivedBonus": "प्राप्त रेफरल बोनस",
-    "referredList": "रेफर गरिएका सदस्य सूची"
+    "referredList": "रेफर गरिएका सदस्य सूची",
+    "noReferralsDesc": "साथीहरूलाई निम्तो दिनुहोस् र बोनस पाउनुहोस्!"
   },
   "admin": {
     "title": "प्रशासक",

@@ -114,7 +114,9 @@
     "share": "Share",
     "signupBonus": "Sign-up Bonus",
     "fullTransactionHistory": "Full Transaction History",
-    "myReferralCode": "My Referral Code"
+    "myReferralCode": "My Referral Code",
+    "balanceLabel": "Balance:",
+    "noTransactionsDesc": "Transactions will appear here when you receive coins."
   },
   "referral": {
     "title": "Referral",
@@ -130,7 +132,8 @@
     "noReferrals": "No referrals yet",
     "directReferrals": "Direct Referrals",
     "receivedBonus": "Received Referral Bonus",
-    "referredList": "Referred Member List"
+    "referredList": "Referred Member List",
+    "noReferralsDesc": "Invite friends and get bonuses!"
   },
   "admin": {
     "title": "Admin",

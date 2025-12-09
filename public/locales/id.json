@@ -110,7 +110,9 @@
     "people": "orang",
     "share": "Bagikan",
     "fullTransactionHistory": "Riwayat Transaksi Lengkap",
-    "myReferralCode": "Kode Referral Saya"
+    "myReferralCode": "Kode Referral Saya",
+    "balanceLabel": "Saldo:",
+    "noTransactionsDesc": "Transaksi akan muncul di sini saat Anda menerima koin."
   },
   "referral": {
     "title": "Referral",
@@ -126,7 +128,8 @@
     "noReferrals": "Belum ada referral",
     "directReferrals": "Referral Langsung",
     "receivedBonus": "Bonus Referral Diterima",
-    "referredList": "Daftar Anggota yang Direferensikan"
+    "referredList": "Daftar Anggota yang Direferensikan",
+    "noReferralsDesc": "Undang teman dan dapatkan bonus!"
   },
   "admin": {
     "title": "Admin",

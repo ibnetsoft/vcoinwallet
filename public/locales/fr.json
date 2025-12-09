@@ -110,7 +110,9 @@
     "people": "personnes",
     "share": "Partager",
     "fullTransactionHistory": "Historique complet des transactions",
-    "myReferralCode": "Mon code de parrainage"
+    "myReferralCode": "Mon code de parrainage",
+    "balanceLabel": "Solde:",
+    "noTransactionsDesc": "Les transactions apparaîtront ici lorsque vous recevrez des pièces."
   },
   "referral": {
     "title": "Parrainage",
@@ -126,7 +128,8 @@
     "noReferrals": "Aucun parrainage pour le moment",
     "directReferrals": "Parrainages Directs",
     "receivedBonus": "Bonus de Parrainage Reçu",
-    "referredList": "Liste des Membres Parrainés"
+    "referredList": "Liste des Membres Parrainés",
+    "noReferralsDesc": "Invitez des amis et obtenez des bonus!"
   },
   "admin": {
     "title": "Administrateur",

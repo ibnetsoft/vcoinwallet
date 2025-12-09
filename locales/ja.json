@@ -114,7 +114,9 @@
     "people": "人",
     "share": "共有",
     "fullTransactionHistory": "全取引履歴",
-    "myReferralCode": "マイ紹介コード"
+    "myReferralCode": "マイ紹介コード",
+    "balanceLabel": "残高:",
+    "noTransactionsDesc": "コインを受け取ると、ここに取引が表示されます。"
   },
   "referral": {
     "title": "紹介",
@@ -127,10 +129,11 @@
     "copyLink": "リンクをコピー",
     "shareReferral": "紹介を共有",
     "referralEarnings": "紹介収益",
-    "noReferrals": "紹介はまだありません",
+    "noReferrals": "まだ紹介はありません",
     "directReferrals": "直接紹介人数",
     "receivedBonus": "獲得した紹介ボーナス",
-    "referredList": "紹介会員リスト"
+    "referredList": "紹介会員リスト",
+    "noReferralsDesc": "友達を招待してボーナスをゲット!"
   },
   "admin": {
     "title": "管理者",

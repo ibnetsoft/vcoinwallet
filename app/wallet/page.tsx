@@ -1108,7 +1108,7 @@ export default function WalletPage() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-500">아직 거래 내역이 없습니다.</p>
+              <p className="text-gray-500">{t('wallet.noTransactions')}</p>
             </div>
           )}
         </div>
@@ -1180,7 +1180,7 @@ export default function WalletPage() {
                           <p className={`text-lg font-bold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
                           </p>
-                          <p className="text-xs text-gray-500">잔액: {tx.balance.toLocaleString()}</p>
+                          <p className="text-xs text-gray-500">{t('wallet.balanceLabel')} {tx.balance.toLocaleString()}</p>
                         </div>
                       </div>
                     )
@@ -1189,8 +1189,8 @@ export default function WalletPage() {
               ) : (
                 <div className="text-center py-12">
                   <History className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400">아직 거래 내역이 없습니다.</p>
-                  <p className="text-sm text-gray-500 mt-2">코인을 받으면 여기에 표시됩니다.</p>
+                  <p className="text-gray-400">{t('wallet.noTransactions')}</p>
+                  <p className="text-sm text-gray-500 mt-2">{t('wallet.noTransactionsDesc')}</p>
                 </div>
               )}
             </div>
@@ -1429,14 +1429,14 @@ export default function WalletPage() {
               ) : (
                 <div className="text-center py-12">
                   <Users className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400">아직 추천한 회원이 없습니다.</p>
-                  <p className="text-sm text-gray-500 mt-2">친구를 초대하고 보너스를 받아보세요!</p>
+                  <p className="text-gray-400">{t('referral.noReferrals')}</p>
+                  <p className="text-sm text-gray-500 mt-2">{t('referral.noReferralsDesc')}</p>
                   <button
                     onClick={shareReferralLink}
                     className="mt-4 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center mx-auto"
                   >
                     <Share2 className="w-4 h-4 mr-2" />
-                    추천 링크 공유하기
+                    {t('wallet.shareReferralLink')}
                   </button>
                 </div>
               )}

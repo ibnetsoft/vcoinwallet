@@ -114,7 +114,9 @@
     "people": "человек",
     "share": "Поделиться",
     "fullTransactionHistory": "Полная история транзакций",
-    "myReferralCode": "Мой реферальный код"
+    "myReferralCode": "Мой реферальный код",
+    "balanceLabel": "Баланс:",
+    "noTransactionsDesc": "Транзакции появятся здесь, когда вы получите монеты."
   },
   "referral": {
     "title": "Реферальная программа",
@@ -130,7 +132,8 @@
     "noReferrals": "Пока нет рефералов",
     "directReferrals": "Прямые Рефералы",
     "receivedBonus": "Полученный Реферальный Бонус",
-    "referredList": "Список Приглашенных Участников"
+    "referredList": "Список Приглашенных Участников",
+    "noReferralsDesc": "Приглашайте друзей и получайте бонусы!"
   },
   "admin": {
     "title": "Администратор",

@@ -114,7 +114,9 @@
     "people": "شخص",
     "share": "مشاركة",
     "fullTransactionHistory": "سجل المعاملات الكامل",
-    "myReferralCode": "رمز الإحالة الخاص بي"
+    "myReferralCode": "رمز الإحالة الخاص بي",
+    "balanceLabel": "الرصيد:",
+    "noTransactionsDesc": "ستظهر المعاملات هنا عندما تتلقى العملات."
   },
   "referral": {
     "title": "الإحالة",
@@ -130,7 +132,8 @@
     "noReferrals": "لا توجد إحالات حتى الآن",
     "directReferrals": "الإحالات المباشرة",
     "receivedBonus": "مكافأة الإحالة المستلمة",
-    "referredList": "قائمة الأعضاء المُحالين"
+    "referredList": "قائمة الأعضاء المُحالين",
+    "noReferralsDesc": "ادع الأصدقاء واحصل على المكافآت!"
   },
   "admin": {
     "title": "المدير",
