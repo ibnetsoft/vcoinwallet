@@ -106,7 +106,11 @@
     "inviteBonusDesc": "Dapatkan Koin Keamanan saat teman Anda mendaftar.\nBonus referral juga diberikan saat pembelian Koin Dividen!",
     "shareReferralLink": "Bagikan Link Referral",
     "pieces": "pcs",
-    "signupBonus": "Bonus Pendaftaran"
+    "signupBonus": "Bonus Pendaftaran",
+    "people": "orang",
+    "share": "Bagikan",
+    "fullTransactionHistory": "Riwayat Transaksi Lengkap",
+    "myReferralCode": "Kode Referral Saya"
   },
   "referral": {
     "title": "Referral",
@@ -173,7 +177,10 @@
     "joinDate": "Tanggal Bergabung",
     "updateSuccess": "Informasi berhasil diperbarui",
     "updateFailed": "Gagal memperbarui informasi",
-    "updateError": "Terjadi kesalahan saat memperbarui informasi"
+    "updateError": "Terjadi kesalahan saat memperbarui informasi",
+    "name": "Nama",
+    "phone": "Nomor Telepon",
+    "email": "Email"
   },
   "errors": {
     "networkError": "Terjadi kesalahan jaringan",

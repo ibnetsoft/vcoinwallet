@@ -110,7 +110,11 @@
     "inviteBonusDesc": "友達が登録すると証券コインがもらえます。\n配当コイン購入時にも紹介ボーナスが付与されます！",
     "shareReferralLink": "紹介リンクを共有",
     "pieces": "個",
-    "signupBonus": "登録ボーナス"
+    "signupBonus": "登録ボーナス",
+    "people": "人",
+    "share": "共有",
+    "fullTransactionHistory": "全取引履歴",
+    "myReferralCode": "マイ紹介コード"
   },
   "referral": {
     "title": "紹介",
@@ -177,7 +181,10 @@
     "joinDate": "登録日",
     "updateSuccess": "情報が更新されました",
     "updateFailed": "情報の更新に失敗しました",
-    "updateError": "情報更新中にエラーが発生しました"
+    "updateError": "情報更新中にエラーが発生しました",
+    "name": "名前",
+    "phone": "電話番号",
+    "email": "メール"
   },
   "errors": {
     "networkError": "ネットワークエラーが発生しました",

@@ -106,7 +106,11 @@
     "inviteBonusDesc": "Erhalte Sicherheitsmünzen, wenn sich deine Freunde anmelden.\nEmpfehlungsboni werden auch beim Kauf von Dividendenmünzen vergeben!",
     "shareReferralLink": "Empfehlungslink teilen",
     "pieces": "Stk",
-    "signupBonus": "Registrierungsbonus"
+    "people": "Personen",
+    "share": "Teilen",
+    "signupBonus": "Registrierungsbonus",
+    "fullTransactionHistory": "Vollständige Transaktionshistorie",
+    "myReferralCode": "Mein Empfehlungscode"
   },
   "referral": {
     "title": "Empfehlung",
@@ -173,7 +177,10 @@
     "joinDate": "Beitrittsdatum",
     "updateSuccess": "Informationen erfolgreich aktualisiert",
     "updateFailed": "Aktualisierung der Informationen fehlgeschlagen",
-    "updateError": "Beim Aktualisieren der Informationen ist ein Fehler aufgetreten"
+    "updateError": "Beim Aktualisieren der Informationen ist ein Fehler aufgetreten",
+    "name": "Name",
+    "phone": "Telefonnummer",
+    "email": "E-Mail"
   },
   "errors": {
     "networkError": "Netzwerkfehler aufgetreten",

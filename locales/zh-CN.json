@@ -110,7 +110,11 @@
     "inviteBonusDesc": "好友注册即可获得证券币。\n购买分红币时也会发放推荐奖励！",
     "shareReferralLink": "分享推荐链接",
     "pieces": "个",
-    "signupBonus": "注册奖励"
+    "signupBonus": "注册奖励",
+    "people": "人",
+    "share": "分享",
+    "fullTransactionHistory": "完整交易历史",
+    "myReferralCode": "我的推荐码"
   },
   "referral": {
     "title": "推荐",
@@ -177,7 +181,10 @@
     "joinDate": "加入日期",
     "updateSuccess": "信息更新成功",
     "updateFailed": "信息更新失败",
-    "updateError": "更新信息时发生错误"
+    "updateError": "更新信息时发生错误",
+    "name": "姓名",
+    "phone": "电话号码",
+    "email": "电子邮件"
   },
   "errors": {
     "networkError": "网络错误",

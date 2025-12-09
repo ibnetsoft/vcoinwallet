@@ -965,7 +965,7 @@ export default function WalletPage() {
             </div>
             <div className="text-3xl font-bold text-white">
               {user?.securityCoins?.toLocaleString() || 0}
-              <span className="text-sm text-gray-400 ml-2">개</span>
+              <span className="text-sm text-gray-400 ml-2">{t('wallet.pieces')}</span>
             </div>
             <p className="text-xs text-gray-500 mt-2">
               {t('wallet.companyProfit')}
@@ -987,7 +987,7 @@ export default function WalletPage() {
             </div>
             <div className="text-3xl font-bold text-white">
               {user?.dividendCoins?.toLocaleString() || 0}
-              <span className="text-sm text-gray-400 ml-2">개</span>
+              <span className="text-sm text-gray-400 ml-2">{t('wallet.pieces')}</span>
             </div>
             <p className="text-xs text-gray-500 mt-2">
               {t('wallet.yearlyReturn')}
@@ -1135,7 +1135,7 @@ export default function WalletPage() {
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 min-h-[800px]">
               <div className="flex items-center mb-6">
                 <History className="w-6 h-6 text-yellow-400 mr-2" />
-                <h2 className="text-xl font-bold text-white">전체 거래 내역</h2>
+                <h2 className="text-xl font-bold text-white">{t('wallet.fullTransactionHistory')}</h2>
               </div>
 
               {transactions.length > 0 ? (
@@ -1161,7 +1161,7 @@ export default function WalletPage() {
                                 ? 'bg-blue-500/20 text-blue-400'
                                 : 'bg-yellow-500/20 text-yellow-400'
                             }`}>
-                              {tx.coinType === 'SECURITY' ? '증권코인' : '배당코인'}
+                              {tx.coinType === 'SECURITY' ? t('wallet.securityCoins') : t('wallet.dividendCoins')}
                             </span>
                             <span className={`text-xs px-2 py-1 rounded ${
                               tx.type === 'SIGNUP_BONUS' ? 'bg-green-500/20 text-green-400' :
@@ -1169,9 +1169,9 @@ export default function WalletPage() {
                               tx.type === 'ADMIN_GRANT' ? 'bg-orange-500/20 text-orange-400' :
                               'bg-gray-500/20 text-gray-400'
                             }`}>
-                              {tx.type === 'SIGNUP_BONUS' ? '가입 보너스' :
-                               tx.type === 'REFERRAL_BONUS' ? '추천 보너스' :
-                               tx.type === 'ADMIN_GRANT' ? '지급' :
+                              {tx.type === 'SIGNUP_BONUS' ? t('wallet.signupBonus') :
+                               tx.type === 'REFERRAL_BONUS' ? t('referral.referralBonus') :
+                               tx.type === 'ADMIN_GRANT' ? t('admin.grantCoins') :
                                tx.type}
                             </span>
                           </div>
@@ -1210,7 +1210,7 @@ export default function WalletPage() {
               </div>
 
               <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                <p className="text-xs opacity-80 mb-2">내 추천 코드</p>
+                <p className="text-xs opacity-80 mb-2">{t('wallet.myReferralCode')}</p>
                 <div className="flex items-center justify-between">
                   <p className="text-2xl font-mono font-bold">{user?.referralCode}</p>
                   <div className="flex space-x-2">
@@ -1225,7 +1225,7 @@ export default function WalletPage() {
                       className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition flex items-center"
                     >
                       <Share2 className="w-5 h-5 mr-2" />
-                      <span>공유</span>
+                      <span>{t('wallet.share')}</span>
                     </button>
                   </div>
                 </div>
@@ -1286,18 +1286,18 @@ export default function WalletPage() {
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
                 <div className="flex items-center mb-3">
                   <Users className="w-6 h-6 text-green-400 mr-2" />
-                  <h3 className="text-lg font-semibold text-white">직접 추천한 인원</h3>
+                  <h3 className="text-lg font-semibold text-white">{t('referral.directReferrals')}</h3>
                 </div>
-                <p className="text-4xl font-bold text-green-400">{referredUsers.length}명</p>
+                <p className="text-4xl font-bold text-green-400">{referredUsers.length}{t('wallet.people')}</p>
               </div>
 
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
                 <div className="flex items-center mb-3">
                   <Coins className="w-6 h-6 text-blue-400 mr-2" />
-                  <h3 className="text-lg font-semibold text-white">받은 추천 보너스</h3>
+                  <h3 className="text-lg font-semibold text-white">{t('referral.receivedBonus')}</h3>
                 </div>
-                <p className="text-4xl font-bold text-blue-400">{(referredUsers.length * 1000).toLocaleString()}개</p>
-                <p className="text-xs text-gray-500 mt-2">증권코인 기준</p>
+                <p className="text-4xl font-bold text-blue-400">{(referredUsers.length * 1000).toLocaleString()}{t('wallet.pieces')}</p>
+                <p className="text-xs text-gray-500 mt-2">{t('wallet.securityCoins')}</p>
               </div>
             </div>
 
@@ -1305,7 +1305,7 @@ export default function WalletPage() {
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
               <div className="flex items-center mb-6">
                 <Users className="w-6 h-6 text-yellow-400 mr-2" />
-                <h2 className="text-xl font-bold text-white">추천한 회원 목록</h2>
+                <h2 className="text-xl font-bold text-white">{t('referral.referredList')}</h2>
               </div>
 
               {referredUsers.length > 0 ? (
@@ -1538,14 +1538,14 @@ export default function WalletPage() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-white flex items-center">
                   <UserIcon className="w-6 h-6 mr-2 text-yellow-400" />
-                  내 정보
+                  {t('profile.myProfile')}
                 </h2>
                 {!isEditing && (
                   <button
                     onClick={() => setIsEditing(true)}
                     className="px-4 py-2 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition font-semibold"
                   >
-                    정보 수정
+                    {t('profile.editProfile')}
                   </button>
                 )}
               </div>
@@ -1553,19 +1553,19 @@ export default function WalletPage() {
               {!isEditing ? (
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm text-gray-400">이름</label>
+                    <label className="text-sm text-gray-400">{t('profile.name')}</label>
                     <p className="text-white font-medium">{user?.name}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400">휴대폰 번호</label>
+                    <label className="text-sm text-gray-400">{t('profile.phone')}</label>
                     <p className="text-white font-medium">{user?.phone}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400">이메일</label>
+                    <label className="text-sm text-gray-400">{t('profile.email')}</label>
                     <p className="text-white font-medium">{user?.email || '미등록'}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400">주민등록번호</label>
+                    <label className="text-sm text-gray-400">{t('profile.idNumber')}</label>
                     <p className="text-white font-medium font-mono">
                       {user?.idNumber
                         ? `${user.idNumber.substring(0, 6)}-${user.idNumber.substring(7, 8)}******`
@@ -1574,15 +1574,15 @@ export default function WalletPage() {
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400">추천 코드</label>
+                    <label className="text-sm text-gray-400">{t('profile.referralCode')}</label>
                     <p className="text-yellow-400 font-mono font-bold text-lg">{user?.referralCode}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400">회원번호</label>
+                    <label className="text-sm text-gray-400">{t('profile.memberNumber')}</label>
                     <p className="text-white font-medium">#{user?.memberNumber}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400">가입일</label>
+                    <label className="text-sm text-gray-400">{t('profile.joinDate')}</label>
                     <p className="text-white font-medium">
                       {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('ko-KR') : '-'}
                     </p>

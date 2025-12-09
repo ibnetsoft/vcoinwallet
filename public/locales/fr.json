@@ -106,7 +106,11 @@
     "inviteBonusDesc": "Recevez des pièces de sécurité lorsque vos amis s'inscrivent.\nDes bonus de parrainage sont également accordés lors de l'achat de pièces de dividende!",
     "shareReferralLink": "Partager le lien de parrainage",
     "pieces": "pcs",
-    "signupBonus": "Bonus d'Inscription"
+    "signupBonus": "Bonus d'Inscription",
+    "people": "personnes",
+    "share": "Partager",
+    "fullTransactionHistory": "Historique complet des transactions",
+    "myReferralCode": "Mon code de parrainage"
   },
   "referral": {
     "title": "Parrainage",
@@ -173,7 +177,10 @@
     "joinDate": "Date d'Inscription",
     "updateSuccess": "Informations mises à jour avec succès",
     "updateFailed": "Échec de la mise à jour des informations",
-    "updateError": "Une erreur s'est produite lors de la mise à jour des informations"
+    "updateError": "Une erreur s'est produite lors de la mise à jour des informations",
+    "name": "Nom",
+    "phone": "Numéro de téléphone",
+    "email": "E-mail"
   },
   "errors": {
     "networkError": "Erreur réseau",

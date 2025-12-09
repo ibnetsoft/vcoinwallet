@@ -110,7 +110,11 @@
     "inviteBonusDesc": "Receive Security Coins when your friends sign up.\nReferral bonuses are also awarded on Dividend Coin purchases!",
     "shareReferralLink": "Share Referral Link",
     "pieces": "pcs",
-    "signupBonus": "Sign-up Bonus"
+    "people": "people",
+    "share": "Share",
+    "signupBonus": "Sign-up Bonus",
+    "fullTransactionHistory": "Full Transaction History",
+    "myReferralCode": "My Referral Code"
   },
   "referral": {
     "title": "Referral",
@@ -177,7 +181,10 @@
     "joinDate": "Join Date",
     "updateSuccess": "Information updated successfully",
     "updateFailed": "Failed to update information",
-    "updateError": "An error occurred while updating information"
+    "updateError": "An error occurred while updating information",
+    "name": "Name",
+    "phone": "Phone Number",
+    "email": "Email"
   },
   "errors": {
     "networkError": "Network error occurred",
