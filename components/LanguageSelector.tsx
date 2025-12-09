@@ -27,12 +27,12 @@ export default function LanguageSelector() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/50 z-[9998]"
+            className="fixed inset-0 bg-black/50 z-[99998]"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Dropdown */}
-          <div className="absolute right-0 mt-2 w-64 bg-gray-900 rounded-lg shadow-xl border border-gray-700 z-[9999] max-h-96 overflow-y-auto">
+          <div className="absolute right-0 mt-2 w-64 bg-gray-900 rounded-lg shadow-xl border border-gray-700 z-[99999] max-h-96 overflow-y-auto">
             {(Object.entries(LANGUAGES) as [LanguageCode, typeof LANGUAGES[LanguageCode]][]).map(([code, lang]) => (
               <button
                 key={code}

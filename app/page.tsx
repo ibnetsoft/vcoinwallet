@@ -250,7 +250,6 @@ export default function HomePage() {
                   >
                     공지사항
                   </button>
-                  <LanguageSelector />
                   <button
                     onClick={() => router.push('/login')}
                     className="px-3 py-2 sm:px-4 text-sm sm:text-base text-white hover:text-yellow-400 transition"
@@ -263,6 +262,7 @@ export default function HomePage() {
                   >
                     회원가입
                   </button>
+                  <LanguageSelector />
                 </>
               )}
             </nav>
