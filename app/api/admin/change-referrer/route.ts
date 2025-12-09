@@ -102,6 +102,57 @@ export async function POST(request: NextRequest) {
     // 이전 추천인 정보
     const oldReferrerId = targetUser.referred_by
 
+    // 이전 추천인에게서 보너스 회수 (옵션이 체크되었고 이전 추천인이 있는 경우)
+    let oldBonusReclaimed = false
+    let oldBonusAmount = 0
+    let oldReferrer = null
+
+    if (grantBonus && oldReferrerId) {
+      // 이전 추천인 정보 조회
+      const { data: oldRef } = await supabaseAdmin
+        .from('users')
+        .select('id, name, security_coins')
+        .eq('id', oldReferrerId)
+        .single()
+
+      if (oldRef) {
+        oldReferrer = oldRef
+
+        // 시스템 설정에서 추천 보너스 금액 가져오기
+        const { data: settings } = await supabaseAdmin
+          .from('system_config')
+          .select('value')
+          .eq('key', 'referralBonus')
+          .single()
+
+        oldBonusAmount = settings?.value ? parseInt(settings.value) : 1000
+
+        // 이전 추천인의 코인이 충분한 경우에만 회수
+        const newOldBalance = Math.max(0, (oldRef.security_coins || 0) - oldBonusAmount)
+
+        const { error: reclaimError } = await supabaseAdmin
+          .from('users')
+          .update({ security_coins: newOldBalance })
+          .eq('id', oldReferrerId)
+
+        if (!reclaimError) {
+          oldBonusReclaimed = true
+
+          // 거래 기록 생성
+          await supabaseAdmin.from('transactions').insert({
+            id: `${Date.now()}${Math.random().toString(36).substring(2, 9)}`,
+            user_id: oldReferrerId,
+            type: 'REFERRAL_BONUS_RECLAIM',
+            coin_type: 'SECURITY',
+            amount: -oldBonusAmount,
+            balance: newOldBalance,
+            description: `추천인 변경으로 인한 보너스 회수 (${targetUser.name}님)`,
+            created_at: new Date().toISOString()
+          })
+        }
+      }
+    }
+
     // 추천인 변경
     const { error: updateError } = await supabaseAdmin
       .from('users')
@@ -153,27 +204,44 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 이전 추천인 이름 조회
-    let oldReferrerName = null
-    if (oldReferrerId) {
-      const { data: oldReferrer } = await supabaseAdmin
+    // 이전 추천인 이름 조회 (위에서 조회하지 않았을 경우)
+    let oldReferrerName = oldReferrer?.name || null
+    if (oldReferrerId && !oldReferrerName) {
+      const { data: oldRef } = await supabaseAdmin
         .from('users')
         .select('name')
         .eq('id', oldReferrerId)
         .single()
-      oldReferrerName = oldReferrer?.name
+      oldReferrerName = oldRef?.name
+    }
+
+    // 성공 메시지 구성
+    let message = ''
+    if (newReferrer) {
+      message = `${targetUser.name}님의 추천인이 ${newReferrer.name}님으로 변경되었습니다.`
+      if (oldBonusReclaimed) {
+        message += ` (이전 추천인 보너스 ${oldBonusAmount.toLocaleString()}코인 회수)`
+      }
+      if (bonusGranted) {
+        message += ` (새 추천인에게 보너스 ${bonusAmount.toLocaleString()}코인 지급)`
+      }
+    } else {
+      message = `${targetUser.name}님의 추천인이 삭제되었습니다.`
+      if (oldBonusReclaimed) {
+        message += ` (이전 추천인 보너스 ${oldBonusAmount.toLocaleString()}코인 회수)`
+      }
     }
 
     return NextResponse.json({
       success: true,
-      message: newReferrer
-        ? `${targetUser.name}님의 추천인이 ${newReferrer.name}님으로 변경되었습니다.${bonusGranted ? ` (보너스 ${bonusAmount.toLocaleString()}코인 지급)` : ''}`
-        : `${targetUser.name}님의 추천인이 삭제되었습니다.`,
+      message,
       data: {
         userId,
         userName: targetUser.name,
         oldReferrerId,
         oldReferrerName,
+        oldBonusReclaimed,
+        oldBonusAmount: oldBonusReclaimed ? oldBonusAmount : 0,
         newReferrerId: newReferrerId || null,
         newReferrerName: newReferrer?.name || null,
         bonusGranted,
