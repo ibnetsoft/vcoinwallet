@@ -877,7 +877,7 @@ export default function WalletPage() {
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <Bell className="w-5 h-5" />
-              <span className="text-xs sm:text-base mt-1 sm:mt-0">{t('notification.title').substring(0, 2)}</span>
+              <span className="text-xs sm:text-base mt-1 sm:mt-0">{t('home.notice')}</span>
             </div>
             {activeTab === 'notice' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-yellow-400"></div>
