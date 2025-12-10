@@ -1090,10 +1090,34 @@ export default function WalletPage() {
                   minute: '2-digit'
                 })
 
+                // Translate transaction description
+                const translateDescription = (desc: string): string => {
+                  // Match "회원가입 보너스 (회원번호: XX)"
+                  const signupMatch = desc.match(/회원가입 보너스 \(회원번호: (\d+)\)/)
+                  if (signupMatch) {
+                    return t('wallet.signupBonusWithMember', { memberNumber: signupMatch[1] })
+                  }
+
+                  // Match "XXX만원 입금 - 배당코인 XXXX개"
+                  const depositMatch = desc.match(/(\d+)만원 입금 - 배당코인 (\d+)개/)
+                  if (depositMatch) {
+                    return t('wallet.depositDescription', { amount: depositMatch[1], coins: depositMatch[2] })
+                  }
+
+                  // Match "배당코인 XXXX개 → 증권코인"
+                  const swapMatch = desc.match(/배당코인 (\d+)개 → 증권코인/)
+                  if (swapMatch) {
+                    return t('wallet.swapDescription', { amount: swapMatch[1] })
+                  }
+
+                  // If no pattern matches, return original description
+                  return desc
+                }
+
                 return (
                   <div key={tx.id || index} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-b-0">
                     <div>
-                      <p className="text-sm font-medium text-white">{tx.description}</p>
+                      <p className="text-sm font-medium text-white">{translateDescription(tx.description)}</p>
                       <p className="text-xs text-gray-400">{formattedDate}</p>
                     </div>
                     <div className="text-right">
@@ -1150,10 +1174,34 @@ export default function WalletPage() {
                       minute: '2-digit'
                     })
 
+                    // Translate transaction description
+                    const translateDescription = (desc: string): string => {
+                      // Match "회원가입 보너스 (회원번호: XX)"
+                      const signupMatch = desc.match(/회원가입 보너스 \(회원번호: (\d+)\)/)
+                      if (signupMatch) {
+                        return t('wallet.signupBonusWithMember', { memberNumber: signupMatch[1] })
+                      }
+
+                      // Match "XXX만원 입금 - 배당코인 XXXX개"
+                      const depositMatch = desc.match(/(\d+)만원 입금 - 배당코인 (\d+)개/)
+                      if (depositMatch) {
+                        return t('wallet.depositDescription', { amount: depositMatch[1], coins: depositMatch[2] })
+                      }
+
+                      // Match "배당코인 XXXX개 → 증권코인"
+                      const swapMatch = desc.match(/배당코인 (\d+)개 → 증권코인/)
+                      if (swapMatch) {
+                        return t('wallet.swapDescription', { amount: swapMatch[1] })
+                      }
+
+                      // If no pattern matches, return original description
+                      return desc
+                    }
+
                     return (
                       <div key={tx.id || index} className="flex items-center justify-between py-4 border-b border-gray-700 last:border-b-0">
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-white mb-1">{tx.description}</p>
+                          <p className="text-sm font-medium text-white mb-1">{translateDescription(tx.description)}</p>
                           <div className="flex items-center space-x-3">
                             <p className="text-xs text-gray-400">{formattedDate}</p>
                             <span className={`text-xs px-2 py-1 rounded ${
