@@ -23,11 +23,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 모든 사용자 조회
+    // 모든 사용자 조회 (limit을 충분히 크게 설정)
     const { data: allUsers, error: usersError } = await supabaseAdmin
       .from('users')
       .select('id, name, phone, email, referral_code, referred_by, security_coins, dividend_coins, member_number, role, status, created_at')
       .order('created_at', { ascending: false })
+      .limit(10000)
 
     if (usersError) {
       console.error('Users fetch error:', usersError)
