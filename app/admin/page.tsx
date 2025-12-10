@@ -361,6 +361,8 @@ export default function AdminPage() {
       console.log('Response status:', response.status)
       if (response.ok) {
         const data = await response.json()
+        console.log('Full API response:', data)
+        console.log('Debug info:', data.debug)
         console.log('Group leader data received:', data.groupLeaders?.length || 0, 'items')
         console.log('First group leader:', data.groupLeaders?.[0])
         setGroupLeaderStats(data.groupLeaders || [])

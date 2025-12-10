@@ -109,8 +109,15 @@ export async function GET(request: NextRequest) {
 
     console.log('Returning groupLeaderStats:', groupLeaderStats.length, 'items')
 
+    // 디버깅을 위해 추가 정보 포함
     return NextResponse.json({
-      groupLeaders: groupLeaderStats
+      groupLeaders: groupLeaderStats,
+      debug: {
+        totalUsers: allUsers?.length || 0,
+        groupLeadersFound: groupLeaders.length,
+        groupLeaderNames: groupLeaders.map(gl => gl.name),
+        sampleRoles: allUsers?.slice(0, 10).map(u => ({ name: u.name, role: u.role })) || []
+      }
     })
 
   } catch (error) {
