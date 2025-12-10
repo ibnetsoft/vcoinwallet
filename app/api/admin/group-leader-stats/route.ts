@@ -109,6 +109,13 @@ export async function GET(request: NextRequest) {
 
     console.log('Returning groupLeaderStats:', groupLeaderStats.length, 'items')
 
+    // 모든 unique role 값 추출
+    const uniqueRoles = [...new Set(allUsers.map(u => u.role))]
+    const roleCounts = uniqueRoles.map(role => ({
+      role,
+      count: allUsers.filter(u => u.role === role).length
+    }))
+
     // 디버깅을 위해 추가 정보 포함
     return NextResponse.json({
       groupLeaders: groupLeaderStats,
@@ -116,7 +123,12 @@ export async function GET(request: NextRequest) {
         totalUsers: allUsers?.length || 0,
         groupLeadersFound: groupLeaders.length,
         groupLeaderNames: groupLeaders.map(gl => gl.name),
-        sampleRoles: allUsers?.slice(0, 10).map(u => ({ name: u.name, role: u.role })) || []
+        allRoles: roleCounts,
+        sampleUsers: allUsers?.slice(0, 20).map(u => ({
+          name: u.name,
+          role: u.role,
+          memberNumber: u.member_number
+        })) || []
       }
     })
 
