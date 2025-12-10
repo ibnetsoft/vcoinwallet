@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
         sampleUsers: allUsers?.slice(0, 20).map(u => ({
           name: u.name,
           role: u.role,
-          memberNumber: u.member_number
+          memberNumber: u.memberNumber
         })) || []
       }
     })
