@@ -247,6 +247,8 @@ export default function AdminPage() {
       fetchResources()
     } else if (activeTab === 'swap') {
       fetchSwapRequests()
+    } else if (activeTab === 'team-stats') {
+      fetchGroupLeaderStats()
     }
   }, [activeTab])
 
@@ -3182,12 +3184,7 @@ export default function AdminPage() {
         )}
 
         {/* 팀별 통계 탭 */}
-        {activeTab === 'team-stats' && (() => {
-          // 팀별 통계 탭이 활성화되면 그룹장 통계 가져오기
-          if (groupLeaderStats.length === 0) {
-            fetchGroupLeaderStats()
-          }
-          return (
+        {activeTab === 'team-stats' && (
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 min-h-[600px]">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-white flex items-center">
@@ -3581,8 +3578,7 @@ export default function AdminPage() {
               )}
             </div>
           </div>
-          )
-        })()}
+        )}
 
         {/* 스왑 관리 탭 */}
         {activeTab === 'swap' && (
