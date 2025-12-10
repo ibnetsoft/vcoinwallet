@@ -91,6 +91,10 @@ export default function AdminPage() {
   // 팀장별 펼침/접힘 상태
   const [expandedTeamLeaders, setExpandedTeamLeaders] = useState<Set<string>>(new Set())
 
+  // 그룹장별 펼침/접힘 상태
+  const [expandedGroupLeaders, setExpandedGroupLeaders] = useState<Set<string>>(new Set())
+  const [groupLeaderStats, setGroupLeaderStats] = useState<any[]>([])
+
   // 관리자 정보 수정 상태
   const [isEditingAdmin, setIsEditingAdmin] = useState(false)
   const [adminEditForm, setAdminEditForm] = useState({
@@ -340,6 +344,23 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('자료 가져오기 실패:', error)
+    }
+  }
+
+  const fetchGroupLeaderStats = async () => {
+    const token = localStorage.getItem('token')
+    try {
+      const response = await fetch('/api/admin/group-leader-stats', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setGroupLeaderStats(data.groupLeaders || [])
+      }
+    } catch (error) {
+      console.error('그룹장 통계 가져오기 실패:', error)
     }
   }
 
@@ -3161,12 +3182,17 @@ export default function AdminPage() {
         )}
 
         {/* 팀별 통계 탭 */}
-        {activeTab === 'team-stats' && (
+        {activeTab === 'team-stats' && (() => {
+          // 팀별 통계 탭이 활성화되면 그룹장 통계 가져오기
+          if (groupLeaderStats.length === 0) {
+            fetchGroupLeaderStats()
+          }
+          return (
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 min-h-[600px]">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-white flex items-center">
                 <Users className="w-6 h-6 mr-2 text-yellow-400" />
-                팀장별 산하 회원 및 매출 통계
+                팀별 통계 (그룹장 · 팀장)
               </h2>
               <button
                 onClick={() => {
@@ -3269,8 +3295,106 @@ export default function AdminPage() {
               </button>
             </div>
 
+            {/* 그룹장 목록 */}
+            {groupLeaderStats.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-bold text-purple-400 mb-4 flex items-center">
+                  <Shield className="w-5 h-5 mr-2" />
+                  그룹장 통계
+                </h3>
+                <div className="space-y-4">
+                  {groupLeaderStats.map(groupLeader => {
+                    const isExpanded = expandedGroupLeaders.has(groupLeader.id)
+                    const toggleExpand = () => {
+                      setExpandedGroupLeaders(prev => {
+                        const newSet = new Set(prev)
+                        if (newSet.has(groupLeader.id)) {
+                          newSet.delete(groupLeader.id)
+                        } else {
+                          newSet.add(groupLeader.id)
+                        }
+                        return newSet
+                      })
+                    }
+
+                    return (
+                      <div key={groupLeader.id} className="bg-purple-900/20 rounded-xl p-5 border border-purple-500/30">
+                        {/* 그룹장 정보 헤더 */}
+                        <div
+                          className="flex items-center justify-between mb-4 pb-4 border-b border-purple-500/30 cursor-pointer hover:bg-purple-900/30 transition rounded-lg p-2"
+                          onClick={toggleExpand}
+                        >
+                          <div className="flex items-center">
+                            <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mr-4">
+                              <Shield className="w-6 h-6 text-purple-400" />
+                            </div>
+                            <div>
+                              <h4 className="text-white font-bold text-lg">{groupLeader.name}</h4>
+                              <p className="text-sm text-gray-400">
+                                그룹장 | 회원번호: #{groupLeader.memberNumber} | {groupLeader.phone}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-6">
+                            <div className="text-center">
+                              <p className="text-sm text-gray-400">산하총인원</p>
+                              <p className="text-xl font-bold text-blue-400">{groupLeader.totalSubMemberCount}명</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-sm text-gray-400">직추천 팀장</p>
+                              <p className="text-xl font-bold text-green-400">{groupLeader.directTeamLeaderCount}명</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-sm text-gray-400">총 매출(배당코인)</p>
+                              <p className="text-xl font-bold text-yellow-400">{groupLeader.totalDividendCoins.toLocaleString()}</p>
+                            </div>
+                            <button
+                              className="text-gray-400 hover:text-white transition"
+                            >
+                              {isExpanded ? '▲' : '▼'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* 그룹장 산하 팀장 목록 */}
+                        {isExpanded && groupLeader.directMembers.length > 0 && (
+                          <div className="mt-4">
+                            <p className="text-sm text-gray-400 mb-3">직추천한 팀장 목록:</p>
+                            <div className="space-y-2">
+                              {groupLeader.directMembers.filter((m: any) => m.role === 'TEAM_LEADER').map((member: any) => (
+                                <div key={member.id} className="bg-gray-800/50 p-3 rounded-lg flex justify-between items-center">
+                                  <div>
+                                    <p className="text-white font-medium">{member.name}</p>
+                                    <p className="text-xs text-gray-400">회원번호: #{member.memberNumber} | {member.phone}</p>
+                                  </div>
+                                  <div className="flex space-x-4 text-sm">
+                                    <div>
+                                      <span className="text-gray-400">증권: </span>
+                                      <span className="text-blue-400 font-medium">{member.securityCoins.toLocaleString()}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-400">배당: </span>
+                                      <span className="text-yellow-400 font-medium">{member.dividendCoins.toLocaleString()}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* 팀장 목록 */}
             <div className="space-y-4">
+              <h3 className="text-lg font-bold text-yellow-400 mb-4 flex items-center">
+                <Users className="w-5 h-5 mr-2" />
+                팀장 통계
+              </h3>
               {users.filter(u => u.role === 'TEAM_LEADER').length === 0 ? (
                 <div className="text-center py-12">
                   <Users className="w-16 h-16 text-gray-600 mx-auto mb-4" />
@@ -3457,7 +3581,8 @@ export default function AdminPage() {
               )}
             </div>
           </div>
-        )}
+          )
+        })()}
 
         {/* 스왑 관리 탭 */}
         {activeTab === 'swap' && (
