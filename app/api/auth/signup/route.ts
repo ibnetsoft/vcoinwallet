@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { createToken } from '@/lib/auth'
-import { sendReferralSignupNotification } from '@/lib/push-notification'
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,7 +45,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 사용자 생성
+    // 사용자 생성 (db.createUser 내부에서 추천인 알림 자동 전송)
     const user = await db.createUser({
       name,
       phone,
@@ -55,20 +54,6 @@ export async function POST(request: NextRequest) {
       password,
       referralCode
     })
-
-    // 추천인에게 알림 전송
-    if (referrer) {
-      try {
-        await sendReferralSignupNotification(
-          referrer.id,
-          user.name,
-          user.memberNumber
-        )
-      } catch (error) {
-        console.error('Failed to send referral notification:', error)
-        // 알림 전송 실패는 회원가입 프로세스를 막지 않음
-      }
-    }
 
     // JWT 토큰 생성
     const token = createToken({
