@@ -3293,14 +3293,18 @@ export default function AdminPage() {
             </div>
 
             {/* 그룹장 목록 */}
-            {groupLeaderStats.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-lg font-bold text-purple-400 mb-4 flex items-center">
-                  <Shield className="w-5 h-5 mr-2" />
-                  그룹장 통계
-                </h3>
-                <div className="space-y-4">
-                  {groupLeaderStats.map(groupLeader => {
+            <div className="mb-8">
+              <h3 className="text-lg font-bold text-purple-400 mb-4 flex items-center">
+                <Shield className="w-5 h-5 mr-2" />
+                그룹장 통계 {groupLeaderStats.length > 0 && `(${groupLeaderStats.length}명)`}
+              </h3>
+              <div className="space-y-4">
+                {groupLeaderStats.length === 0 ? (
+                  <div className="bg-purple-900/10 border border-purple-500/20 rounded-xl p-6 text-center">
+                    <p className="text-gray-400">그룹장 통계를 불러오는 중...</p>
+                  </div>
+                ) : (
+                  groupLeaderStats.map(groupLeader => {
                     const isExpanded = expandedGroupLeaders.has(groupLeader.id)
                     const toggleExpand = () => {
                       setExpandedGroupLeaders(prev => {
@@ -3381,10 +3385,10 @@ export default function AdminPage() {
                         )}
                       </div>
                     )
-                  })}
-                </div>
+                  })
+                )}
               </div>
-            )}
+            </div>
 
             {/* 팀장 목록 */}
             <div className="space-y-4">
