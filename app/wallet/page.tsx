@@ -607,23 +607,23 @@ export default function WalletPage() {
   }
 
   const shareReferralLink = () => {
-    const referralUrl = `${window.location.origin}/signup?ref=${user?.referralCode}`
+    const onestoreUrl = 'https://m.onestore.co.kr/v2/ko-kr/app/0001003362?scYn=Y'
     const shareText = `V COIN과 함께 태양광 투자로 안정적인 수익을 만들어보세요!
 
 지금 가입하면 증권코인 500개 + 추천 보너스 1,000개!
 추천 코드: ${user?.referralCode}
 
-가입하기: ${referralUrl}`
+앱 다운로드: ${onestoreUrl}`
 
     if (navigator.share) {
       navigator.share({
         title: 'V COIN 추천',
         text: shareText,
-        url: referralUrl
+        url: onestoreUrl
       })
     } else {
-      navigator.clipboard.writeText(referralUrl)
-      toast.success('추천 링크가 복사되었습니다!')
+      navigator.clipboard.writeText(onestoreUrl)
+      toast.success('원스토어 링크가 복사되었습니다!')
     }
   }
 
