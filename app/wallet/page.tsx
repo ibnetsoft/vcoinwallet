@@ -801,7 +801,7 @@ export default function WalletPage() {
                                 <h4 className="text-white font-medium text-sm">{notification.title}</h4>
                                 <p className="text-gray-300 text-sm mt-1">{notification.message}</p>
                                 <p className="text-gray-500 text-xs mt-2">
-                                  {new Date(notification.createdAt).toLocaleString('ko-KR')}
+                                  {new Date(notification.createdAt).toLocaleString('en-US')}
                                 </p>
                               </div>
                             </div>
@@ -1029,7 +1029,7 @@ export default function WalletPage() {
                         {t('wallet.swapDescription', { amount: req.amount.toLocaleString() })}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {new Date(req.created_at).toLocaleDateString('ko-KR')}
+                        {new Date(req.created_at).toLocaleDateString('en-US')}
                       </p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[req.status]}`}>
@@ -1082,12 +1082,13 @@ export default function WalletPage() {
             <div className="space-y-3">
               {transactions.slice(0, 2).map((tx, index) => {
                 const date = new Date(tx.createdAt)
-                const formattedDate = date.toLocaleDateString('ko-KR', {
+                const formattedDate = date.toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: '2-digit',
                   day: '2-digit',
                   hour: '2-digit',
-                  minute: '2-digit'
+                  minute: '2-digit',
+                  hour12: true
                 })
 
                 // Translate transaction description
@@ -1166,12 +1167,13 @@ export default function WalletPage() {
                 <div className="space-y-3">
                   {transactions.map((tx, index) => {
                     const date = new Date(tx.createdAt)
-                    const formattedDate = date.toLocaleDateString('ko-KR', {
+                    const formattedDate = date.toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: '2-digit',
                       day: '2-digit',
                       hour: '2-digit',
-                      minute: '2-digit'
+                      minute: '2-digit',
+                      hour12: true
                     })
 
                     // Translate transaction description
@@ -1520,7 +1522,7 @@ export default function WalletPage() {
                     const typeColor = typeColors[notice.type] || typeColors.NOTICE
 
                     const date = new Date(notice.created_at)
-                    const formattedDate = date.toLocaleDateString('ko-KR', {
+                    const formattedDate = date.toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: '2-digit',
                       day: '2-digit'
@@ -1632,7 +1634,7 @@ export default function WalletPage() {
                   <div>
                     <label className="text-sm text-gray-400">{t('profile.joinDate')}</label>
                     <p className="text-white font-medium">
-                      {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('ko-KR') : '-'}
+                      {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US') : '-'}
                     </p>
                   </div>
                 </div>

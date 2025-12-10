@@ -1953,7 +1953,7 @@ export default function AdminPage() {
                 ? users.find(u => u.id === selectedUser.referrerId)
                 : null
               const referredCount = users.filter(u => u.referrerId === selectedUser.id).length
-              const joinDate = new Date(selectedUser.createdAt).toLocaleDateString('ko-KR')
+              const joinDate = new Date(selectedUser.createdAt).toLocaleDateString('en-US')
 
               // 디버깅
               if (selectedUser.phone === '01088418964' || selectedUser.phone === '01044818013') {
@@ -2200,7 +2200,7 @@ export default function AdminPage() {
                 ? users.find(u => u.id === securitySelectedUser.referrerId)
                 : null
               const referredCount = users.filter(u => u.referrerId === securitySelectedUser.id).length
-              const joinDate = new Date(securitySelectedUser.createdAt).toLocaleDateString('ko-KR')
+              const joinDate = new Date(securitySelectedUser.createdAt).toLocaleDateString('en-US')
 
               // 디버깅
               if (securitySelectedUser.phone === '01088418964' || securitySelectedUser.phone === '01044818013') {
@@ -2429,7 +2429,7 @@ export default function AdminPage() {
                         </div>
                         <div className="flex items-center space-x-2">
                           <span className="text-sm text-gray-500">
-                            {new Date(notice.created_at).toLocaleDateString('ko-KR')}
+                            {new Date(notice.created_at).toLocaleDateString('en-US')}
                           </span>
                           <button
                             onClick={() => handleEditNotice(notice)}
