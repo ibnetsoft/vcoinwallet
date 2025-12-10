@@ -1122,7 +1122,7 @@ export default function WalletPage() {
                     </div>
                     <div className="text-right">
                       <p className={`text-sm font-semibold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}개
+                        {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
                       </p>
                       <p className="text-xs text-gray-500">{tx.coinType === 'SECURITY' ? t('wallet.securityCoins') : t('wallet.dividendCoins')}</p>
                     </div>
@@ -1419,11 +1419,11 @@ export default function WalletPage() {
                             <div className="flex items-center space-x-4">
                               <div>
                                 <p className="text-xs text-gray-500">증권코인</p>
-                                <p className="text-sm font-semibold text-blue-400">{referredUser.securityCoins.toLocaleString()}개</p>
+                                <p className="text-sm font-semibold text-blue-400">{referredUser.securityCoins.toLocaleString()}</p>
                               </div>
                               <div>
                                 <p className="text-xs text-gray-500">배당코인</p>
-                                <p className="text-sm font-semibold text-yellow-400">{referredUser.dividendCoins.toLocaleString()}개</p>
+                                <p className="text-sm font-semibold text-yellow-400">{referredUser.dividendCoins.toLocaleString()}</p>
                               </div>
                             </div>
                           </div>
@@ -1457,11 +1457,11 @@ export default function WalletPage() {
                                     <div className="flex items-center space-x-4">
                                       <div>
                                         <p className="text-xs text-gray-500">증권코인</p>
-                                        <p className="text-sm font-semibold text-blue-400">{subUser.securityCoins.toLocaleString()}개</p>
+                                        <p className="text-sm font-semibold text-blue-400">{subUser.securityCoins.toLocaleString()}</p>
                                       </div>
                                       <div>
                                         <p className="text-xs text-gray-500">배당코인</p>
-                                        <p className="text-sm font-semibold text-yellow-400">{subUser.dividendCoins.toLocaleString()}개</p>
+                                        <p className="text-sm font-semibold text-yellow-400">{subUser.dividendCoins.toLocaleString()}</p>
                                       </div>
                                     </div>
                                   </div>
@@ -1935,7 +1935,7 @@ export default function WalletPage() {
               </div>
               {swapAmount && parseInt(swapAmount) > 0 && (
                 <p className="text-sm text-green-400 mt-2">
-                  → 증권코인 {parseInt(swapAmount).toLocaleString()}개로 전환됩니다
+                  → 증권코인 {parseInt(swapAmount).toLocaleString()}로 전환됩니다
                 </p>
               )}
             </div>
