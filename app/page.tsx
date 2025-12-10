@@ -327,7 +327,7 @@ export default function HomePage() {
           <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
             <span className="text-yellow-400">{t('home.efficiency3x')}</span> {t('home.solarPower')}
             <br />
-            {t('home.withVCoin')} <span className="text-yellow-400">V COIN</span>
+            <span className="text-yellow-400">V COIN</span>{t('home.withVCoin')}
           </h2>
           <p className="text-xl text-gray-300 mb-8">
             {t('home.stableIncome')}
