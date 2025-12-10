@@ -4,10 +4,10 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
-// 클라이언트 사이드용 Supabase 클라이언트 (브라우저에서 사용)
+// ?�라?�언???�이?�용 Supabase ?�라?�언??(브라?��??�서 ?�용)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// 서버 사이드용 Supabase 클라이언트 (관리자 권한, API 라우트에서 사용)
+// ?�버 ?�이?�용 Supabase ?�라?�언??(관리자 권한, API ?�우?�에???�용)
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
   auth: {
     autoRefreshToken: false,
@@ -15,7 +15,7 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
   }
 })
 
-// TypeScript 타입 정의
+// TypeScript ?�???�의
 export interface Database {
   public: {
     Tables: {
@@ -44,7 +44,7 @@ export interface User {
   referredBy?: string
   securityCoins: number
   dividendCoins: number
-  role?: 'ADMIN' | 'TEAM_LEADER' | 'USER'
+  role?: 'ADMIN' | 'TEAM_LEADER' | 'GROUP_LEADER' | 'USER'
   isAdmin?: boolean
   createdAt: string
 }
