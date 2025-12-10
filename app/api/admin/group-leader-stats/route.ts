@@ -37,8 +37,12 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    console.log('Total users fetched:', allUsers?.length || 0)
+
     // 그룹장 목록
     const groupLeaders = allUsers.filter(u => u.role === 'GROUP_LEADER')
+    console.log('Group leaders found:', groupLeaders.length)
+    console.log('Group leader names:', groupLeaders.map(gl => gl.name))
 
     // 각 그룹장별 통계 계산
     const groupLeaderStats = groupLeaders.map(gl => {
@@ -72,7 +76,7 @@ export async function GET(request: NextRequest) {
       // 총 증권코인 (산하 전체)
       const totalSecurityCoins = allSubMembers.reduce((sum, u) => sum + (u.security_coins || 0), 0)
 
-      return {
+      const stats = {
         id: gl.id,
         name: gl.name,
         phone: gl.phone,
@@ -93,7 +97,17 @@ export async function GET(request: NextRequest) {
           createdAt: m.created_at
         }))
       }
+
+      console.log(`Stats for ${gl.name}:`, {
+        totalSubMembers: stats.totalSubMemberCount,
+        directTeamLeaders: stats.directTeamLeaderCount,
+        totalDividend: stats.totalDividendCoins
+      })
+
+      return stats
     })
+
+    console.log('Returning groupLeaderStats:', groupLeaderStats.length, 'items')
 
     return NextResponse.json({
       groupLeaders: groupLeaderStats

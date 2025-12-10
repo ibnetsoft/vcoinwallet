@@ -351,15 +351,22 @@ export default function AdminPage() {
 
   const fetchGroupLeaderStats = async () => {
     const token = localStorage.getItem('token')
+    console.log('Fetching group leader stats...')
     try {
       const response = await fetch('/api/admin/group-leader-stats', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
+      console.log('Response status:', response.status)
       if (response.ok) {
         const data = await response.json()
+        console.log('Group leader data received:', data.groupLeaders?.length || 0, 'items')
+        console.log('First group leader:', data.groupLeaders?.[0])
         setGroupLeaderStats(data.groupLeaders || [])
+      } else {
+        const errorData = await response.json()
+        console.error('API error response:', errorData)
       }
     } catch (error) {
       console.error('그룹장 통계 가져오기 실패:', error)
