@@ -124,7 +124,12 @@
     "fullAmount": "全部金额",
     "swapNotice": "兑换请求在管理员批准后处理。批准后您将收到通知。",
     "requesting": "请求中...",
-    "swapRequestStatus": "兑换请求状态"
+    "swapRequestStatus": "兑换请求状态",
+    "approved": "已批准",
+    "rejected": "已拒绝",
+    "swapDescription": "{amount}个分红币 → 证券币",
+    "depositDescription": "存入{amount}万韩元 - {coins}个分红币",
+    "signupBonusWithMember": "注册奖励 (会员编号: {memberNumber})"
   },
   "referral": {
     "title": "推荐",

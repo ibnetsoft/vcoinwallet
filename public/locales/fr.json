@@ -120,7 +120,12 @@
     "fullAmount": "Montant total",
     "swapNotice": "Les demandes d'échange sont traitées après approbation de l'admin. Vous serez notifié lors de l'approbation.",
     "requesting": "Demande en cours...",
-    "swapRequestStatus": "Statut de la demande d'échange"
+    "swapRequestStatus": "Statut de la demande d'échange",
+    "approved": "Approuvé",
+    "rejected": "Rejeté",
+    "swapDescription": "{amount} Pièces de Dividende → Pièces de Sécurité",
+    "depositDescription": "Dépôt de {amount}M KRW - {coins} Pièces de Dividende",
+    "signupBonusWithMember": "Bonus d'Inscription (Numéro de membre: {memberNumber})"
   },
   "referral": {
     "title": "Parrainage",

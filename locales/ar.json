@@ -124,7 +124,12 @@
     "fullAmount": "المبلغ الكامل",
     "swapNotice": "تتم معالجة طلبات المبادلة بعد موافقة المسؤول. سيتم إخطارك عند الموافقة.",
     "requesting": "جارٍ الطلب...",
-    "swapRequestStatus": "حالة طلب المبادلة"
+    "swapRequestStatus": "حالة طلب المبادلة",
+    "approved": "تمت الموافقة",
+    "rejected": "مرفوض",
+    "swapDescription": "{amount} عملات أرباح → عملات أمان",
+    "depositDescription": "إيداع {amount}M KRW - {coins} عملات أرباح",
+    "signupBonusWithMember": "مكافأة التسجيل (رقم العضو: {memberNumber})"
   },
   "referral": {
     "title": "الإحالة",

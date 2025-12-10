@@ -124,7 +124,12 @@
     "fullAmount": "Полная сумма",
     "swapNotice": "Запросы на обмен обрабатываются после одобрения администратора. Вы будете уведомлены об одобрении.",
     "requesting": "Отправка запроса...",
-    "swapRequestStatus": "Статус запроса на обмен"
+    "swapRequestStatus": "Статус запроса на обмен",
+    "approved": "Одобрено",
+    "rejected": "Отклонено",
+    "swapDescription": "{amount} Дивидендных монет → Монеты безопасности",
+    "depositDescription": "Депозит {amount}M KRW - {coins} Дивидендных монет",
+    "signupBonusWithMember": "Регистрационный Бонус (Номер участника: {memberNumber})"
   },
   "referral": {
     "title": "Реферальная программа",

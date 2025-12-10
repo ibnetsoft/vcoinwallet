@@ -124,7 +124,12 @@
     "fullAmount": "전액",
     "swapNotice": "스왑 요청은 관리자 승인 후 처리됩니다. 승인되면 알림을 받게 됩니다.",
     "requesting": "요청 중...",
-    "swapRequestStatus": "스왑 요청 현황"
+    "swapRequestStatus": "스왑 요청 현황",
+    "approved": "승인됨",
+    "rejected": "거절됨",
+    "swapDescription": "배당코인 {amount}개 → 증권코인",
+    "depositDescription": "{amount}만원 입금 - 배당코인 {coins}개",
+    "signupBonusWithMember": "회원가입 보너스 (회원번호: {memberNumber})"
   },
   "referral": {
     "title": "추천인",

@@ -124,7 +124,12 @@
     "fullAmount": "全額",
     "swapNotice": "スワップリクエストは管理者の承認後に処理されます。承認されると通知されます。",
     "requesting": "リクエスト中...",
-    "swapRequestStatus": "スワップリクエスト状況"
+    "swapRequestStatus": "スワップリクエスト状況",
+    "approved": "承認済み",
+    "rejected": "拒否されました",
+    "swapDescription": "{amount}個の配当コイン → 証券コイン",
+    "depositDescription": "{amount}万ウォン入金 - {coins}個の配当コイン",
+    "signupBonusWithMember": "登録ボーナス (会員番号: {memberNumber})"
   },
   "referral": {
     "title": "紹介",

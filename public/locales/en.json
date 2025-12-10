@@ -124,7 +124,12 @@
     "fullAmount": "Full Amount",
     "swapNotice": "Swap requests are processed after admin approval. You will be notified when approved.",
     "requesting": "Requesting...",
-    "swapRequestStatus": "Swap Request Status"
+    "swapRequestStatus": "Swap Request Status",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "swapDescription": "{amount} Dividend Coins → Security Coins",
+    "depositDescription": "{amount}M KRW Deposit - {coins} Dividend Coins",
+    "signupBonusWithMember": "Sign-up Bonus (Member #: {memberNumber})"
   },
   "referral": {
     "title": "Referral",

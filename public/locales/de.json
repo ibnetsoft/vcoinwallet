@@ -120,7 +120,12 @@
     "fullAmount": "Voller Betrag",
     "swapNotice": "Tauschanfragen werden nach Admin-Genehmigung verarbeitet. Sie werden benachrichtigt, wenn sie genehmigt wurde.",
     "requesting": "Wird angefordert...",
-    "swapRequestStatus": "Tausch-Anfragestatus"
+    "swapRequestStatus": "Tausch-Anfragestatus",
+    "approved": "Genehmigt",
+    "rejected": "Abgelehnt",
+    "swapDescription": "{amount} Dividendenmünzen → Sicherheitsmünzen",
+    "depositDescription": "{amount}M KRW Einzahlung - {coins} Dividendenmünzen",
+    "signupBonusWithMember": "Registrierungsbonus (Mitgliedsnummer: {memberNumber})"
   },
   "referral": {
     "title": "Empfehlung",

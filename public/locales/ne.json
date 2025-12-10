@@ -124,7 +124,12 @@
     "fullAmount": "पूर्ण रकम",
     "swapNotice": "स्वैप अनुरोधहरू प्रशासकको स्वीकृति पछि प्रशोधन गरिन्छ। स्वीकृत भएपछि तपाईंलाई सूचित गरिनेछ।",
     "requesting": "अनुरोध गर्दै...",
-    "swapRequestStatus": "स्वैप अनुरोध स्थिति"
+    "swapRequestStatus": "स्वैप अनुरोध स्थिति",
+    "approved": "स्वीकृत",
+    "rejected": "अस्वीकृत",
+    "swapDescription": "{amount} लाभांश कोइन → सुरक्षा कोइन",
+    "depositDescription": "{amount}M KRW जम्मा - {coins} लाभांश कोइन",
+    "signupBonusWithMember": "दर्ता बोनस (सदस्य नम्बर: {memberNumber})"
   },
   "referral": {
     "title": "रेफरल",

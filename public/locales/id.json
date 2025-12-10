@@ -120,7 +120,12 @@
     "fullAmount": "Jumlah Penuh",
     "swapNotice": "Permintaan tukar diproses setelah persetujuan admin. Anda akan diberi tahu saat disetujui.",
     "requesting": "Meminta...",
-    "swapRequestStatus": "Status Permintaan Tukar"
+    "swapRequestStatus": "Status Permintaan Tukar",
+    "approved": "Disetujui",
+    "rejected": "Ditolak",
+    "swapDescription": "{amount} Koin Dividen → Koin Keamanan",
+    "depositDescription": "Deposit {amount}M KRW - {coins} Koin Dividen",
+    "signupBonusWithMember": "Bonus Pendaftaran (Nomor Anggota: {memberNumber})"
   },
   "referral": {
     "title": "Referral",

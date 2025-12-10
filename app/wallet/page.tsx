@@ -1018,15 +1018,15 @@ export default function WalletPage() {
                   'REJECTED': 'bg-red-500/20 text-red-400'
                 }
                 const statusLabels: Record<string, string> = {
-                  'PENDING': '대기중',
-                  'APPROVED': '승인됨',
-                  'REJECTED': '거절됨'
+                  'PENDING': t('wallet.pending'),
+                  'APPROVED': t('wallet.approved'),
+                  'REJECTED': t('wallet.rejected')
                 }
                 return (
                   <div key={req.id || index} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-b-0">
                     <div>
                       <p className="text-sm font-medium text-white">
-                        배당코인 {req.amount.toLocaleString()}개 → 증권코인
+                        {t('wallet.swapDescription', { amount: req.amount.toLocaleString() })}
                       </p>
                       <p className="text-xs text-gray-400">
                         {new Date(req.created_at).toLocaleDateString('ko-KR')}

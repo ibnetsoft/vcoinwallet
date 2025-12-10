@@ -120,7 +120,12 @@
     "fullAmount": "पूरी राशि",
     "swapNotice": "स्वैप अनुरोध प्रशासक की मंजूरी के बाद संसाधित किए जाते हैं। स्वीकृत होने पर आपको सूचित किया जाएगा।",
     "requesting": "अनुरोध कर रहे हैं...",
-    "swapRequestStatus": "स्वैप अनुरोध स्थिति"
+    "swapRequestStatus": "स्वैप अनुरोध स्थिति",
+    "approved": "स्वीकृत",
+    "rejected": "अस्वीकृत",
+    "swapDescription": "{amount} डिविडेंड कॉइन → सिक्योरिटी कॉइन",
+    "depositDescription": "{amount}M KRW जमा - {coins} डिविडेंड कॉइन",
+    "signupBonusWithMember": "साइन अप बोनस (सदस्य नंबर: {memberNumber})"
   },
   "referral": {
     "title": "रेफरल",
