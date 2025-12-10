@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
 
+// Next.js 캐싱 완전 비활성화
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // GET: 그룹장별 통계 조회
 export async function GET(request: NextRequest) {
   try {
