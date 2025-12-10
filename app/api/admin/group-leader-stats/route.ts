@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
-import { supabaseAdmin } from '@/lib/supabase'
+import { db } from '@/lib/db'
 
 // Next.js 캐싱 완전 비활성화
 export const dynamic = 'force-dynamic'
@@ -27,20 +27,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 모든 사용자 조회 - range 사용하여 페이지네이션 우회
-    const { data: allUsers, error: usersError } = await supabaseAdmin
-      .from('users')
-      .select('id, name, phone, email, referral_code, referred_by, security_coins, dividend_coins, member_number, role, status, created_at')
-      .order('created_at', { ascending: false })
-      .range(0, 9999)
-
-    if (usersError) {
-      console.error('Users fetch error:', usersError)
-      return NextResponse.json(
-        { error: '회원 목록 조회에 실패했습니다.' },
-        { status: 500 }
-      )
-    }
+    // 모든 사용자 조회 - db.getAllUsers() 사용하여 전체 회원 가져오기
+    const allUsers = await db.getAllUsers()
 
     console.log('Total users fetched:', allUsers?.length || 0)
 
@@ -52,11 +40,11 @@ export async function GET(request: NextRequest) {
     // 각 그룹장별 통계 계산
     const groupLeaderStats = groupLeaders.map(gl => {
       // 그룹장이 직접 추천한 회원들 (팀장들)
-      const directMembers = allUsers.filter(u => u.referred_by === gl.id)
+      const directMembers = allUsers.filter(u => u.referrerId === gl.id)
 
       // 그룹장의 모든 산하 회원을 재귀적으로 찾기 (하위 그룹장은 제외)
       const findAllDescendants = (userId: string, users: any[]): string[] => {
-        const directChildren = users.filter(u => u.referred_by === userId)
+        const directChildren = users.filter(u => u.referrerId === userId)
         let descendants = directChildren.map(u => u.id)
 
         for (const child of directChildren) {
@@ -76,17 +64,17 @@ export async function GET(request: NextRequest) {
       const directTeamLeaders = directMembers.filter(m => m.role === 'TEAM_LEADER')
 
       // 총 배당코인 (산하 전체)
-      const totalDividendCoins = allSubMembers.reduce((sum, u) => sum + (u.dividend_coins || 0), 0)
+      const totalDividendCoins = allSubMembers.reduce((sum, u) => sum + (u.dividendCoins || 0), 0)
 
       // 총 증권코인 (산하 전체)
-      const totalSecurityCoins = allSubMembers.reduce((sum, u) => sum + (u.security_coins || 0), 0)
+      const totalSecurityCoins = allSubMembers.reduce((sum, u) => sum + (u.securityCoins || 0), 0)
 
       const stats = {
         id: gl.id,
         name: gl.name,
         phone: gl.phone,
-        memberNumber: gl.member_number,
-        referralCode: gl.referral_code,
+        memberNumber: gl.memberNumber,
+        referralCode: gl.referralCode,
         totalSubMemberCount: allSubMembers.length,
         directTeamLeaderCount: directTeamLeaders.length,
         totalDividendCoins,
@@ -95,11 +83,11 @@ export async function GET(request: NextRequest) {
           id: m.id,
           name: m.name,
           phone: m.phone,
-          memberNumber: m.member_number,
+          memberNumber: m.memberNumber,
           role: m.role,
-          securityCoins: m.security_coins || 0,
-          dividendCoins: m.dividend_coins || 0,
-          createdAt: m.created_at
+          securityCoins: m.securityCoins || 0,
+          dividendCoins: m.dividendCoins || 0,
+          createdAt: m.createdAt
         }))
       }
 
