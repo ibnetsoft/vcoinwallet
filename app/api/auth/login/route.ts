@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { createToken } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
+import bcrypt from 'bcryptjs'
 
 // IP 주소 추출 함수
 function getClientIP(request: NextRequest): string {
@@ -32,8 +33,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 비밀번호 확인 (평문 비교)
-    if (password !== user.password) {
+    // 비밀번호 확인
+    let isPasswordValid = false
+    if (user.password && (user.password.startsWith('$2a$') || user.password.startsWith('$2b$'))) {
+      isPasswordValid = await bcrypt.compare(password, user.password)
+    } else {
+      isPasswordValid = password === user.password
+    }
+
+    if (!isPasswordValid) {
       return NextResponse.json(
         { error: '휴대폰 번호 또는 비밀번호가 올바르지 않습니다.' },
         { status: 401 }

@@ -35,6 +35,15 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
+        <!-- FCM 메시징 서비스 -->
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <!-- FCM 기본 알림 채널 설정 -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"

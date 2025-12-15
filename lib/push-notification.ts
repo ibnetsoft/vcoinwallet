@@ -1,5 +1,6 @@
 import webpush from 'web-push'
 import { db } from './db'
+import { sendFCMNotification } from './fcm-push'
 
 // VAPID 키 설정 (환경변수에서 읽기)
 const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
@@ -23,63 +24,77 @@ export interface PushNotificationPayload {
 }
 
 /**
- * 특정 사용자에게 푸시 알림 전송
+ * 특정 사용자에게 푸시 알림 전송 (Web Push + FCM)
  */
 export async function sendPushNotification(
   userId: string,
   payload: PushNotificationPayload
 ): Promise<boolean> {
+  let webPushSuccess = false
+  let fcmSuccess = false
+
+  // 1. Web Push 전송 (브라우저/PWA용)
   try {
-    // 사용자의 모든 푸시 구독 가져오기
     const subscriptions = await db.getPushSubscriptions(userId)
 
-    if (subscriptions.length === 0) {
-      console.log(`No push subscriptions found for user ${userId}`)
-      return false
+    if (subscriptions.length > 0) {
+      const pushPromises = subscriptions.map(async (sub) => {
+        try {
+          const pushSubscription = {
+            endpoint: sub.endpoint,
+            keys: {
+              p256dh: sub.p256dh,
+              auth: sub.auth,
+            },
+          }
+
+          await webpush.sendNotification(
+            pushSubscription,
+            JSON.stringify({
+              title: payload.title,
+              body: payload.body,
+              icon: payload.icon || '/vcoin_logo.png',
+              badge: payload.badge || '/vcoin_logo.png',
+              data: payload.data,
+            })
+          )
+
+          return true
+        } catch (error: any) {
+          console.error('Web Push error:', error)
+          if (error.statusCode === 410 || error.statusCode === 404) {
+            console.log(`Subscription expired, removing: ${sub.id}`)
+          }
+          return false
+        }
+      })
+
+      const results = await Promise.all(pushPromises)
+      webPushSuccess = results.some((result) => result === true)
+    }
+  } catch (error) {
+    console.error('Web Push send error:', error)
+  }
+
+  // 2. FCM 전송 (Android 앱용)
+  try {
+    const dataPayload: Record<string, string> = {}
+    if (payload.data) {
+      Object.keys(payload.data).forEach(key => {
+        dataPayload[key] = String(payload.data[key])
+      })
     }
 
-    // 모든 구독에 푸시 알림 전송
-    const pushPromises = subscriptions.map(async (sub) => {
-      try {
-        const pushSubscription = {
-          endpoint: sub.endpoint,
-          keys: {
-            p256dh: sub.p256dh,
-            auth: sub.auth,
-          },
-        }
-
-        await webpush.sendNotification(
-          pushSubscription,
-          JSON.stringify({
-            title: payload.title,
-            body: payload.body,
-            icon: payload.icon || '/vcoin_logo.png',
-            badge: payload.badge || '/vcoin_logo.png',
-            data: payload.data,
-          })
-        )
-
-        return true
-      } catch (error: any) {
-        console.error('Push notification error:', error)
-
-        // 구독이 만료되었거나 유효하지 않은 경우 (410 Gone)
-        if (error.statusCode === 410 || error.statusCode === 404) {
-          console.log(`Subscription expired, removing: ${sub.id}`)
-          // TODO: 만료된 구독 삭제 로직 추가 가능
-        }
-
-        return false
-      }
+    fcmSuccess = await sendFCMNotification(userId, {
+      title: payload.title,
+      body: payload.body,
+      data: dataPayload,
     })
-
-    const results = await Promise.all(pushPromises)
-    return results.some((result) => result === true)
   } catch (error) {
-    console.error('Send push notification error:', error)
-    return false
+    console.error('FCM send error:', error)
   }
+
+  return webPushSuccess || fcmSuccess
 }
 
 /**
@@ -90,8 +105,11 @@ export async function sendReferralSignupNotification(
   newUserName: string,
   newUserMemberNumber: number
 ): Promise<void> {
+  console.log(`[추천인알림] 시작 - referrerId: ${referrerId}, newUser: ${newUserName}, memberNumber: ${newUserMemberNumber}`)
+
   try {
     // 인앱 알림 생성
+    console.log(`[추천인알림] 인앱 알림 생성 중...`)
     await db.createNotification(
       referrerId,
       'REFERRAL_SIGNUP',
@@ -99,9 +117,11 @@ export async function sendReferralSignupNotification(
       `${newUserName}님(회원번호: ${newUserMemberNumber})이 회원님의 추천으로 가입했습니다.`,
       undefined
     )
+    console.log(`[추천인알림] 인앱 알림 생성 완료`)
 
     // 푸시 알림 전송
-    await sendPushNotification(referrerId, {
+    console.log(`[추천인알림] 푸시 알림 전송 시작...`)
+    const pushResult = await sendPushNotification(referrerId, {
       title: '새로운 회원이 가입했습니다! 🎉',
       body: `${newUserName}님(회원번호: ${newUserMemberNumber})이 회원님의 추천으로 가입했습니다.`,
       data: {
@@ -109,8 +129,9 @@ export async function sendReferralSignupNotification(
         newUserMemberNumber,
       },
     })
+    console.log(`[추천인알림] 푸시 알림 전송 결과: ${pushResult ? '성공' : '실패'}`)
   } catch (error) {
-    console.error('Send referral signup notification error:', error)
+    console.error('[추천인알림] 오류 발생:', error)
   }
 }
 

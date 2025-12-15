@@ -46,7 +46,15 @@ export async function PUT(request: NextRequest) {
       }
 
       // 현재 비밀번호 확인
-      const isPasswordValid = await bcrypt.compare(currentPassword, user.password)
+      let isPasswordValid = false
+      // DB에 저장된 비밀번호가 해시된 상태인지 확인 (bcrypt 해시는 $2a$ 또는 $2b$로 시작)
+      if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+        isPasswordValid = await bcrypt.compare(currentPassword, user.password)
+      } else {
+        // 기존 평문 비밀번호 지원
+        isPasswordValid = currentPassword === user.password
+      }
+
       if (!isPasswordValid) {
         return NextResponse.json(
           { error: '현재 비밀번호가 일치하지 않습니다.' },

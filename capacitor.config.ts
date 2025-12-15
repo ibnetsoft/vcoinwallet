@@ -1,11 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.threevcoin.wallet',
+  appId: 'com.threedvcoin.wallet',
   appName: '3D V COIN',
-  webDir: '.next/standalone/public',
+  webDir: 'www',
   server: {
-    url: 'https://vcoinwallet.vercel.app',
+    url: 'https://www.3dvcoin.com',
     cleartext: true
   },
   plugins: {

@@ -51,6 +51,8 @@ export async function sendFCMNotification(
   userId: string,
   payload: FCMPayload
 ): Promise<boolean> {
+  console.log(`[FCM] sendFCMNotification 시작 - userId: ${userId}, title: ${payload.title}`)
+
   try {
     // 사용자의 FCM 토큰 조회
     const { data: tokens, error } = await supabaseAdmin
@@ -58,14 +60,18 @@ export async function sendFCMNotification(
       .select('token')
       .eq('user_id', userId)
 
+    console.log(`[FCM] 토큰 조회 결과 - userId: ${userId}, 토큰 수: ${tokens?.length || 0}, 에러: ${error?.message || 'none'}`)
+
     if (error || !tokens || tokens.length === 0) {
-      console.log(`No FCM tokens found for user ${userId}`)
+      console.log(`[FCM] 토큰 없음 - userId: ${userId} (추천인이 앱에서 알림을 활성화하지 않았을 수 있음)`)
       return false
     }
 
     // 모든 토큰에 푸시 전송
+    console.log(`[FCM] ${tokens.length}개 토큰에 푸시 전송 시작`)
     const sendPromises = tokens.map(async ({ token }) => {
       try {
+        console.log(`[FCM] 토큰 전송 시도: ${token.substring(0, 20)}...`)
         await sendFCMMessageREST({
           token,
           notification: {
@@ -74,14 +80,16 @@ export async function sendFCMNotification(
           },
           data: payload.data,
         })
+        console.log(`[FCM] 토큰 전송 성공: ${token.substring(0, 20)}...`)
         return true
       } catch (sendError: any) {
+        console.error(`[FCM] 토큰 전송 실패: ${token.substring(0, 20)}... 에러: ${sendError.message}`)
         // 토큰이 만료되었거나 유효하지 않은 경우 삭제
         if (
           sendError.message?.includes('UNREGISTERED') ||
           sendError.message?.includes('INVALID_ARGUMENT')
         ) {
-          console.log(`Removing invalid token: ${token}`)
+          console.log(`[FCM] 유효하지 않은 토큰 삭제: ${token.substring(0, 20)}...`)
           await supabaseAdmin
             .from('fcm_tokens')
             .delete()
@@ -92,9 +100,11 @@ export async function sendFCMNotification(
     })
 
     const results = await Promise.all(sendPromises)
+    const successCount = results.filter(r => r).length
+    console.log(`[FCM] 전송 완료 - 성공: ${successCount}/${tokens.length}`)
     return results.some((result) => result === true)
   } catch (error) {
-    console.error('FCM 푸시 전송 오류:', error)
+    console.error('[FCM] 푸시 전송 오류:', error)
     return false
   }
 }

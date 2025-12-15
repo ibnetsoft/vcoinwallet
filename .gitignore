@@ -46,3 +46,14 @@ next-env.d.ts
 # Firebase service account (sensitive)
 *firebase-adminsdk*.json
 firebase-service-account.json
+
+# Capacitor
+/android/app/build/
+/android/.gradle/
+/android/app/src/main/assets/public/
+
+# Android
+/android/.idea/
+/android/local.properties
+/android/captures/
+
