@@ -607,23 +607,23 @@ export default function WalletPage() {
   }
 
   const shareReferralLink = () => {
-    const onestoreUrl = 'https://m.onestore.co.kr/v2/ko-kr/app/0001003362?scYn=Y'
+    const googlePlayUrl = 'https://play.google.com/store/apps/details?id=com.threedvcoin.wallet'
     const shareText = `V COIN과 함께 태양광 투자로 안정적인 수익을 만들어보세요!
 
 지금 가입하면 증권코인 500개 + 추천 보너스 1,000개!
 추천 코드: ${user?.referralCode}
 
-앱 다운로드: ${onestoreUrl}`
+앱 다운로드: ${googlePlayUrl}`
 
     if (navigator.share) {
       navigator.share({
         title: 'V COIN 추천',
         text: shareText,
-        url: onestoreUrl
+        url: googlePlayUrl
       })
     } else {
-      navigator.clipboard.writeText(onestoreUrl)
-      toast.success('원스토어 링크가 복사되었습니다!')
+      navigator.clipboard.writeText(googlePlayUrl)
+      toast.success('앱 다운로드 링크가 복사되었습니다!')
     }
   }
 
@@ -723,7 +723,7 @@ export default function WalletPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <Toaster position="top-center" />
-      
+
       {/* 헤더 */}
       <header className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm sticky top-0 z-40 pt-[max(22px,env(safe-area-inset-top))]">
         <div className="container mx-auto px-4 py-4">
@@ -769,46 +769,46 @@ export default function WalletPage() {
 
           {/* 알림 팝업 */}
           <div className="fixed left-4 right-4 sm:left-auto sm:right-4 top-20 w-auto sm:w-96 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-[9999] max-h-96 overflow-y-auto">
-                    <div className="p-4 border-b border-gray-700 flex items-center justify-between bg-gray-900">
-                      <h3 className="text-white font-semibold">{t('notification.notifications')}</h3>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={markAllNotificationsAsRead}
-                          className="text-xs text-yellow-400 hover:text-yellow-300"
-                        >
-                          {t('notification.markAllAsRead')}
-                        </button>
-                      )}
-                    </div>
+            <div className="p-4 border-b border-gray-700 flex items-center justify-between bg-gray-900">
+              <h3 className="text-white font-semibold">{t('notification.notifications')}</h3>
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllNotificationsAsRead}
+                  className="text-xs text-yellow-400 hover:text-yellow-300"
+                >
+                  {t('notification.markAllAsRead')}
+                </button>
+              )}
+            </div>
 
-                    {notifications.filter(n => !n.isRead).length === 0 ? (
-                      <div className="p-8 text-center text-gray-400 bg-gray-900">
-                        {t('notification.noNotifications')}
+            {notifications.filter(n => !n.isRead).length === 0 ? (
+              <div className="p-8 text-center text-gray-400 bg-gray-900">
+                {t('notification.noNotifications')}
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-700">
+                {notifications.filter(n => !n.isRead).map((notification) => (
+                  <div
+                    key={notification.id}
+                    onClick={() => {
+                      markNotificationAsRead(notification.id)
+                    }}
+                    className="p-4 hover:bg-gray-800 cursor-pointer transition bg-gray-900"
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="w-2 h-2 rounded-full mt-2 bg-yellow-400"></div>
+                      <div className="flex-1">
+                        <h4 className="text-white font-medium text-sm">{notification.title}</h4>
+                        <p className="text-gray-300 text-sm mt-1">{notification.message}</p>
+                        <p className="text-gray-500 text-xs mt-2">
+                          {new Date(notification.createdAt).toLocaleString('en-US')}
+                        </p>
                       </div>
-                    ) : (
-                      <div className="divide-y divide-gray-700">
-                        {notifications.filter(n => !n.isRead).map((notification) => (
-                          <div
-                            key={notification.id}
-                            onClick={() => {
-                              markNotificationAsRead(notification.id)
-                            }}
-                            className="p-4 hover:bg-gray-800 cursor-pointer transition bg-gray-900"
-                          >
-                            <div className="flex items-start space-x-3">
-                              <div className="w-2 h-2 rounded-full mt-2 bg-yellow-400"></div>
-                              <div className="flex-1">
-                                <h4 className="text-white font-medium text-sm">{notification.title}</h4>
-                                <p className="text-gray-300 text-sm mt-1">{notification.message}</p>
-                                <p className="text-gray-500 text-xs mt-2">
-                                  {new Date(notification.createdAt).toLocaleString('en-US')}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </>
       )}
@@ -818,11 +818,10 @@ export default function WalletPage() {
         <div className="flex justify-center items-center gap-2 sm:gap-4 border-b border-gray-700">
           <button
             onClick={() => setActiveTab('wallet')}
-            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${
-              activeTab === 'wallet'
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${activeTab === 'wallet'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
-            }`}
+              }`}
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <Wallet className="w-5 h-5" />
@@ -835,11 +834,10 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('transactions')}
-            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${
-              activeTab === 'transactions'
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${activeTab === 'transactions'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
-            }`}
+              }`}
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <History className="w-5 h-5" />
@@ -852,11 +850,10 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('referral')}
-            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${
-              activeTab === 'referral'
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${activeTab === 'referral'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
-            }`}
+              }`}
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <Users className="w-5 h-5" />
@@ -869,11 +866,10 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('notice')}
-            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${
-              activeTab === 'notice'
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${activeTab === 'notice'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
-            }`}
+              }`}
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <Bell className="w-5 h-5" />
@@ -886,11 +882,10 @@ export default function WalletPage() {
 
           <button
             onClick={() => setActiveTab('mypage')}
-            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${
-              activeTab === 'mypage'
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${activeTab === 'mypage'
                 ? 'text-yellow-400'
                 : 'text-gray-400 hover:text-gray-300'
-            }`}
+              }`}
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
               <UserIcon className="w-5 h-5" />
@@ -907,143 +902,143 @@ export default function WalletPage() {
         {/* 지갑 탭 내용 */}
         {activeTab === 'wallet' && (
           <div className="min-h-[800px]">
-        {/* 사용자 정보 카드 */}
-        <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl p-6 mb-8 text-gray-900">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-sm opacity-80">{t('common.info')}!</p>
-              <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold">{user?.name}</h2>
-                {user?.role === 'TEAM_LEADER' && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-yellow-600 rounded-lg text-sm font-semibold">
-                    ⭐ {t('admin.role')}
-                  </span>
-                )}
-              </div>
-              <p className="text-sm opacity-80">{user?.email}</p>
-            </div>
-            <Wallet className="w-12 h-12 opacity-20" />
-          </div>
-          
-          {/* 추천 코드 */}
-          <div className="bg-black/20 rounded-lg p-3 flex items-center justify-between">
-            <div>
-              <p className="text-xs opacity-80">{t('referral.myReferralCode')}</p>
-              <p className="text-lg font-bold">{user?.referralCode}</p>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={copyReferralCode}
-                className="p-2 bg-black/20 hover:bg-black/30 rounded-lg transition"
-              >
-                <Copy className="w-4 h-4" />
-              </button>
-              <button
-                onClick={shareReferralLink}
-                className="p-2 bg-black/20 hover:bg-black/30 rounded-lg transition"
-              >
-                <Share2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* 코인 잔액 */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {/* 증권코인 */}
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mr-4">
-                  <Coins className="w-6 h-6 text-blue-400" />
-                </div>
+            {/* 사용자 정보 카드 */}
+            <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl p-6 mb-8 text-gray-900">
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-sm text-gray-400">{t('wallet.securityCoins')}</p>
-                  <p className="text-xs text-gray-500">Security Coins</p>
-                </div>
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-white">
-              {user?.securityCoins?.toLocaleString() || 0}
-              <span className="text-sm text-gray-400 ml-2">{t('wallet.pieces')}</span>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              {t('wallet.companyProfit')}
-            </p>
-          </div>
-
-          {/* 배당코인 */}
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mr-4">
-                  <TrendingUp className="w-6 h-6 text-yellow-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">{t('wallet.dividendCoins')}</p>
-                  <p className="text-xs text-gray-500">Dividend Coins</p>
-                </div>
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-white">
-              {user?.dividendCoins?.toLocaleString() || 0}
-              <span className="text-sm text-gray-400 ml-2">{t('wallet.pieces')}</span>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              {t('wallet.yearlyReturn')}
-            </p>
-            {/* 스왑 요청 버튼 */}
-            <button
-              onClick={() => setShowSwapModal(true)}
-              className="mt-4 w-full px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 rounded-lg hover:from-yellow-400 hover:to-orange-400 transition font-semibold flex items-center justify-center"
-            >
-              <ArrowRightLeft className="w-4 h-4 mr-2" />
-              {t('wallet.swapRequest')}
-            </button>
-          </div>
-        </div>
-
-        {/* 스왑 요청 현황 */}
-        {swapRequests.length > 0 && (
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 mb-8">
-            <div className="flex items-center mb-4">
-              <ArrowRightLeft className="w-6 h-6 text-orange-400 mr-2" />
-              <h3 className="text-lg font-semibold text-white">{t('wallet.swapRequestStatus')}</h3>
-            </div>
-            <div className="space-y-3">
-              {swapRequests.slice(0, 3).map((req, index) => {
-                const statusColors: Record<string, string> = {
-                  'PENDING': 'bg-yellow-500/20 text-yellow-400',
-                  'APPROVED': 'bg-green-500/20 text-green-400',
-                  'REJECTED': 'bg-red-500/20 text-red-400'
-                }
-                const statusLabels: Record<string, string> = {
-                  'PENDING': t('wallet.pending'),
-                  'APPROVED': t('wallet.approved'),
-                  'REJECTED': t('wallet.rejected')
-                }
-                return (
-                  <div key={req.id || index} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-b-0">
-                    <div>
-                      <p className="text-sm font-medium text-white">
-                        {t('wallet.swapDescription', { amount: req.amount.toLocaleString() })}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {new Date(req.created_at).toLocaleDateString('en-US')}
-                      </p>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[req.status]}`}>
-                      {statusLabels[req.status]}
-                    </span>
+                  <p className="text-sm opacity-80">{t('common.info')}!</p>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-2xl font-bold">{user?.name}</h2>
+                    {user?.role === 'TEAM_LEADER' && (
+                      <span className="flex items-center gap-1 px-2 py-1 bg-yellow-600 rounded-lg text-sm font-semibold">
+                        ⭐ {t('admin.role')}
+                      </span>
+                    )}
                   </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
+                  <p className="text-sm opacity-80">{user?.email}</p>
+                </div>
+                <Wallet className="w-12 h-12 opacity-20" />
+              </div>
 
-        {/* 예상 수익 - 주석처리 */}
-        {/* {user?.dividendCoins > 0 && (
+              {/* 추천 코드 */}
+              <div className="bg-black/20 rounded-lg p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-xs opacity-80">{t('referral.myReferralCode')}</p>
+                  <p className="text-lg font-bold">{user?.referralCode}</p>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={copyReferralCode}
+                    className="p-2 bg-black/20 hover:bg-black/30 rounded-lg transition"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={shareReferralLink}
+                    className="p-2 bg-black/20 hover:bg-black/30 rounded-lg transition"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 코인 잔액 */}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {/* 증권코인 */}
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mr-4">
+                      <Coins className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">{t('wallet.securityCoins')}</p>
+                      <p className="text-xs text-gray-500">Security Coins</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-white">
+                  {user?.securityCoins?.toLocaleString() || 0}
+                  <span className="text-sm text-gray-400 ml-2">{t('wallet.pieces')}</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  {t('wallet.companyProfit')}
+                </p>
+              </div>
+
+              {/* 배당코인 */}
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mr-4">
+                      <TrendingUp className="w-6 h-6 text-yellow-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">{t('wallet.dividendCoins')}</p>
+                      <p className="text-xs text-gray-500">Dividend Coins</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-white">
+                  {user?.dividendCoins?.toLocaleString() || 0}
+                  <span className="text-sm text-gray-400 ml-2">{t('wallet.pieces')}</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  {t('wallet.yearlyReturn')}
+                </p>
+                {/* 스왑 요청 버튼 */}
+                <button
+                  onClick={() => setShowSwapModal(true)}
+                  className="mt-4 w-full px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 rounded-lg hover:from-yellow-400 hover:to-orange-400 transition font-semibold flex items-center justify-center"
+                >
+                  <ArrowRightLeft className="w-4 h-4 mr-2" />
+                  {t('wallet.swapRequest')}
+                </button>
+              </div>
+            </div>
+
+            {/* 스왑 요청 현황 */}
+            {swapRequests.length > 0 && (
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 mb-8">
+                <div className="flex items-center mb-4">
+                  <ArrowRightLeft className="w-6 h-6 text-orange-400 mr-2" />
+                  <h3 className="text-lg font-semibold text-white">{t('wallet.swapRequestStatus')}</h3>
+                </div>
+                <div className="space-y-3">
+                  {swapRequests.slice(0, 3).map((req, index) => {
+                    const statusColors: Record<string, string> = {
+                      'PENDING': 'bg-yellow-500/20 text-yellow-400',
+                      'APPROVED': 'bg-green-500/20 text-green-400',
+                      'REJECTED': 'bg-red-500/20 text-red-400'
+                    }
+                    const statusLabels: Record<string, string> = {
+                      'PENDING': t('wallet.pending'),
+                      'APPROVED': t('wallet.approved'),
+                      'REJECTED': t('wallet.rejected')
+                    }
+                    return (
+                      <div key={req.id || index} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-b-0">
+                        <div>
+                          <p className="text-sm font-medium text-white">
+                            {t('wallet.swapDescription', { amount: req.amount.toLocaleString() })}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {new Date(req.created_at).toLocaleDateString('en-US')}
+                          </p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[req.status]}`}>
+                          {statusLabels[req.status]}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 예상 수익 - 주석처리 */}
+            {/* {user?.dividendCoins > 0 && (
           <div className="bg-gradient-to-r from-green-500/10 to-green-600/10 rounded-2xl p-6 mb-8 border border-green-500/30">
             <h3 className="text-lg font-semibold text-green-400 mb-4">💰 예상 수익</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -1063,109 +1058,24 @@ export default function WalletPage() {
           </div>
         )} */}
 
-        {/* 최근 내역 */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <History className="w-6 h-6 text-gray-400 mr-2" />
-              <h3 className="text-lg font-semibold text-white">{t('wallet.transactionHistory')}</h3>
-            </div>
-            <button
-              onClick={() => setActiveTab('transactions')}
-              className="text-sm text-yellow-400 hover:text-yellow-300 transition"
-            >
-              {t('wallet.viewAll')} →
-            </button>
-          </div>
-
-          {transactions.length > 0 ? (
-            <div className="space-y-3">
-              {transactions.slice(0, 2).map((tx, index) => {
-                const date = new Date(tx.createdAt)
-                const formattedDate = date.toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })
-
-                // Translate transaction description
-                const translateDescription = (desc: string): string => {
-                  // Match "회원가입 보너스 (회원번호: XX)"
-                  const signupMatch = desc.match(/회원가입 보너스 \(회원번호: (\d+)\)/)
-                  if (signupMatch) {
-                    return t('wallet.signupBonusWithMember', { memberNumber: signupMatch[1] })
-                  }
-
-                  // Match "XXX만원 입금 - 배당코인 XXXX개"
-                  const depositMatch = desc.match(/(\d+)만원 입금 - 배당코인 (\d+)개/)
-                  if (depositMatch) {
-                    return t('wallet.depositDescription', { amount: depositMatch[1], coins: depositMatch[2] })
-                  }
-
-                  // Match "배당코인 XXXX개 → 증권코인"
-                  const swapMatch = desc.match(/배당코인 (\d+)개 → 증권코인/)
-                  if (swapMatch) {
-                    return t('wallet.swapDescription', { amount: swapMatch[1] })
-                  }
-
-                  // If no pattern matches, return original description
-                  return desc
-                }
-
-                return (
-                  <div key={tx.id || index} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-b-0">
-                    <div>
-                      <p className="text-sm font-medium text-white">{translateDescription(tx.description)}</p>
-                      <p className="text-xs text-gray-400">{formattedDate}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className={`text-sm font-semibold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-gray-500">{tx.coinType === 'SECURITY' ? t('wallet.securityCoins') : t('wallet.dividendCoins')}</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">{t('wallet.noTransactions')}</p>
-            </div>
-          )}
-        </div>
-
-        {/* 추천 유도 */}
-        <div className="mt-8 bg-gradient-to-r from-purple-500/10 to-purple-600/10 rounded-2xl p-6 border border-purple-500/30">
-          <h3 className="text-lg font-semibold text-purple-400 mb-2">🎁 {t('wallet.inviteBonus')}</h3>
-          <p className="text-sm text-gray-300 mb-4">
-            {t('wallet.inviteBonusDesc')}
-          </p>
-          <button
-            onClick={shareReferralLink}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center"
-          >
-            <Share2 className="w-4 h-4 mr-2" />
-            {t('wallet.shareReferralLink')}
-          </button>
-        </div>
-          </div>
-        )}
-
-        {/* 거래내역 탭 내용 */}
-        {activeTab === 'transactions' && (
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 min-h-[800px]">
-              <div className="flex items-center mb-6">
-                <History className="w-6 h-6 text-yellow-400 mr-2" />
-                <h2 className="text-xl font-bold text-white">{t('wallet.fullTransactionHistory')}</h2>
+            {/* 최근 내역 */}
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <History className="w-6 h-6 text-gray-400 mr-2" />
+                  <h3 className="text-lg font-semibold text-white">{t('wallet.transactionHistory')}</h3>
+                </div>
+                <button
+                  onClick={() => setActiveTab('transactions')}
+                  className="text-sm text-yellow-400 hover:text-yellow-300 transition"
+                >
+                  {t('wallet.viewAll')} →
+                </button>
               </div>
 
               {transactions.length > 0 ? (
                 <div className="space-y-3">
-                  {transactions.map((tx, index) => {
+                  {transactions.slice(0, 2).map((tx, index) => {
                     const date = new Date(tx.createdAt)
                     const formattedDate = date.toLocaleDateString('en-US', {
                       year: 'numeric',
@@ -1201,49 +1111,132 @@ export default function WalletPage() {
                     }
 
                     return (
-                      <div key={tx.id || index} className="flex items-center justify-between py-4 border-b border-gray-700 last:border-b-0">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-white mb-1">{translateDescription(tx.description)}</p>
-                          <div className="flex items-center space-x-3">
-                            <p className="text-xs text-gray-400">{formattedDate}</p>
-                            <span className={`text-xs px-2 py-1 rounded ${
-                              tx.coinType === 'SECURITY'
-                                ? 'bg-blue-500/20 text-blue-400'
-                                : 'bg-yellow-500/20 text-yellow-400'
-                            }`}>
-                              {tx.coinType === 'SECURITY' ? t('wallet.securityCoins') : t('wallet.dividendCoins')}
-                            </span>
-                            <span className={`text-xs px-2 py-1 rounded ${
-                              tx.type === 'SIGNUP_BONUS' ? 'bg-green-500/20 text-green-400' :
-                              tx.type === 'REFERRAL_BONUS' ? 'bg-purple-500/20 text-purple-400' :
-                              tx.type === 'ADMIN_GRANT' ? 'bg-orange-500/20 text-orange-400' :
-                              'bg-gray-500/20 text-gray-400'
-                            }`}>
-                              {tx.type === 'SIGNUP_BONUS' ? t('wallet.signupBonus') :
-                               tx.type === 'REFERRAL_BONUS' ? t('referral.referralBonus') :
-                               tx.type === 'ADMIN_GRANT' ? t('admin.grantCoins') :
-                               tx.type}
-                            </span>
-                          </div>
+                      <div key={tx.id || index} className="flex items-center justify-between py-3 border-b border-gray-700 last:border-b-0">
+                        <div>
+                          <p className="text-sm font-medium text-white">{translateDescription(tx.description)}</p>
+                          <p className="text-xs text-gray-400">{formattedDate}</p>
                         </div>
-                        <div className="text-right ml-4">
-                          <p className={`text-lg font-bold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        <div className="text-right">
+                          <p className={`text-sm font-semibold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
                           </p>
-                          <p className="text-xs text-gray-500">{t('wallet.balanceLabel')} {tx.balance.toLocaleString()}</p>
+                          <p className="text-xs text-gray-500">{tx.coinType === 'SECURITY' ? t('wallet.securityCoins') : t('wallet.dividendCoins')}</p>
                         </div>
                       </div>
                     )
                   })}
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <History className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400">{t('wallet.noTransactions')}</p>
-                  <p className="text-sm text-gray-500 mt-2">{t('wallet.noTransactionsDesc')}</p>
+                <div className="text-center py-8">
+                  <p className="text-gray-500">{t('wallet.noTransactions')}</p>
                 </div>
               )}
             </div>
+
+            {/* 추천 유도 */}
+            <div className="mt-8 bg-gradient-to-r from-purple-500/10 to-purple-600/10 rounded-2xl p-6 border border-purple-500/30">
+              <h3 className="text-lg font-semibold text-purple-400 mb-2">🎁 {t('wallet.inviteBonus')}</h3>
+              <p className="text-sm text-gray-300 mb-4">
+                {t('wallet.inviteBonusDesc')}
+              </p>
+              <button
+                onClick={shareReferralLink}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                {t('wallet.shareReferralLink')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 거래내역 탭 내용 */}
+        {activeTab === 'transactions' && (
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 min-h-[800px]">
+            <div className="flex items-center mb-6">
+              <History className="w-6 h-6 text-yellow-400 mr-2" />
+              <h2 className="text-xl font-bold text-white">{t('wallet.fullTransactionHistory')}</h2>
+            </div>
+
+            {transactions.length > 0 ? (
+              <div className="space-y-3">
+                {transactions.map((tx, index) => {
+                  const date = new Date(tx.createdAt)
+                  const formattedDate = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  })
+
+                  // Translate transaction description
+                  const translateDescription = (desc: string): string => {
+                    // Match "회원가입 보너스 (회원번호: XX)"
+                    const signupMatch = desc.match(/회원가입 보너스 \(회원번호: (\d+)\)/)
+                    if (signupMatch) {
+                      return t('wallet.signupBonusWithMember', { memberNumber: signupMatch[1] })
+                    }
+
+                    // Match "XXX만원 입금 - 배당코인 XXXX개"
+                    const depositMatch = desc.match(/(\d+)만원 입금 - 배당코인 (\d+)개/)
+                    if (depositMatch) {
+                      return t('wallet.depositDescription', { amount: depositMatch[1], coins: depositMatch[2] })
+                    }
+
+                    // Match "배당코인 XXXX개 → 증권코인"
+                    const swapMatch = desc.match(/배당코인 (\d+)개 → 증권코인/)
+                    if (swapMatch) {
+                      return t('wallet.swapDescription', { amount: swapMatch[1] })
+                    }
+
+                    // If no pattern matches, return original description
+                    return desc
+                  }
+
+                  return (
+                    <div key={tx.id || index} className="flex items-center justify-between py-4 border-b border-gray-700 last:border-b-0">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-white mb-1">{translateDescription(tx.description)}</p>
+                        <div className="flex items-center space-x-3">
+                          <p className="text-xs text-gray-400">{formattedDate}</p>
+                          <span className={`text-xs px-2 py-1 rounded ${tx.coinType === 'SECURITY'
+                              ? 'bg-blue-500/20 text-blue-400'
+                              : 'bg-yellow-500/20 text-yellow-400'
+                            }`}>
+                            {tx.coinType === 'SECURITY' ? t('wallet.securityCoins') : t('wallet.dividendCoins')}
+                          </span>
+                          <span className={`text-xs px-2 py-1 rounded ${tx.type === 'SIGNUP_BONUS' ? 'bg-green-500/20 text-green-400' :
+                              tx.type === 'REFERRAL_BONUS' ? 'bg-purple-500/20 text-purple-400' :
+                                tx.type === 'ADMIN_GRANT' ? 'bg-orange-500/20 text-orange-400' :
+                                  'bg-gray-500/20 text-gray-400'
+                            }`}>
+                            {tx.type === 'SIGNUP_BONUS' ? t('wallet.signupBonus') :
+                              tx.type === 'REFERRAL_BONUS' ? t('referral.referralBonus') :
+                                tx.type === 'ADMIN_GRANT' ? t('admin.grantCoins') :
+                                  tx.type}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right ml-4">
+                        <p className={`text-lg font-bold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500">{t('wallet.balanceLabel')} {tx.balance.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <History className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400">{t('wallet.noTransactions')}</p>
+                <p className="text-sm text-gray-500 mt-2">{t('wallet.noTransactionsDesc')}</p>
+              </div>
+            )}
+          </div>
         )}
 
         {/* 추천 탭 내용 */}
@@ -1749,9 +1742,9 @@ export default function WalletPage() {
                 stroke="currentColor"
                 strokeWidth="2.5"
               >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round"/>
-                <polyline points="16 17 21 12 16 7" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="21" y1="12" x2="9" y2="12" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round" />
+                <polyline points="16 17 21 12 16 7" strokeLinecap="round" strokeLinejoin="round" />
+                <line x1="21" y1="12" x2="9" y2="12" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span>{t('common.logout')}</span>
             </button>
@@ -1769,10 +1762,10 @@ export default function WalletPage() {
                 stroke="currentColor"
                 strokeWidth="2.5"
               >
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
-                <circle cx="8.5" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="18" y1="8" x2="23" y2="13" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="23" y1="8" x2="18" y2="13" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="8.5" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round" />
+                <line x1="18" y1="8" x2="23" y2="13" strokeLinecap="round" strokeLinejoin="round" />
+                <line x1="23" y1="8" x2="18" y2="13" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span>{t('profile.withdraw')}</span>
             </button>
@@ -1803,9 +1796,9 @@ export default function WalletPage() {
                   stroke="currentColor"
                   strokeWidth="2.5"
                 >
-                  <circle cx="12" cy="12" r="10" strokeLinecap="round" strokeLinejoin="round"/>
-                  <line x1="12" y1="8" x2="12" y2="12" strokeLinecap="round" strokeLinejoin="round"/>
-                  <line x1="12" y1="16" x2="12.01" y2="16" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="12" cy="12" r="10" strokeLinecap="round" strokeLinejoin="round" />
+                  <line x1="12" y1="8" x2="12" y2="12" strokeLinecap="round" strokeLinejoin="round" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <h3 className="text-2xl font-bold text-white mb-2">회원 탈퇴</h3>
@@ -1815,9 +1808,9 @@ export default function WalletPage() {
             <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
               <h4 className="text-red-400 font-semibold mb-2 flex items-center">
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" strokeLinecap="round" strokeLinejoin="round"/>
-                  <line x1="12" y1="9" x2="12" y2="13" strokeLinecap="round" strokeLinejoin="round"/>
-                  <line x1="12" y1="17" x2="12.01" y2="17" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" strokeLinecap="round" strokeLinejoin="round" />
+                  <line x1="12" y1="9" x2="12" y2="13" strokeLinecap="round" strokeLinejoin="round" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 주의사항
               </h4>
@@ -1868,11 +1861,10 @@ export default function WalletPage() {
               <button
                 onClick={handleWithdraw}
                 disabled={withdrawConfirmText !== t('profile.withdrawConfirmKeyword')}
-                className={`flex-1 px-4 py-3 rounded-lg transition font-semibold ${
-                  withdrawConfirmText === t('profile.withdrawConfirmKeyword')
+                className={`flex-1 px-4 py-3 rounded-lg transition font-semibold ${withdrawConfirmText === t('profile.withdrawConfirmKeyword')
                     ? 'bg-red-600 text-white hover:bg-red-500'
                     : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                }`}
+                  }`}
               >
                 {t('profile.withdrawButton')}
               </button>
@@ -1961,11 +1953,10 @@ export default function WalletPage() {
               <button
                 onClick={handleSwapRequest}
                 disabled={!swapAmount || parseInt(swapAmount) <= 0 || parseInt(swapAmount) > (user?.dividendCoins || 0) || isSwapLoading}
-                className={`flex-1 px-4 py-3 rounded-lg transition font-semibold ${
-                  swapAmount && parseInt(swapAmount) > 0 && parseInt(swapAmount) <= (user?.dividendCoins || 0) && !isSwapLoading
+                className={`flex-1 px-4 py-3 rounded-lg transition font-semibold ${swapAmount && parseInt(swapAmount) > 0 && parseInt(swapAmount) <= (user?.dividendCoins || 0) && !isSwapLoading
                     ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 hover:from-yellow-400 hover:to-orange-400'
                     : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                }`}
+                  }`}
               >
                 {isSwapLoading ? t('wallet.requesting') : t('wallet.swapRequestTitle')}
               </button>
