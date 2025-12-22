@@ -12,10 +12,6 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "V COIN",
   },
-  icons: {
-    icon: "/vcoin_logo.png",
-    apple: "/vcoin_logo.png",
-  },
 };
 
 export const viewport: Viewport = {
