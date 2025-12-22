@@ -92,9 +92,11 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // 팀장인 경우 산하 매출 통계 계산
+    // 팀장 또는 그룹장인 경우 산하 매출 통계 계산
     let teamStats = null
-    if (user.role === 'TEAM_LEADER') {
+    const canViewTeamStats = user.role === 'TEAM_LEADER' || user.role === 'GROUP_LEADER'
+
+    if (canViewTeamStats) {
       // 모든 산하 회원 (직접 + 간접 추천)
       // 주의: 하위 팀장(TEAM_LEADER)은 포함하되, 그 팀장의 산하는 제외됨
       const allDownline = getAllDownlineUsers(user.id, allUsers)
@@ -130,7 +132,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       referredUsers: safeReferredUsers,
       total: safeReferredUsers.length,
-      isTeamLeader: user.role === 'TEAM_LEADER',
+      isTeamLeader: canViewTeamStats, // 프론트엔드에서 stats 표시 여부를 결정하는 플래그로 사용
       teamStats
     })
 

@@ -819,8 +819,8 @@ export default function WalletPage() {
           <button
             onClick={() => setActiveTab('wallet')}
             className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${activeTab === 'wallet'
-                ? 'text-yellow-400'
-                : 'text-gray-400 hover:text-gray-300'
+              ? 'text-yellow-400'
+              : 'text-gray-400 hover:text-gray-300'
               }`}
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
@@ -835,8 +835,8 @@ export default function WalletPage() {
           <button
             onClick={() => setActiveTab('transactions')}
             className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${activeTab === 'transactions'
-                ? 'text-yellow-400'
-                : 'text-gray-400 hover:text-gray-300'
+              ? 'text-yellow-400'
+              : 'text-gray-400 hover:text-gray-300'
               }`}
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
@@ -851,8 +851,8 @@ export default function WalletPage() {
           <button
             onClick={() => setActiveTab('referral')}
             className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${activeTab === 'referral'
-                ? 'text-yellow-400'
-                : 'text-gray-400 hover:text-gray-300'
+              ? 'text-yellow-400'
+              : 'text-gray-400 hover:text-gray-300'
               }`}
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
@@ -867,8 +867,8 @@ export default function WalletPage() {
           <button
             onClick={() => setActiveTab('notice')}
             className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${activeTab === 'notice'
-                ? 'text-yellow-400'
-                : 'text-gray-400 hover:text-gray-300'
+              ? 'text-yellow-400'
+              : 'text-gray-400 hover:text-gray-300'
               }`}
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
@@ -883,8 +883,8 @@ export default function WalletPage() {
           <button
             onClick={() => setActiveTab('mypage')}
             className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 font-semibold transition-colors relative ${activeTab === 'mypage'
-                ? 'text-yellow-400'
-                : 'text-gray-400 hover:text-gray-300'
+              ? 'text-yellow-400'
+              : 'text-gray-400 hover:text-gray-300'
               }`}
           >
             <div className="flex flex-col sm:flex-row items-center sm:space-x-2">
@@ -1202,15 +1202,15 @@ export default function WalletPage() {
                         <div className="flex items-center space-x-3">
                           <p className="text-xs text-gray-400">{formattedDate}</p>
                           <span className={`text-xs px-2 py-1 rounded ${tx.coinType === 'SECURITY'
-                              ? 'bg-blue-500/20 text-blue-400'
-                              : 'bg-yellow-500/20 text-yellow-400'
+                            ? 'bg-blue-500/20 text-blue-400'
+                            : 'bg-yellow-500/20 text-yellow-400'
                             }`}>
                             {tx.coinType === 'SECURITY' ? t('wallet.securityCoins') : t('wallet.dividendCoins')}
                           </span>
                           <span className={`text-xs px-2 py-1 rounded ${tx.type === 'SIGNUP_BONUS' ? 'bg-green-500/20 text-green-400' :
-                              tx.type === 'REFERRAL_BONUS' ? 'bg-purple-500/20 text-purple-400' :
-                                tx.type === 'ADMIN_GRANT' ? 'bg-orange-500/20 text-orange-400' :
-                                  'bg-gray-500/20 text-gray-400'
+                            tx.type === 'REFERRAL_BONUS' ? 'bg-purple-500/20 text-purple-400' :
+                              tx.type === 'ADMIN_GRANT' ? 'bg-orange-500/20 text-orange-400' :
+                                'bg-gray-500/20 text-gray-400'
                             }`}>
                             {tx.type === 'SIGNUP_BONUS' ? t('wallet.signupBonus') :
                               tx.type === 'REFERRAL_BONUS' ? t('referral.referralBonus') :
@@ -1281,7 +1281,9 @@ export default function WalletPage() {
                 <div className="flex items-center mb-6">
                   <TrendingUp className="w-7 h-7 text-blue-400 mr-2" />
                   <div>
-                    <h2 className="text-xl font-bold text-blue-400">팀장 산하 매출 통계</h2>
+                    <h2 className="text-xl font-bold text-blue-400">
+                      {user?.role === 'GROUP_LEADER' ? '그룹장' : '팀장'} 산하 매출 통계
+                    </h2>
                     <p className="text-xs text-gray-400 mt-1">직접 추천 + 간접 추천 통합 데이터</p>
                   </div>
                 </div>
@@ -1862,8 +1864,8 @@ export default function WalletPage() {
                 onClick={handleWithdraw}
                 disabled={withdrawConfirmText !== t('profile.withdrawConfirmKeyword')}
                 className={`flex-1 px-4 py-3 rounded-lg transition font-semibold ${withdrawConfirmText === t('profile.withdrawConfirmKeyword')
-                    ? 'bg-red-600 text-white hover:bg-red-500'
-                    : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                  ? 'bg-red-600 text-white hover:bg-red-500'
+                  : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                   }`}
               >
                 {t('profile.withdrawButton')}
@@ -1954,8 +1956,8 @@ export default function WalletPage() {
                 onClick={handleSwapRequest}
                 disabled={!swapAmount || parseInt(swapAmount) <= 0 || parseInt(swapAmount) > (user?.dividendCoins || 0) || isSwapLoading}
                 className={`flex-1 px-4 py-3 rounded-lg transition font-semibold ${swapAmount && parseInt(swapAmount) > 0 && parseInt(swapAmount) <= (user?.dividendCoins || 0) && !isSwapLoading
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 hover:from-yellow-400 hover:to-orange-400'
-                    : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 hover:from-yellow-400 hover:to-orange-400'
+                  : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                   }`}
               >
                 {isSwapLoading ? t('wallet.requesting') : t('wallet.swapRequestTitle')}
