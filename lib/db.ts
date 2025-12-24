@@ -512,12 +512,19 @@ export const db = {
     const user = await this.findUserById(userId)
     if (!user || user.role === 'ADMIN') return false
 
-    // 1. 이 회원으로 인해 지급된 추천 보너스 찾기
-    const { data: referralBonusTransactions } = await supabaseAdmin
-      .from('transactions')
-      .select('*')
-      .eq('type', 'REFERRAL_BONUS')
-      .like('description', `%${user.name}%가입%`)
+    // 1. 이 회원으로 인해 지급된 추천 보너스 찾기 (실제 추천인의 거래 내역에서만 조회)
+    let referralBonusTransactions: any[] = []
+
+    if (user.referrerId) {
+      const { data } = await supabaseAdmin
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.referrerId)
+        .eq('type', 'REFERRAL_BONUS')
+        .like('description', `%${user.name}%가입%`)
+
+      if (data) referralBonusTransactions = data
+    }
 
     // 2. 추천인(들)에게서 보너스 회수
     if (referralBonusTransactions && referralBonusTransactions.length > 0) {
@@ -567,12 +574,19 @@ export const db = {
     try {
       console.log('Starting permanent delete for user:', userId)
 
-      // 1. 이 회원으로 인해 지급된 추천 보너스 회수
-      const { data: referralBonusTransactions } = await supabaseAdmin
-        .from('transactions')
-        .select('*')
-        .eq('type', 'REFERRAL_BONUS')
-        .like('description', `%${user.name}%가입%`)
+      // 1. 이 회원으로 인해 지급된 추천 보너스 회수 (실제 추천인의 거래 내역에서만 조회)
+      let referralBonusTransactions: any[] = []
+
+      if (user.referrerId) {
+        const { data } = await supabaseAdmin
+          .from('transactions')
+          .select('*')
+          .eq('user_id', user.referrerId) // 추천인 ID로 한정
+          .eq('type', 'REFERRAL_BONUS')
+          .like('description', `%${user.name}%가입%`)
+
+        if (data) referralBonusTransactions = data
+      }
 
       if (referralBonusTransactions && referralBonusTransactions.length > 0) {
         for (const transaction of referralBonusTransactions) {
