@@ -108,7 +108,7 @@ export async function sendReferralSignupNotification(
   console.log(`[추천인알림] 시작 - referrerId: ${referrerId}, newUser: ${newUserName}, memberNumber: ${newUserMemberNumber}`)
 
   try {
-    // 인앱 알림 생성
+    // 1. 추천인(직계)에게 알림 전송 (기존 로직)
     console.log(`[추천인알림] 인앱 알림 생성 중...`)
     await db.createNotification(
       referrerId,
@@ -119,7 +119,6 @@ export async function sendReferralSignupNotification(
     )
     console.log(`[추천인알림] 인앱 알림 생성 완료`)
 
-    // 푸시 알림 전송
     console.log(`[추천인알림] 푸시 알림 전송 시작...`)
     const pushResult = await sendPushNotification(referrerId, {
       title: '새로운 회원이 가입했습니다! 🎉',
@@ -130,6 +129,90 @@ export async function sendReferralSignupNotification(
       },
     })
     console.log(`[추천인알림] 푸시 알림 전송 결과: ${pushResult ? '성공' : '실패'}`)
+
+    // 2. 상위 팀장 및 그룹장 찾기 (추가 로직)
+    // 추천인으로부터 상위로 올라가며 팀장과 그룹장을 찾음
+    let currentUserId: string | undefined = referrerId
+    let teamLeaderId: string | null = null
+    let groupLeaderId: string | null = null
+    let depth = 0
+    const MAX_DEPTH = 30
+
+    while (currentUserId && depth < MAX_DEPTH) {
+      if (teamLeaderId && groupLeaderId) break
+
+      const user = await db.findUserById(currentUserId)
+      if (!user) break
+
+      // 역할 확인
+      if (!teamLeaderId && user.role === 'TEAM_LEADER') {
+        teamLeaderId = user.id
+      }
+      if (!groupLeaderId && user.role === 'GROUP_LEADER') {
+        groupLeaderId = user.id
+      }
+
+      // 상위 추천인으로 이동
+      currentUserId = user.referrerId
+      depth++
+    }
+
+    // 3. 팀장에게 알림 전송 (추천인 본인이 팀장이 아닌 경우에만)
+    if (teamLeaderId && teamLeaderId !== referrerId) {
+      console.log(`[추천인알림] 상위 팀장에게 알림 전송: ${teamLeaderId}`)
+
+      const tlTitle = '팀 산하 신규 회원 가입! 👥'
+      const tlBody = `팀 내에 ${newUserName}님(회원번호: ${newUserMemberNumber})이 가입했습니다.`
+
+      // 인앱 알림
+      await db.createNotification(
+        teamLeaderId,
+        'REFERRAL_SIGNUP',
+        tlTitle,
+        tlBody,
+        undefined
+      )
+
+      // 푸시 알림
+      await sendPushNotification(teamLeaderId, {
+        title: tlTitle,
+        body: tlBody,
+        data: {
+          type: 'REFERRAL_SIGNUP',
+          newUserMemberNumber,
+          roleTarget: 'TEAM_LEADER'
+        }
+      })
+    }
+
+    // 4. 그룹장에게 알림 전송 (추천인이나 팀장과 중복되지 않는 경우에만)
+    if (groupLeaderId && groupLeaderId !== referrerId && groupLeaderId !== teamLeaderId) {
+      console.log(`[추천인알림] 상위 그룹장에게 알림 전송: ${groupLeaderId}`)
+
+      const glTitle = '그룹 산하 신규 회원 가입! 🏢'
+      const glBody = `그룹 내에 ${newUserName}님(회원번호: ${newUserMemberNumber})이 가입했습니다.`
+
+      // 인앱 알림
+      await db.createNotification(
+        groupLeaderId,
+        'REFERRAL_SIGNUP',
+        glTitle,
+        glBody,
+        undefined
+      )
+
+      // 푸시 알림
+      await sendPushNotification(groupLeaderId, {
+        title: glTitle,
+        body: glBody,
+        data: {
+          type: 'REFERRAL_SIGNUP',
+          newUserMemberNumber,
+          roleTarget: 'GROUP_LEADER'
+        }
+      })
+    }
+
   } catch (error) {
     console.error('[추천인알림] 오류 발생:', error)
   }
