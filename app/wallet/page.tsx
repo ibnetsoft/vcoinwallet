@@ -1106,6 +1106,11 @@ export default function WalletPage() {
                         return t('wallet.swapDescription', { amount: swapMatch[1] })
                       }
 
+                      // Match "추천 보너스 회수 - XXX님(회원번호: XXX) 탈퇴"
+                      if (desc.includes('추천 보너스 회수')) {
+                        return desc
+                      }
+
                       // If no pattern matches, return original description
                       return desc
                     }
@@ -1191,6 +1196,11 @@ export default function WalletPage() {
                       return t('wallet.swapDescription', { amount: swapMatch[1] })
                     }
 
+                    // Match "추천 보너스 회수 - XXX님(회원번호: XXX) 탈퇴"
+                    if (desc.includes('추천 보너스 회수')) {
+                      return desc // 이미 한글로 저장되어 있으므로 그대로 출력, 필요시 다국어 처리 추가 가능
+                    }
+
                     // If no pattern matches, return original description
                     return desc
                   }
@@ -1210,12 +1220,14 @@ export default function WalletPage() {
                           <span className={`text-xs px-2 py-1 rounded ${tx.type === 'SIGNUP_BONUS' ? 'bg-green-500/20 text-green-400' :
                             tx.type === 'REFERRAL_BONUS' ? 'bg-purple-500/20 text-purple-400' :
                               tx.type === 'ADMIN_GRANT' ? 'bg-orange-500/20 text-orange-400' :
-                                'bg-gray-500/20 text-gray-400'
+                                tx.type === 'BONUS_RECLAIM' ? 'bg-red-500/20 text-red-400' :
+                                  'bg-gray-500/20 text-gray-400'
                             }`}>
                             {tx.type === 'SIGNUP_BONUS' ? t('wallet.signupBonus') :
                               tx.type === 'REFERRAL_BONUS' ? t('referral.referralBonus') :
                                 tx.type === 'ADMIN_GRANT' ? t('admin.grantCoins') :
-                                  tx.type}
+                                  tx.type === 'BONUS_RECLAIM' ? '추천 보너스 회수' :
+                                    tx.type}
                           </span>
                         </div>
                       </div>
