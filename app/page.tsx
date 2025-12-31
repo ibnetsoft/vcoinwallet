@@ -66,7 +66,7 @@ export default function HomePage() {
         // 축하 사운드 재생
         const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjeJ0/POfjQGJ3vG7+GXSA0RVbHm77BfEgpCpd7zw2AfCTSM0O7Ogy8HKX3D7+SVQAwPUK3k8bBgFApCo93zxF8gBzOKz+/Ngi4HKHzC8OGYRw0OT6rl8bJjEwtDot3yxGAhBjCIzu3PgTAHKH3C7+KZRg0NTqrm8bJjFQpBod/txWEgBjCLze/NhC0GKoC/7+OXRQwQUK7j8bBjEQo+nd3yw2IhBi+Jz+/MhSsGKoK+7+OZRAsQTK/i8LFkEQo+n93yw2IiBjCJze/NhCsGK4G+7+KaRQsRT6/i8LBjEQo9n97yw2EhBjCJze/Ngy0FK4G/7+KaRQoRT7Dj8LBjEAo9n93xw2EgBi+Kze/OhCwGKoK+7+KYRwoQT6/j8LBiEAo+nt3yw2EhBjCIzu7Ngy4FK4G/7+KYRwoQT6/j8LBiEAo9nt7yw2EhBjCJze7Ngy0FK4G/7+KZRQoQTq/j8LBiEAo9nt3yw2IhBjCJze7Ngy0FK4C/7+KZRQoQTrDi8LBjEAo9nt3yw2EhBjCKze7MhC0FK4G+7+KZRQoQTa/j8LBhEAo9nt3yw2EhBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9nt3yw18hBjCJze3MhC0FK4G+7+GZRQoQTa/j8LBhEAo9')
         audio.volume = 0.3
-        audio.play().catch(() => {}) // 사운드 재생 실패 시 무시
+        audio.play().catch(() => { }) // 사운드 재생 실패 시 무시
 
         // 0.5초 후 모달 표시
         setTimeout(() => {
@@ -165,7 +165,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <Toaster position="top-center" />
-      
+
       {/* 헤더 */}
       <header className="relative z-[100000] border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm pt-[max(22px,env(safe-area-inset-top))]">
         <div className="container mx-auto px-4 py-3">
@@ -237,9 +237,9 @@ export default function HomePage() {
                       stroke="currentColor"
                       strokeWidth="2.5"
                     >
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round"/>
-                      <polyline points="16 17 21 12 16 7" strokeLinecap="round" strokeLinejoin="round"/>
-                      <line x1="21" y1="12" x2="9" y2="12" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round" />
+                      <polyline points="16 17 21 12 16 7" strokeLinecap="round" strokeLinejoin="round" />
+                      <line x1="21" y1="12" x2="9" y2="12" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </button>
                 </>
@@ -336,7 +336,7 @@ export default function HomePage() {
           <p className="text-xl text-gray-300 mb-8">
             {t('home.stableIncome')}
           </p>
-          
+
           <div className="grid md:grid-cols-3 gap-6 mt-12">
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
               <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -389,15 +389,15 @@ export default function HomePage() {
                 </li>
                 <li className="flex items-start">
                   <span className="text-yellow-400 mr-2">✓</span>
+                  {t('home.referrer1000')}
+                </li>
+                <li className="flex items-start">
+                  <span className="text-yellow-400 mr-2">✓</span>
                   {t('home.return15')}
                 </li>
                 <li className="flex items-start">
                   <span className="text-yellow-400 mr-2">✓</span>
                   {t('home.income150M')}
-                </li>
-                <li className="flex items-start">
-                  <span className="text-yellow-400 mr-2">✓</span>
-                  {t('home.referrer1000')}
                 </li>
               </ul>
             </div>

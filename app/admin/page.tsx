@@ -155,83 +155,122 @@ export default function AdminPage() {
     newMemberCoins: ''
   })
 
-  useEffect(() => {
+  // 회원번호별 규칙 불러오기
+  const fetchMemberNumberRules = async () => {
+    try {
+      const response = await fetch('/api/admin/member-number-rules')
+      const data = await response.json()
+      if (data.rules) {
+        setMemberNumberRules(data.rules)
+      }
+    } catch (error) {
+      console.error('Failed to fetch member number rules:', error)
+    }
+  }
+
+  // 회원번호별 규칙 저장하기
+  const handleSaveMemberNumberRules = async () => {
     const token = localStorage.getItem('token')
-    const userData = localStorage.getItem('user')
-
-    if (!token || !userData) {
-      router.push('/login')
-      return
-    }
-
-    const parsedUser = JSON.parse(userData)
-
-    // 관리자 권한 확인
-    if (!parsedUser.isAdmin) {
-      toast.error('관리자 권한이 없습니다.')
-      router.push('/')
-      return
-    }
-
-    setUser(parsedUser)
-
-    // 관리자 정보 수정 폼 초기화
-    setAdminEditForm({
-      name: parsedUser.name || '',
-      phone: parsedUser.phone || '',
-      email: parsedUser.email || '',
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    })
-
-    // 코인지급 설정 불러오기
-    const savedCoinSettings = localStorage.getItem('coinSettings')
-    if (savedCoinSettings) {
-      setCoinSettings(JSON.parse(savedCoinSettings))
-    }
-
-    // 회원번호별 규칙 불러오기
-    const savedRules = localStorage.getItem('memberNumberRules')
-
-    // 기본 규칙 정의 (lib/auth.ts와 동기화)
-    const defaultRules = [
-        {
-          id: 'default-1',
-          memberNumberFrom: 1,
-          memberNumberTo: 10000,
-          referralBonus: 1000,
-          newMemberCoins: 500
+    try {
+      const response = await fetch('/api/admin/member-number-rules', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        {
-          id: 'default-2',
-          memberNumberFrom: 10001,
-          memberNumberTo: 20000,
-          referralBonus: 600,
-          newMemberCoins: 300
-        },
-        {
-          id: 'default-3',
-          memberNumberFrom: 20001,
-          memberNumberTo: 100000,
-          referralBonus: 400,
-          newMemberCoins: 200
-        },
-        {
-          id: 'default-4',
-          memberNumberFrom: 100001,
-          memberNumberTo: 999999,
-          referralBonus: 200,
-          newMemberCoins: 100
+        body: JSON.stringify({ rules: memberNumberRules })
+      })
+
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.error || '저장 실패')
+      }
+
+      toast.success('회원번호별 규칙이 서버에 저장되었습니다.')
+    } catch (error: any) {
+      toast.error(error.message || '저장 중 오류가 발생했습니다.')
+    }
+  }
+
+  // 시스템 설정 불러오기 (코인 설정 등)
+  const fetchSystemConfig = async () => {
+    const token = localStorage.getItem('token')
+    try {
+      const response = await fetch('/api/admin/system-config', {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      ]
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setCoinSettings(prev => ({
+          ...prev,
+          newUserReward: data.newUserReward ?? prev.newUserReward,
+          referralBonus: data.referralBonus ?? prev.referralBonus,
+          dividendCoinPer100: data.dividendCoinPer100 ?? prev.dividendCoinPer100,
+          referralBonusPercentage: data.referralBonusPercentage ?? prev.referralBonusPercentage,
+          youtubeUrl: data.youtubeUrl ?? prev.youtubeUrl,
+          boardName: data.boardName ?? prev.boardName,
+          boardMaxFileSize: data.boardMaxFileSize ?? prev.boardMaxFileSize,
+        }))
+      }
+    } catch (error) {
+      console.error('시스템 설정 불러오기 실패:', error)
+    }
+  }
 
-    // 항상 최신 기본값으로 업데이트 (lib/auth.ts와 동기화 유지)
-    setMemberNumberRules(defaultRules)
-    localStorage.setItem('memberNumberRules', JSON.stringify(defaultRules))
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      setIsLoading(true)
+      const token = localStorage.getItem('token')
 
-    // 실제 사용자 목록 가져오기
-    fetchUsers()
+      if (!token) {
+        router.push('/login')
+        return
+      }
+
+      try {
+        const response = await fetch('/api/user/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error('인증 실패')
+        }
+
+        const data = await response.json()
+        if (!data.user?.isAdmin) {
+          router.push('/')
+          return
+        }
+
+        setUser(data.user)
+        // 관리자 정보 수정 폼 초기화
+        setAdminEditForm({
+          name: data.user.name || '',
+          phone: data.user.phone || '',
+          email: data.user.email || '',
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        })
+        await fetchUsers()
+        await fetchSwapRequests()
+        await fetchNotices()
+        await fetchResources()
+        await fetchSystemConfig()
+        await fetchMemberNumberRules() // 서버에서 규칙 불러오기
+      } catch (error) {
+        console.error('Admin data fetch error:', error)
+        router.push('/login')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchAdminData()
   }, [router])
 
   // 검색 또는 필터 변경 시 페이지를 1로 리셋
@@ -1282,7 +1321,7 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <Toaster position="top-center" />
-      
+
       {/* 헤더 */}
       <header className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm pt-[max(22px,env(safe-area-inset-top))]">
         <div className="container mx-auto px-4 py-4">
@@ -1323,11 +1362,10 @@ export default function AdminPage() {
                   setStartDate('')
                   setEndDate('')
                 }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                  periodFilter === 'all'
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${periodFilter === 'all'
                     ? 'bg-yellow-500 text-gray-900'
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
+                  }`}
               >
                 전체
               </button>
@@ -1396,8 +1434,8 @@ export default function AdminPage() {
                   {periodFilter === 'custom' && (startDate || endDate) && (
                     <span className="block text-xs text-yellow-400 mt-1">
                       {startDate && endDate ? `${startDate} ~ ${endDate}` :
-                       startDate ? `${startDate} 이후` :
-                       `${endDate} 이전`}
+                        startDate ? `${startDate} 이후` :
+                          `${endDate} 이전`}
                     </span>
                   )}
                 </p>
@@ -1421,8 +1459,8 @@ export default function AdminPage() {
                   {periodFilter === 'custom' && (startDate || endDate) && (
                     <span className="block text-xs text-yellow-400 mt-1">
                       {startDate && endDate ? `${startDate} ~ ${endDate}` :
-                       startDate ? `${startDate} 이후` :
-                       `${endDate} 이전`}
+                        startDate ? `${startDate} 이후` :
+                          `${endDate} 이전`}
                     </span>
                   )}
                 </p>
@@ -1442,8 +1480,8 @@ export default function AdminPage() {
                   {periodFilter === 'custom' && (startDate || endDate) && (
                     <span className="block text-xs text-yellow-400 mt-1">
                       {startDate && endDate ? `${startDate} ~ ${endDate}` :
-                       startDate ? `${startDate} 이후` :
-                       `${endDate} 이전`}
+                        startDate ? `${startDate} 이후` :
+                          `${endDate} 이전`}
                     </span>
                   )}
                 </p>
@@ -1466,11 +1504,10 @@ export default function AdminPage() {
           <div className="flex space-x-2 border-b border-gray-700">
             <button
               onClick={() => setActiveTab('users')}
-              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === 'users'
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'users'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <Users className="w-4 h-4" />
@@ -1483,11 +1520,10 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('grant')}
-              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === 'grant'
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'grant'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <Gift className="w-4 h-4" />
@@ -1500,11 +1536,10 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('security-grant')}
-              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === 'security-grant'
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'security-grant'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <Coins className="w-4 h-4" />
@@ -1517,11 +1552,10 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('roles')}
-              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === 'roles'
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'roles'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <Shield className="w-4 h-4" />
@@ -1534,11 +1568,10 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('notice')}
-              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === 'notice'
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'notice'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <Bell className="w-4 h-4" />
@@ -1551,11 +1584,10 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('resources')}
-              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === 'resources'
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'resources'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1570,11 +1602,10 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('settings')}
-              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === 'settings'
+              className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'settings'
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-300'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
@@ -1589,11 +1620,10 @@ export default function AdminPage() {
             {user?.phone !== '01012341234' && (
               <button
                 onClick={() => setActiveTab('coin-settings')}
-                className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-                  activeTab === 'coin-settings'
+                className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'coin-settings'
                     ? 'text-yellow-400'
                     : 'text-gray-400 hover:text-gray-300'
-                }`}
+                  }`}
               >
                 <div className="flex items-center space-x-2">
                   <Coins className="w-4 h-4" />
@@ -1608,9 +1638,8 @@ export default function AdminPage() {
             {/* 팀별 통계 탭 */}
             <button
               onClick={() => setActiveTab('team-stats')}
-              className={`relative px-4 py-3 rounded-lg transition font-medium ${
-                activeTab === 'team-stats' ? 'bg-gray-700 text-yellow-400' : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
-              }`}
+              className={`relative px-4 py-3 rounded-lg transition font-medium ${activeTab === 'team-stats' ? 'bg-gray-700 text-yellow-400' : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <Users className="w-4 h-4" />
@@ -1624,9 +1653,8 @@ export default function AdminPage() {
             {/* 스왑 관리 탭 */}
             <button
               onClick={() => setActiveTab('swap')}
-              className={`relative px-4 py-3 rounded-lg transition font-medium ${
-                activeTab === 'swap' ? 'bg-gray-700 text-yellow-400' : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
-              }`}
+              className={`relative px-4 py-3 rounded-lg transition font-medium ${activeTab === 'swap' ? 'bg-gray-700 text-yellow-400' : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <ArrowRightLeft className="w-4 h-4" />
@@ -1746,10 +1774,9 @@ export default function AdminPage() {
 
                       // 현재 회원 행
                       elements.push(
-                        <tr key={u.id} className={`border-b border-gray-700/50 hover:bg-gray-700/20 ${
-                          u.status === 'BLOCKED' ? 'opacity-60' :
-                          u.status === 'DELETED' ? 'opacity-40' : ''
-                        }`}>
+                        <tr key={u.id} className={`border-b border-gray-700/50 hover:bg-gray-700/20 ${u.status === 'BLOCKED' ? 'opacity-60' :
+                            u.status === 'DELETED' ? 'opacity-40' : ''
+                          }`}>
                           <td className="py-3 px-2 text-sm text-white" style={{ paddingLeft: `${8 + depth * 20}px` }}>
                             {depth > 0 && <span className="text-gray-600 mr-2">└─</span>}
                             #{u.memberNumber}
@@ -1835,11 +1862,10 @@ export default function AdminPage() {
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
-                    currentPage === 1
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition ${currentPage === 1
                       ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                       : 'bg-gray-700 text-white hover:bg-gray-600'
-                  }`}
+                    }`}
                 >
                   이전
                 </button>
@@ -1868,11 +1894,10 @@ export default function AdminPage() {
                     <button
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                        currentPage === pageNum
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition ${currentPage === pageNum
                           ? 'bg-yellow-500 text-gray-900'
                           : 'bg-gray-700 text-white hover:bg-gray-600'
-                      }`}
+                        }`}
                     >
                       {pageNum}
                     </button>
@@ -1883,11 +1908,10 @@ export default function AdminPage() {
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
-                    currentPage === totalPages
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition ${currentPage === totalPages
                       ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                       : 'bg-gray-700 text-white hover:bg-gray-600'
-                  }`}
+                    }`}
                 >
                   다음
                 </button>
@@ -1898,521 +1922,517 @@ export default function AdminPage() {
 
         {/* 배당코인 지급 탭 */}
         {activeTab === 'grant' && (
-        <div className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 rounded-2xl p-6 mb-8 border border-purple-500/30 min-h-[600px]">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-purple-400 flex items-center">
-              <Gift className="w-6 h-6 mr-2" />
-              배당코인 관리
-            </h2>
+          <div className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 rounded-2xl p-6 mb-8 border border-purple-500/30 min-h-[600px]">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-purple-400 flex items-center">
+                <Gift className="w-6 h-6 mr-2" />
+                배당코인 관리
+              </h2>
 
-            {/* 모드 선택 버튼 */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setGrantMode('add')
-                  setGrantAmount('')
-                }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                  grantMode === 'add'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
-              >
-                지급
-              </button>
-              <button
-                onClick={() => {
-                  setGrantMode('set')
-                  setGrantAmount(selectedUser ? selectedUser.dividendCoins.toString() : '')
-                }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                  grantMode === 'set'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
-              >
-                수정
-              </button>
+              {/* 모드 선택 버튼 */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setGrantMode('add')
+                    setGrantAmount('')
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${grantMode === 'add'
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                >
+                  지급
+                </button>
+                <button
+                  onClick={() => {
+                    setGrantMode('set')
+                    setGrantAmount(selectedUser ? selectedUser.dividendCoins.toString() : '')
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${grantMode === 'set'
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                >
+                  수정
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <label className="block text-sm text-gray-300 mb-2">회원 검색 (이름 또는 휴대폰 번호)</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-300 mb-2">회원 검색 (이름 또는 휴대폰 번호)</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="이름 또는 휴대폰 번호로 검색"
+                    value={grantSearchTerm}
+                    onChange={(e) => {
+                      setGrantSearchTerm(e.target.value)
+                      setSelectedUser(null)
+                    }}
+                    className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                  />
+                </div>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-300 mb-2">
+                  회원 선택 {grantSearchTerm && `(${grantFilteredUsers.length}명 검색됨)`}
+                </label>
+                <select
+                  value={selectedUser?.id || ''}
+                  onChange={(e) => setSelectedUser(users.find(u => u.id === e.target.value) || null)}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                >
+                  <option value="">회원을 선택하세요</option>
+                  {(grantSearchTerm ? grantFilteredUsers : users).map(u => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.phone}) - 회원번호: #{u.memberNumber}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {selectedUser && (() => {
+                const roleLabels: Record<string, string> = {
+                  'ADMIN': '관리자',
+                  'GROUP_LEADER': '그룹장',
+                  'TEAM_LEADER': '팀장',
+                  'USER': '일반회원'
+                }
+                const currentRole: string = selectedUser.role || 'USER'
+                // referrerId는 user.id로 저장됨
+                const referrer = selectedUser.referrerId
+                  ? users.find(u => u.id === selectedUser.referrerId)
+                  : null
+                const referredCount = users.filter(u => u.referrerId === selectedUser.id).length
+                const joinDate = new Date(selectedUser.createdAt).toLocaleDateString('en-US')
+
+                // 디버깅
+                if (selectedUser.phone === '01088418964' || selectedUser.phone === '01044818013') {
+                  console.log('증권코인 관리 - 선택된 회원:', selectedUser.name, selectedUser.phone)
+                  console.log('referrerId:', selectedUser.referrerId)
+                  console.log('찾은 추천인:', referrer)
+                  console.log('전체 users 수:', users.length)
+                }
+
+                return (
+                  <div className="md:col-span-2 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                    <p className="text-sm text-gray-400 mb-3">선택된 회원 정보</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <p className="text-xs text-gray-500">이름</p>
+                        <p className="text-white font-medium">{selectedUser.name}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">휴대폰</p>
+                        <p className="text-white font-medium">{selectedUser.phone}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">회원번호</p>
+                        <p className="text-white font-medium">#{selectedUser.memberNumber}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">등급</p>
+                        <p className="text-blue-400 font-medium">{roleLabels[currentRole]}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">가입일</p>
+                        <p className="text-white font-medium">{joinDate}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">추천한 인원</p>
+                        <p className="text-green-400 font-medium">{referredCount}명</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">추천인</p>
+                        <p className="text-purple-400 font-medium">{referrer ? referrer.name : '없음'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">증권코인</p>
+                        <p className="text-blue-400 font-bold">{selectedUser.securityCoins.toLocaleString()}개</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">배당코인</p>
+                        <p className="text-yellow-400 font-bold">{selectedUser.dividendCoins.toLocaleString()}개</p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
+
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-300 mb-3">
+                  {grantMode === 'add' ? '지급 수량' : '배당코인 수량 (현재: ' + (selectedUser?.dividendCoins.toLocaleString() || '0') + '개)'}
+                </label>
+
+                {grantMode === 'add' && (
+                  <div className="flex items-center gap-6 mb-3">
+                    <label className="flex items-center cursor-pointer">
+                      <input
+                        type="radio"
+                        name="amountOption"
+                        value="1000000"
+                        checked={selectedAmountOption === '1000000'}
+                        onChange={(e) => {
+                          setSelectedAmountOption(e.target.value)
+                          setGrantAmount('10000')
+                        }}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="ml-2 text-white">100만원 (10,000개)</span>
+                    </label>
+
+                    <label className="flex items-center cursor-pointer">
+                      <input
+                        type="radio"
+                        name="amountOption"
+                        value="5000000"
+                        checked={selectedAmountOption === '5000000'}
+                        onChange={(e) => {
+                          setSelectedAmountOption(e.target.value)
+                          setGrantAmount('50000')
+                        }}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="ml-2 text-white">500만원 (50,000개)</span>
+                    </label>
+
+                    <label className="flex items-center cursor-pointer">
+                      <input
+                        type="radio"
+                        name="amountOption"
+                        value="10000000"
+                        checked={selectedAmountOption === '10000000'}
+                        onChange={(e) => {
+                          setSelectedAmountOption(e.target.value)
+                          setGrantAmount('100000')
+                        }}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="ml-2 text-white">1,000만원 (100,000개)</span>
+                    </label>
+                  </div>
+                )}
+
+                <input
+                  type="number"
+                  value={grantAmount}
+                  onChange={(e) => {
+                    setGrantAmount(e.target.value)
+                    setSelectedAmountOption('') // 직접 입력 시 라디오 선택 해제
+                  }}
+                  placeholder={grantMode === 'add' ? '10000' : '변경할 수량'}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-300 mb-2">설명 (선택)</label>
                 <input
                   type="text"
-                  placeholder="이름 또는 휴대폰 번호로 검색"
-                  value={grantSearchTerm}
-                  onChange={(e) => {
-                    setGrantSearchTerm(e.target.value)
-                    setSelectedUser(null)
-                  }}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                  value={grantDescription}
+                  onChange={(e) => setGrantDescription(e.target.value)}
+                  placeholder={grantMode === 'add' ? '100만원 입금 확인' : '수정 사유'}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
                 />
               </div>
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm text-gray-300 mb-2">
-                회원 선택 {grantSearchTerm && `(${grantFilteredUsers.length}명 검색됨)`}
-              </label>
-              <select
-                value={selectedUser?.id || ''}
-                onChange={(e) => setSelectedUser(users.find(u => u.id === e.target.value) || null)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              >
-                <option value="">회원을 선택하세요</option>
-                {(grantSearchTerm ? grantFilteredUsers : users).map(u => (
-                  <option key={u.id} value={u.id}>
-                    {u.name} ({u.phone}) - 회원번호: #{u.memberNumber}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* 안내 메시지 */}
+            {grantMode === 'add' ? (
+              <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3">
+                <p className="text-sm text-green-300">
+                  <strong>자동 지급:</strong> 배당코인 지급 시 추천인에게 자동으로 보너스가 지급됩니다. (현재 설정: {coinSettings.referralBonus.toLocaleString()}개)
+                </p>
+              </div>
+            ) : (
+              <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3">
+                <p className="text-sm text-orange-300">
+                  <strong>주의:</strong> 수정 모드는 배당코인을 입력한 값으로 변경합니다. 추천인 보너스는 지급되지 않습니다.
+                </p>
+              </div>
+            )}
 
-            {selectedUser && (() => {
-              const roleLabels: Record<string, string> = {
-                'ADMIN': '관리자',
-                'GROUP_LEADER': '그룹장',
-                'TEAM_LEADER': '팀장',
-                'USER': '일반회원'
-              }
-              const currentRole: string = selectedUser.role || 'USER'
-              // referrerId는 user.id로 저장됨
-              const referrer = selectedUser.referrerId
-                ? users.find(u => u.id === selectedUser.referrerId)
-                : null
-              const referredCount = users.filter(u => u.referrerId === selectedUser.id).length
-              const joinDate = new Date(selectedUser.createdAt).toLocaleDateString('en-US')
-
-              // 디버깅
-              if (selectedUser.phone === '01088418964' || selectedUser.phone === '01044818013') {
-                console.log('증권코인 관리 - 선택된 회원:', selectedUser.name, selectedUser.phone)
-                console.log('referrerId:', selectedUser.referrerId)
-                console.log('찾은 추천인:', referrer)
-                console.log('전체 users 수:', users.length)
-              }
-
-              return (
-                <div className="md:col-span-2 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-                  <p className="text-sm text-gray-400 mb-3">선택된 회원 정보</p>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <p className="text-xs text-gray-500">이름</p>
-                      <p className="text-white font-medium">{selectedUser.name}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">휴대폰</p>
-                      <p className="text-white font-medium">{selectedUser.phone}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">회원번호</p>
-                      <p className="text-white font-medium">#{selectedUser.memberNumber}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">등급</p>
-                      <p className="text-blue-400 font-medium">{roleLabels[currentRole]}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">가입일</p>
-                      <p className="text-white font-medium">{joinDate}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">추천한 인원</p>
-                      <p className="text-green-400 font-medium">{referredCount}명</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">추천인</p>
-                      <p className="text-purple-400 font-medium">{referrer ? referrer.name : '없음'}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">증권코인</p>
-                      <p className="text-blue-400 font-bold">{selectedUser.securityCoins.toLocaleString()}개</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">배당코인</p>
-                      <p className="text-yellow-400 font-bold">{selectedUser.dividendCoins.toLocaleString()}개</p>
-                    </div>
-                  </div>
-                </div>
-              )
-            })()}
-            
-            <div className="md:col-span-2">
-              <label className="block text-sm text-gray-300 mb-3">
-                {grantMode === 'add' ? '지급 수량' : '배당코인 수량 (현재: ' + (selectedUser?.dividendCoins.toLocaleString() || '0') + '개)'}
-              </label>
-
-              {grantMode === 'add' && (
-                <div className="flex items-center gap-6 mb-3">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="amountOption"
-                      value="1000000"
-                      checked={selectedAmountOption === '1000000'}
-                      onChange={(e) => {
-                        setSelectedAmountOption(e.target.value)
-                        setGrantAmount('10000')
-                      }}
-                      className="w-4 h-4 text-purple-600"
-                    />
-                    <span className="ml-2 text-white">100만원 (10,000개)</span>
-                  </label>
-
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="amountOption"
-                      value="5000000"
-                      checked={selectedAmountOption === '5000000'}
-                      onChange={(e) => {
-                        setSelectedAmountOption(e.target.value)
-                        setGrantAmount('50000')
-                      }}
-                      className="w-4 h-4 text-purple-600"
-                    />
-                    <span className="ml-2 text-white">500만원 (50,000개)</span>
-                  </label>
-
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="amountOption"
-                      value="10000000"
-                      checked={selectedAmountOption === '10000000'}
-                      onChange={(e) => {
-                        setSelectedAmountOption(e.target.value)
-                        setGrantAmount('100000')
-                      }}
-                      className="w-4 h-4 text-purple-600"
-                    />
-                    <span className="ml-2 text-white">1,000만원 (100,000개)</span>
-                  </label>
-                </div>
-              )}
-
-              <input
-                type="number"
-                value={grantAmount}
-                onChange={(e) => {
-                  setGrantAmount(e.target.value)
-                  setSelectedAmountOption('') // 직접 입력 시 라디오 선택 해제
-                }}
-                placeholder={grantMode === 'add' ? '10000' : '변경할 수량'}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm text-gray-300 mb-2">설명 (선택)</label>
-              <input
-                type="text"
-                value={grantDescription}
-                onChange={(e) => setGrantDescription(e.target.value)}
-                placeholder={grantMode === 'add' ? '100만원 입금 확인' : '수정 사유'}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              />
-            </div>
+            <button
+              onClick={handleGrantDividendCoins}
+              disabled={!selectedUser || !grantAmount}
+              className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {grantMode === 'add' ? '배당코인 지급' : '배당코인 수정'}
+            </button>
           </div>
-
-          {/* 안내 메시지 */}
-          {grantMode === 'add' ? (
-            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3">
-              <p className="text-sm text-green-300">
-                <strong>자동 지급:</strong> 배당코인 지급 시 추천인에게 자동으로 보너스가 지급됩니다. (현재 설정: {coinSettings.referralBonus.toLocaleString()}개)
-              </p>
-            </div>
-          ) : (
-            <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3">
-              <p className="text-sm text-orange-300">
-                <strong>주의:</strong> 수정 모드는 배당코인을 입력한 값으로 변경합니다. 추천인 보너스는 지급되지 않습니다.
-              </p>
-            </div>
-          )}
-
-          <button
-            onClick={handleGrantDividendCoins}
-            disabled={!selectedUser || !grantAmount}
-            className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            {grantMode === 'add' ? '배당코인 지급' : '배당코인 수정'}
-          </button>
-        </div>
         )}
 
         {/* 증권코인 지급 탭 */}
         {activeTab === 'security-grant' && (
-        <div className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl p-6 mb-8 border border-blue-500/30 min-h-[600px]">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-blue-400 flex items-center">
-              <Coins className="w-6 h-6 mr-2" />
-              증권코인 관리
-            </h2>
+          <div className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl p-6 mb-8 border border-blue-500/30 min-h-[600px]">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-blue-400 flex items-center">
+                <Coins className="w-6 h-6 mr-2" />
+                증권코인 관리
+              </h2>
 
-            {/* 모드 선택 버튼 */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setSecurityGrantMode('add')
-                  setSecurityGrantAmount('')
-                }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                  securityGrantMode === 'add'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
-              >
-                지급
-              </button>
-              <button
-                onClick={() => {
-                  setSecurityGrantMode('set')
-                  setSecurityGrantAmount(securitySelectedUser ? securitySelectedUser.securityCoins.toString() : '')
-                }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                  securityGrantMode === 'set'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
-              >
-                수정
-              </button>
+              {/* 모드 선택 버튼 */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setSecurityGrantMode('add')
+                    setSecurityGrantAmount('')
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${securityGrantMode === 'add'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                >
+                  지급
+                </button>
+                <button
+                  onClick={() => {
+                    setSecurityGrantMode('set')
+                    setSecurityGrantAmount(securitySelectedUser ? securitySelectedUser.securityCoins.toString() : '')
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${securityGrantMode === 'set'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                >
+                  수정
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <label className="block text-sm text-gray-300 mb-2">회원 검색 (이름 또는 휴대폰 번호)</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-300 mb-2">회원 검색 (이름 또는 휴대폰 번호)</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="이름 또는 휴대폰 번호로 검색"
+                    value={securitySearchTerm}
+                    onChange={(e) => {
+                      setSecuritySearchTerm(e.target.value)
+                      setSecuritySelectedUser(null)
+                    }}
+                    className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                  />
+                </div>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-300 mb-2">
+                  회원 선택 {securitySearchTerm && `(${securityFilteredUsers.length}명 검색됨)`}
+                </label>
+                <select
+                  value={securitySelectedUser?.id || ''}
+                  onChange={(e) => setSecuritySelectedUser(users.find(u => u.id === e.target.value) || null)}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                >
+                  <option value="">회원을 선택하세요</option>
+                  {(securitySearchTerm ? securityFilteredUsers : users).map(u => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.phone}) - 회원번호: #{u.memberNumber}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {securitySelectedUser && (() => {
+                const roleLabels: Record<string, string> = {
+                  'ADMIN': '관리자',
+                  'GROUP_LEADER': '그룹장',
+                  'TEAM_LEADER': '팀장',
+                  'USER': '일반회원'
+                }
+                const currentRole: string = securitySelectedUser.role || 'USER'
+                // referrerId는 user.id로 저장됨
+                const referrer = securitySelectedUser.referrerId
+                  ? users.find(u => u.id === securitySelectedUser.referrerId)
+                  : null
+                const referredCount = users.filter(u => u.referrerId === securitySelectedUser.id).length
+                const joinDate = new Date(securitySelectedUser.createdAt).toLocaleDateString('en-US')
+
+                // 디버깅
+                if (securitySelectedUser.phone === '01088418964' || securitySelectedUser.phone === '01044818013') {
+                  console.log('배당코인 관리 - 선택된 회원:', securitySelectedUser.name, securitySelectedUser.phone)
+                  console.log('referrerId:', securitySelectedUser.referrerId)
+                  console.log('찾은 추천인:', referrer)
+                  console.log('전체 users 수:', users.length)
+                }
+
+                return (
+                  <div className="md:col-span-2 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                    <p className="text-sm text-gray-400 mb-3">선택된 회원 정보</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <p className="text-xs text-gray-500">이름</p>
+                        <p className="text-white font-medium">{securitySelectedUser.name}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">휴대폰</p>
+                        <p className="text-white font-medium">{securitySelectedUser.phone}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">회원번호</p>
+                        <p className="text-white font-medium">#{securitySelectedUser.memberNumber}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">등급</p>
+                        <p className="text-blue-400 font-medium">{roleLabels[currentRole]}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">가입일</p>
+                        <p className="text-white font-medium">{joinDate}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">추천한 인원</p>
+                        <p className="text-green-400 font-medium">{referredCount}명</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">추천인</p>
+                        <p className="text-purple-400 font-medium">{referrer ? referrer.name : '없음'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">증권코인</p>
+                        <p className="text-blue-400 font-bold">{securitySelectedUser.securityCoins.toLocaleString()}개</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">배당코인</p>
+                        <p className="text-yellow-400 font-bold">{securitySelectedUser.dividendCoins.toLocaleString()}개</p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
+
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-300 mb-3">
+                  {securityGrantMode === 'add' ? '지급 수량' : '증권코인 수량 (현재: ' + (securitySelectedUser?.securityCoins.toLocaleString() || '0') + '개)'}
+                </label>
+
+                <input
+                  type="number"
+                  value={securityGrantAmount}
+                  onChange={(e) => setSecurityGrantAmount(e.target.value)}
+                  placeholder={securityGrantMode === 'add' ? '지급할 수량 입력' : '변경할 수량'}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-300 mb-2">설명 (선택)</label>
                 <input
                   type="text"
-                  placeholder="이름 또는 휴대폰 번호로 검색"
-                  value={securitySearchTerm}
-                  onChange={(e) => {
-                    setSecuritySearchTerm(e.target.value)
-                    setSecuritySelectedUser(null)
-                  }}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                  value={securityGrantDescription}
+                  onChange={(e) => setSecurityGrantDescription(e.target.value)}
+                  placeholder={securityGrantMode === 'add' ? '증권코인 지급 사유' : '수정 사유'}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
                 />
               </div>
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm text-gray-300 mb-2">
-                회원 선택 {securitySearchTerm && `(${securityFilteredUsers.length}명 검색됨)`}
-              </label>
-              <select
-                value={securitySelectedUser?.id || ''}
-                onChange={(e) => setSecuritySelectedUser(users.find(u => u.id === e.target.value) || null)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              >
-                <option value="">회원을 선택하세요</option>
-                {(securitySearchTerm ? securityFilteredUsers : users).map(u => (
-                  <option key={u.id} value={u.id}>
-                    {u.name} ({u.phone}) - 회원번호: #{u.memberNumber}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* 안내 메시지 */}
+            {securityGrantMode === 'add' ? (
+              <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3 mt-4">
+                <p className="text-sm text-green-300">
+                  <strong>자동 알림:</strong> 증권코인 지급 시 해당 회원에게 자동으로 알림이 발송됩니다.
+                </p>
+              </div>
+            ) : (
+              <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3 mt-4">
+                <p className="text-sm text-orange-300">
+                  <strong>주의:</strong> 수정 모드는 증권코인을 입력한 값으로 변경합니다.
+                </p>
+              </div>
+            )}
 
-            {securitySelectedUser && (() => {
-              const roleLabels: Record<string, string> = {
-                'ADMIN': '관리자',
-                'GROUP_LEADER': '그룹장',
-                'TEAM_LEADER': '팀장',
-                'USER': '일반회원'
-              }
-              const currentRole: string = securitySelectedUser.role || 'USER'
-              // referrerId는 user.id로 저장됨
-              const referrer = securitySelectedUser.referrerId
-                ? users.find(u => u.id === securitySelectedUser.referrerId)
-                : null
-              const referredCount = users.filter(u => u.referrerId === securitySelectedUser.id).length
-              const joinDate = new Date(securitySelectedUser.createdAt).toLocaleDateString('en-US')
-
-              // 디버깅
-              if (securitySelectedUser.phone === '01088418964' || securitySelectedUser.phone === '01044818013') {
-                console.log('배당코인 관리 - 선택된 회원:', securitySelectedUser.name, securitySelectedUser.phone)
-                console.log('referrerId:', securitySelectedUser.referrerId)
-                console.log('찾은 추천인:', referrer)
-                console.log('전체 users 수:', users.length)
-              }
-
-              return (
-                <div className="md:col-span-2 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-                  <p className="text-sm text-gray-400 mb-3">선택된 회원 정보</p>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <p className="text-xs text-gray-500">이름</p>
-                      <p className="text-white font-medium">{securitySelectedUser.name}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">휴대폰</p>
-                      <p className="text-white font-medium">{securitySelectedUser.phone}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">회원번호</p>
-                      <p className="text-white font-medium">#{securitySelectedUser.memberNumber}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">등급</p>
-                      <p className="text-blue-400 font-medium">{roleLabels[currentRole]}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">가입일</p>
-                      <p className="text-white font-medium">{joinDate}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">추천한 인원</p>
-                      <p className="text-green-400 font-medium">{referredCount}명</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">추천인</p>
-                      <p className="text-purple-400 font-medium">{referrer ? referrer.name : '없음'}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">증권코인</p>
-                      <p className="text-blue-400 font-bold">{securitySelectedUser.securityCoins.toLocaleString()}개</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">배당코인</p>
-                      <p className="text-yellow-400 font-bold">{securitySelectedUser.dividendCoins.toLocaleString()}개</p>
-                    </div>
-                  </div>
-                </div>
-              )
-            })()}
-
-            <div className="md:col-span-2">
-              <label className="block text-sm text-gray-300 mb-3">
-                {securityGrantMode === 'add' ? '지급 수량' : '증권코인 수량 (현재: ' + (securitySelectedUser?.securityCoins.toLocaleString() || '0') + '개)'}
-              </label>
-
-              <input
-                type="number"
-                value={securityGrantAmount}
-                onChange={(e) => setSecurityGrantAmount(e.target.value)}
-                placeholder={securityGrantMode === 'add' ? '지급할 수량 입력' : '변경할 수량'}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm text-gray-300 mb-2">설명 (선택)</label>
-              <input
-                type="text"
-                value={securityGrantDescription}
-                onChange={(e) => setSecurityGrantDescription(e.target.value)}
-                placeholder={securityGrantMode === 'add' ? '증권코인 지급 사유' : '수정 사유'}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              />
-            </div>
+            <button
+              onClick={handleGrantSecurityCoins}
+              disabled={!securitySelectedUser || !securityGrantAmount}
+              className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {securityGrantMode === 'add' ? '증권코인 지급' : '증권코인 수정'}
+            </button>
           </div>
-
-          {/* 안내 메시지 */}
-          {securityGrantMode === 'add' ? (
-            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3 mt-4">
-              <p className="text-sm text-green-300">
-                <strong>자동 알림:</strong> 증권코인 지급 시 해당 회원에게 자동으로 알림이 발송됩니다.
-              </p>
-            </div>
-          ) : (
-            <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3 mt-4">
-              <p className="text-sm text-orange-300">
-                <strong>주의:</strong> 수정 모드는 증권코인을 입력한 값으로 변경합니다.
-              </p>
-            </div>
-          )}
-
-          <button
-            onClick={handleGrantSecurityCoins}
-            disabled={!securitySelectedUser || !securityGrantAmount}
-            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            {securityGrantMode === 'add' ? '증권코인 지급' : '증권코인 수정'}
-          </button>
-        </div>
         )}
 
         {/* 회원 등급 관리 탭 */}
         {activeTab === 'roles' && (
-        <div className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl p-6 mb-8 border border-blue-500/30 min-h-[600px]">
-          <h2 className="text-xl font-bold text-blue-400 mb-4 flex items-center">
-            <Shield className="w-6 h-6 mr-2" />
-            회원 등급 관리
-          </h2>
+          <div className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-2xl p-6 mb-8 border border-blue-500/30 min-h-[600px]">
+            <h2 className="text-xl font-bold text-blue-400 mb-4 flex items-center">
+              <Shield className="w-6 h-6 mr-2" />
+              회원 등급 관리
+            </h2>
 
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="md:col-span-3">
-              <label className="block text-sm text-gray-300 mb-2">회원 검색 (이름 또는 휴대폰 번호)</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
-                <input
-                  type="text"
-                  placeholder="이름 또는 휴대폰 번호로 검색"
-                  value={roleSearchTerm}
-                  onChange={(e) => {
-                    setRoleSearchTerm(e.target.value)
-                    setRoleChangeUserId('')
-                  }}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
-                />
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="md:col-span-3">
+                <label className="block text-sm text-gray-300 mb-2">회원 검색 (이름 또는 휴대폰 번호)</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="이름 또는 휴대폰 번호로 검색"
+                    value={roleSearchTerm}
+                    onChange={(e) => {
+                      setRoleSearchTerm(e.target.value)
+                      setRoleChangeUserId('')
+                    }}
+                    className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                  />
+                </div>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-300 mb-2">
+                  회원 선택 {roleSearchTerm && `(${roleFilteredUsers.length}명 검색됨)`}
+                </label>
+                <select
+                  value={roleChangeUserId}
+                  onChange={(e) => setRoleChangeUserId(e.target.value)}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                >
+                  <option value="">회원을 선택하세요</option>
+                  {(roleSearchTerm ? roleFilteredUsers : users.filter(u => !u.isAdmin)).map(u => {
+                    const roleLabels: Record<string, string> = {
+                      'ADMIN': '관리자',
+                      'GROUP_LEADER': '그룹장',
+                      'TEAM_LEADER': '팀장',
+                      'USER': '일반회원'
+                    }
+                    const currentRole: string = u.role || 'USER'
+                    return (
+                      <option key={u.id} value={u.id}>
+                        {u.name} ({u.phone}) - 현재: {roleLabels[currentRole]}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-300 mb-2">변경할 등급</label>
+                <select
+                  value={newRole}
+                  onChange={(e) => setNewRole(e.target.value as 'USER' | 'TEAM_LEADER' | 'GROUP_LEADER')}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                >
+                  <option value="USER">일반회원</option>
+                  <option value="TEAM_LEADER">팀장</option>
+                  <option value="GROUP_LEADER">그룹장</option>
+                </select>
               </div>
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm text-gray-300 mb-2">
-                회원 선택 {roleSearchTerm && `(${roleFilteredUsers.length}명 검색됨)`}
-              </label>
-              <select
-                value={roleChangeUserId}
-                onChange={(e) => setRoleChangeUserId(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              >
-                <option value="">회원을 선택하세요</option>
-                {(roleSearchTerm ? roleFilteredUsers : users.filter(u => !u.isAdmin)).map(u => {
-                  const roleLabels: Record<string, string> = {
-                    'ADMIN': '관리자',
-                    'GROUP_LEADER': '그룹장',
-                    'TEAM_LEADER': '팀장',
-                    'USER': '일반회원'
-                  }
-                  const currentRole: string = u.role || 'USER'
-                  return (
-                    <option key={u.id} value={u.id}>
-                      {u.name} ({u.phone}) - 현재: {roleLabels[currentRole]}
-                    </option>
-                  )
-                })}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm text-gray-300 mb-2">변경할 등급</label>
-              <select
-                value={newRole}
-                onChange={(e) => setNewRole(e.target.value as 'USER' | 'TEAM_LEADER' | 'GROUP_LEADER')}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              >
-                <option value="USER">일반회원</option>
-                <option value="TEAM_LEADER">팀장</option>
-                <option value="GROUP_LEADER">그룹장</option>
-              </select>
-            </div>
+            <button
+              onClick={handleChangeRole}
+              disabled={!roleChangeUserId}
+              className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              등급 변경
+            </button>
           </div>
-
-          <button
-            onClick={handleChangeRole}
-            disabled={!roleChangeUserId}
-            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            등급 변경
-          </button>
-        </div>
         )}
 
         {/* 공지사항 관리 탭 */}
@@ -2517,17 +2537,16 @@ export default function AdminPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
-                          <span className={`px-2 py-1 text-xs rounded ${
-                            resource.type === 'IMPORTANT' ? 'bg-red-500' :
-                            resource.type === 'NOTICE' ? 'bg-blue-500' :
-                            resource.type === 'EVENT' ? 'bg-green-500' :
-                            resource.type === 'UPDATE' ? 'bg-purple-500' :
-                            'bg-gray-500'
-                          } text-white`}>
+                          <span className={`px-2 py-1 text-xs rounded ${resource.type === 'IMPORTANT' ? 'bg-red-500' :
+                              resource.type === 'NOTICE' ? 'bg-blue-500' :
+                                resource.type === 'EVENT' ? 'bg-green-500' :
+                                  resource.type === 'UPDATE' ? 'bg-purple-500' :
+                                    'bg-gray-500'
+                            } text-white`}>
                             {resource.type === 'IMPORTANT' ? '중요' :
-                             resource.type === 'NOTICE' ? '공지' :
-                             resource.type === 'EVENT' ? '이벤트' :
-                             resource.type === 'UPDATE' ? '업데이트' : '일반'}
+                              resource.type === 'NOTICE' ? '공지' :
+                                resource.type === 'EVENT' ? '이벤트' :
+                                  resource.type === 'UPDATE' ? '업데이트' : '일반'}
                           </span>
                           {resource.file_url && (
                             <span className="px-2 py-1 text-xs rounded bg-green-600 text-white">
@@ -2718,7 +2737,7 @@ export default function AdminPage() {
             <div className="bg-gray-700/50 rounded-xl p-6 border border-gray-600 mt-6">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                 <svg className="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm3.5 10.5l-5 3a.5.5 0 01-.75-.433v-6a.5.5 0 01.75-.433l5 3a.5.5 0 010 .866z"/>
+                  <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm3.5 10.5l-5 3a.5.5 0 01-.75-.433v-6a.5.5 0 01.75-.433l5 3a.5.5 0 010 .866z" />
                 </svg>
                 메인 페이지 유튜브 동영상
               </h3>
@@ -2727,7 +2746,7 @@ export default function AdminPage() {
                 <input
                   type="text"
                   value={coinSettings.youtubeUrl}
-                  onChange={(e) => setCoinSettings({...coinSettings, youtubeUrl: e.target.value})}
+                  onChange={(e) => setCoinSettings({ ...coinSettings, youtubeUrl: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="https://www.youtube.com/embed/VIDEO_ID"
                 />
@@ -2808,7 +2827,7 @@ export default function AdminPage() {
                   </label>
                   <select
                     value={coinSettings.boardMaxFileSize}
-                    onChange={(e) => setCoinSettings({...coinSettings, boardMaxFileSize: parseInt(e.target.value)})}
+                    onChange={(e) => setCoinSettings({ ...coinSettings, boardMaxFileSize: parseInt(e.target.value) })}
                     className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value={5242880}>5 MB</option>
@@ -2964,7 +2983,7 @@ export default function AdminPage() {
                         <input
                           type="number"
                           value={coinSettings.dividendCoinPer100}
-                          onChange={(e) => setCoinSettings({...coinSettings, dividendCoinPer100: parseInt(e.target.value) || 10000})}
+                          onChange={(e) => setCoinSettings({ ...coinSettings, dividendCoinPer100: parseInt(e.target.value) || 10000 })}
                           className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
                           placeholder="10000"
                         />
@@ -2987,7 +3006,7 @@ export default function AdminPage() {
                       <input
                         type="number"
                         value={coinSettings.referralBonusPercentage}
-                        onChange={(e) => setCoinSettings({...coinSettings, referralBonusPercentage: parseInt(e.target.value) || 10})}
+                        onChange={(e) => setCoinSettings({ ...coinSettings, referralBonusPercentage: parseInt(e.target.value) || 10 })}
                         className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
                         placeholder="10"
                         min="0"
@@ -3076,8 +3095,7 @@ export default function AdminPage() {
                               onClick={() => {
                                 const updatedRules = memberNumberRules.filter(r => r.id !== rule.id)
                                 setMemberNumberRules(updatedRules)
-                                localStorage.setItem('memberNumberRules', JSON.stringify(updatedRules))
-                                toast.success('규칙이 삭제되었습니다.')
+                                toast.success('규칙이 목록에서 삭제되었습니다. "규칙을 적용하려면 반드시 저장 버튼을 눌러주세요.')
                               }}
                               className="px-3 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition text-sm"
                             >
@@ -3100,7 +3118,7 @@ export default function AdminPage() {
                     <input
                       type="number"
                       value={newRule.memberNumberFrom}
-                      onChange={(e) => setNewRule({...newRule, memberNumberFrom: e.target.value})}
+                      onChange={(e) => setNewRule({ ...newRule, memberNumberFrom: e.target.value })}
                       placeholder="예: 1"
                       className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
                     />
@@ -3110,7 +3128,7 @@ export default function AdminPage() {
                     <input
                       type="number"
                       value={newRule.memberNumberTo}
-                      onChange={(e) => setNewRule({...newRule, memberNumberTo: e.target.value})}
+                      onChange={(e) => setNewRule({ ...newRule, memberNumberTo: e.target.value })}
                       placeholder="예: 100"
                       className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
                     />
@@ -3120,7 +3138,7 @@ export default function AdminPage() {
                     <input
                       type="number"
                       value={newRule.referralBonus}
-                      onChange={(e) => setNewRule({...newRule, referralBonus: e.target.value})}
+                      onChange={(e) => setNewRule({ ...newRule, referralBonus: e.target.value })}
                       placeholder="예: 2000"
                       className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
                     />
@@ -3130,7 +3148,7 @@ export default function AdminPage() {
                     <input
                       type="number"
                       value={newRule.newMemberCoins}
-                      onChange={(e) => setNewRule({...newRule, newMemberCoins: e.target.value})}
+                      onChange={(e) => setNewRule({ ...newRule, newMemberCoins: e.target.value })}
                       placeholder="예: 200"
                       className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
                     />
@@ -3161,7 +3179,6 @@ export default function AdminPage() {
 
                     const updatedRules = [...memberNumberRules, newRuleObj]
                     setMemberNumberRules(updatedRules)
-                    localStorage.setItem('memberNumberRules', JSON.stringify(updatedRules))
 
                     setNewRule({
                       memberNumberFrom: '',
@@ -3170,11 +3187,22 @@ export default function AdminPage() {
                       newMemberCoins: ''
                     })
 
-                    toast.success('회원번호별 규칙이 추가되었습니다!')
+                    toast.success('규칙이 목록에 추가되었습니다. 규칙을 적용하려면 반드시 저장 버튼을 눌러주세요.')
                   }}
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
                 >
                   규칙 추가
+                </button>
+              </div>
+
+              {/* 저장 버튼 */}
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={handleSaveMemberNumberRules}
+                  className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-bold shadow-lg shadow-blue-500/20 flex items-center"
+                >
+                  <Shield className="w-5 h-5 mr-2" />
+                  회원번호별 규칙 전체 저장
                 </button>
               </div>
 
@@ -3757,20 +3785,19 @@ export default function AdminPage() {
                   <p className="text-sm text-gray-400">등급</p>
                   <p className="text-lg font-semibold text-blue-400">
                     {selectedUserDetail.role === 'ADMIN' ? '관리자' :
-                     selectedUserDetail.role === 'TEAM_LEADER' ? '팀장' : '일반회원'}
+                      selectedUserDetail.role === 'TEAM_LEADER' ? '팀장' : '일반회원'}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-sm text-gray-400">계정 상태</p>
-                  <p className={`text-lg font-semibold ${
-                    selectedUserDetail.status === 'BLOCKED' ? 'text-red-400' :
-                    selectedUserDetail.status === 'DELETED' ? 'text-gray-500' :
-                    'text-green-400'
-                  }`}>
+                  <p className={`text-lg font-semibold ${selectedUserDetail.status === 'BLOCKED' ? 'text-red-400' :
+                      selectedUserDetail.status === 'DELETED' ? 'text-gray-500' :
+                        'text-green-400'
+                    }`}>
                     {selectedUserDetail.status === 'BLOCKED' ? '🚫 차단됨' :
-                     selectedUserDetail.status === 'DELETED' ? '❌ 탈퇴' :
-                     '✅ 정상'}
+                      selectedUserDetail.status === 'DELETED' ? '❌ 탈퇴' :
+                        '✅ 정상'}
                   </p>
                 </div>
 
@@ -4107,7 +4134,7 @@ export default function AdminPage() {
                 </label>
                 <select
                   value={resourceForm.type}
-                  onChange={(e) => setResourceForm({...resourceForm, type: e.target.value})}
+                  onChange={(e) => setResourceForm({ ...resourceForm, type: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
                 >
                   <option value="IMPORTANT">중요</option>
@@ -4125,7 +4152,7 @@ export default function AdminPage() {
                 <input
                   type="text"
                   value={resourceForm.title}
-                  onChange={(e) => setResourceForm({...resourceForm, title: e.target.value})}
+                  onChange={(e) => setResourceForm({ ...resourceForm, title: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   placeholder="제목을 입력하세요"
                 />
@@ -4137,7 +4164,7 @@ export default function AdminPage() {
                 </label>
                 <textarea
                   value={resourceForm.content}
-                  onChange={(e) => setResourceForm({...resourceForm, content: e.target.value})}
+                  onChange={(e) => setResourceForm({ ...resourceForm, content: e.target.value })}
                   rows={10}
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   placeholder="내용을 입력하세요"
@@ -4158,7 +4185,7 @@ export default function AdminPage() {
                         e.target.value = ''
                         return
                       }
-                      setResourceForm({...resourceForm, file})
+                      setResourceForm({ ...resourceForm, file })
                       setUploadedFile(null)
                     }
                   }}

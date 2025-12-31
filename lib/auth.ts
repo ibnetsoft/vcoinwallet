@@ -40,11 +40,11 @@ export const generateReferralCode = (): string => {
 // 코인 지급 규칙 계산
 export const calculateSignupBonus = (memberNumber: number): { securityCoins: number; referralBonus: number } => {
   if (memberNumber <= 10000) {
-    return { securityCoins: 500, referralBonus: 1000 }
+    return { securityCoins: 130, referralBonus: 260 }
   } else if (memberNumber <= 20000) {
-    return { securityCoins: 300, referralBonus: 600 }
+    return { securityCoins: 50, referralBonus: 100 }
   } else if (memberNumber <= 100000) {
-    return { securityCoins: 200, referralBonus: 400 }
+    return { securityCoins: 20, referralBonus: 40 }
   }
-  return { securityCoins: 100, referralBonus: 200 } // 10만명 이후
+  return { securityCoins: 10, referralBonus: 20 } // 10만명 이후
 }

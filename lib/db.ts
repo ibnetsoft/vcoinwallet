@@ -36,6 +36,14 @@ interface Transaction {
   createdAt: string
 }
 
+interface MemberNumberRule {
+  id: string
+  memberNumberFrom: number
+  memberNumberTo: number
+  referralBonus: number
+  newMemberCoins: number
+}
+
 interface SystemConfig {
   securityCoinNewUser: number
   securityCoinReferral: number
@@ -44,6 +52,7 @@ interface SystemConfig {
   youtubeUrl?: string  // 메인 페이지 유튜브 동영상 URL
   boardName?: string  // 게시판 게시판 이름
   boardMaxFileSize?: number  // 파일 최대 크기 (bytes)
+  memberNumberRules?: MemberNumberRule[] // 회원번호별 보너스 규칙
 }
 
 interface Notification {
@@ -143,8 +152,28 @@ export const db = {
       memberNumber = 1
     }
 
-    // 보너스 계산
-    const { securityCoins, referralBonus } = calculateSignupBonus(memberNumber)
+    // 보너스 계산 (DB에서 규칙 가져오기)
+    let bonusRules: MemberNumberRule[] = []
+    try {
+      bonusRules = await this.getMemberNumberRules()
+    } catch (e) {
+      console.warn('Failed to fetch bonus rules, using hardcoded fallback', e)
+    }
+
+    let securityCoins = 100
+    let referralBonus = 200
+
+    if (bonusRules && bonusRules.length > 0) {
+      const applicableRule = bonusRules.find(r => memberNumber >= r.memberNumberFrom && memberNumber <= r.memberNumberTo)
+      if (applicableRule) {
+        securityCoins = applicableRule.newMemberCoins
+        referralBonus = applicableRule.referralBonus
+      }
+    } else {
+      // 규칙이 없는 경우 기존 하드코딩 로직 사용 (130 / 260)
+      securityCoins = 130
+      referralBonus = 260
+    }
 
     // 추천인 확인
     let referrer = null
@@ -686,6 +715,74 @@ export const db = {
     return data.map(convertFromSupabaseUser)
   },
 
+  // 회원번호별 규칙 조회
+  async getMemberNumberRules(): Promise<MemberNumberRule[]> {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('metadata')
+        .select('value')
+        .eq('key', 'member_number_rules')
+        .single()
+
+      if (error || !data) {
+        // 기본 규칙 반환 (lib/auth.ts와 동기화)
+        return [
+          {
+            id: 'default-1',
+            memberNumberFrom: 1,
+            memberNumberTo: 10000,
+            referralBonus: 260,
+            newMemberCoins: 130
+          },
+          {
+            id: 'default-2',
+            memberNumberFrom: 10001,
+            memberNumberTo: 20000,
+            referralBonus: 100,
+            newMemberCoins: 50
+          },
+          {
+            id: 'default-3',
+            memberNumberFrom: 20001,
+            memberNumberTo: 100000,
+            referralBonus: 40,
+            newMemberCoins: 20
+          },
+          {
+            id: 'default-4',
+            memberNumberFrom: 100001,
+            memberNumberTo: 999999,
+            referralBonus: 20,
+            newMemberCoins: 10
+          }
+        ]
+      }
+
+      return typeof data.value === 'string' ? JSON.parse(data.value) : data.value
+    } catch (error) {
+      console.error('Error fetching member number rules:', error)
+      return []
+    }
+  },
+
+  // 회원번호별 규칙 저장
+  async saveMemberNumberRules(rules: MemberNumberRule[]): Promise<boolean> {
+    try {
+      const { error } = await supabaseAdmin
+        .from('metadata')
+        .upsert({
+          key: 'member_number_rules',
+          value: JSON.stringify(rules),
+          updated_at: new Date().toISOString()
+        })
+
+      return !error
+    } catch (error) {
+      console.error('Error saving member number rules:', error)
+      return false
+    }
+  },
+
   // 시스템 설정 조회
   async getSystemConfig(): Promise<SystemConfig> {
     try {
@@ -704,9 +801,9 @@ export const db = {
       if (error || !data) {
         // 에러 시 기본값 반환
         return {
-          securityCoinNewUser: 500,
-          securityCoinReferral: 1000,
-          dividendCoinPer100: 10000,
+          securityCoinNewUser: 130,
+          securityCoinReferral: 260,
+          dividendCoinPer100: 260,
           dividendCoinReferralPercentage: 10
         }
       }
@@ -718,9 +815,9 @@ export const db = {
       })
 
       return {
-        securityCoinNewUser: config.security_coin_new_user || 500,
-        securityCoinReferral: config.security_coin_referral || 1000,
-        dividendCoinPer100: config.dividend_coin_per_100 || 10000,
+        securityCoinNewUser: config.security_coin_new_user || 130,
+        securityCoinReferral: config.security_coin_referral || 260,
+        dividendCoinPer100: config.dividend_coin_per_100 || 260,
         dividendCoinReferralPercentage: config.dividend_coin_referral_percentage || 10,
         youtubeUrl: config.youtube_url || 'https://www.youtube.com/embed/mJPAA9OzoPI',
         boardName: '게시판',  // Fixed value (metadata.value is integer only)
@@ -729,9 +826,9 @@ export const db = {
     } catch (error) {
       // 에러 시 기본값 반환
       return {
-        securityCoinNewUser: 500,
-        securityCoinReferral: 1000,
-        dividendCoinPer100: 10000,
+        securityCoinNewUser: 130,
+        securityCoinReferral: 260,
+        dividendCoinPer100: 260,
         dividendCoinReferralPercentage: 10,
         youtubeUrl: 'https://www.youtube.com/embed/mJPAA9OzoPI',
         boardName: '게시판',
