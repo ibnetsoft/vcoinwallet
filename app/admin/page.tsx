@@ -230,17 +230,17 @@ export default function AdminPage() {
       }
 
       try {
-        const response = await fetch('/api/user/profile', {
+        const response = await fetch('/api/auth/check-session', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         })
 
-        if (!response.ok) {
+        const data = await response.json()
+
+        if (!response.ok || !data.valid) {
           throw new Error('인증 실패')
         }
-
-        const data = await response.json()
         if (!data.user?.isAdmin) {
           router.push('/')
           return
@@ -1363,8 +1363,8 @@ export default function AdminPage() {
                   setEndDate('')
                 }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition ${periodFilter === 'all'
-                    ? 'bg-yellow-500 text-gray-900'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  ? 'bg-yellow-500 text-gray-900'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                   }`}
               >
                 전체
@@ -1505,8 +1505,8 @@ export default function AdminPage() {
             <button
               onClick={() => setActiveTab('users')}
               className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'users'
-                  ? 'text-yellow-400'
-                  : 'text-gray-400 hover:text-gray-300'
+                ? 'text-yellow-400'
+                : 'text-gray-400 hover:text-gray-300'
                 }`}
             >
               <div className="flex items-center space-x-2">
@@ -1521,8 +1521,8 @@ export default function AdminPage() {
             <button
               onClick={() => setActiveTab('grant')}
               className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'grant'
-                  ? 'text-yellow-400'
-                  : 'text-gray-400 hover:text-gray-300'
+                ? 'text-yellow-400'
+                : 'text-gray-400 hover:text-gray-300'
                 }`}
             >
               <div className="flex items-center space-x-2">
@@ -1537,8 +1537,8 @@ export default function AdminPage() {
             <button
               onClick={() => setActiveTab('security-grant')}
               className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'security-grant'
-                  ? 'text-yellow-400'
-                  : 'text-gray-400 hover:text-gray-300'
+                ? 'text-yellow-400'
+                : 'text-gray-400 hover:text-gray-300'
                 }`}
             >
               <div className="flex items-center space-x-2">
@@ -1553,8 +1553,8 @@ export default function AdminPage() {
             <button
               onClick={() => setActiveTab('roles')}
               className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'roles'
-                  ? 'text-yellow-400'
-                  : 'text-gray-400 hover:text-gray-300'
+                ? 'text-yellow-400'
+                : 'text-gray-400 hover:text-gray-300'
                 }`}
             >
               <div className="flex items-center space-x-2">
@@ -1569,8 +1569,8 @@ export default function AdminPage() {
             <button
               onClick={() => setActiveTab('notice')}
               className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'notice'
-                  ? 'text-yellow-400'
-                  : 'text-gray-400 hover:text-gray-300'
+                ? 'text-yellow-400'
+                : 'text-gray-400 hover:text-gray-300'
                 }`}
             >
               <div className="flex items-center space-x-2">
@@ -1585,8 +1585,8 @@ export default function AdminPage() {
             <button
               onClick={() => setActiveTab('resources')}
               className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'resources'
-                  ? 'text-yellow-400'
-                  : 'text-gray-400 hover:text-gray-300'
+                ? 'text-yellow-400'
+                : 'text-gray-400 hover:text-gray-300'
                 }`}
             >
               <div className="flex items-center space-x-2">
@@ -1603,8 +1603,8 @@ export default function AdminPage() {
             <button
               onClick={() => setActiveTab('settings')}
               className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'settings'
-                  ? 'text-yellow-400'
-                  : 'text-gray-400 hover:text-gray-300'
+                ? 'text-yellow-400'
+                : 'text-gray-400 hover:text-gray-300'
                 }`}
             >
               <div className="flex items-center space-x-2">
@@ -1621,8 +1621,8 @@ export default function AdminPage() {
               <button
                 onClick={() => setActiveTab('coin-settings')}
                 className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === 'coin-settings'
-                    ? 'text-yellow-400'
-                    : 'text-gray-400 hover:text-gray-300'
+                  ? 'text-yellow-400'
+                  : 'text-gray-400 hover:text-gray-300'
                   }`}
               >
                 <div className="flex items-center space-x-2">
@@ -1775,7 +1775,7 @@ export default function AdminPage() {
                       // 현재 회원 행
                       elements.push(
                         <tr key={u.id} className={`border-b border-gray-700/50 hover:bg-gray-700/20 ${u.status === 'BLOCKED' ? 'opacity-60' :
-                            u.status === 'DELETED' ? 'opacity-40' : ''
+                          u.status === 'DELETED' ? 'opacity-40' : ''
                           }`}>
                           <td className="py-3 px-2 text-sm text-white" style={{ paddingLeft: `${8 + depth * 20}px` }}>
                             {depth > 0 && <span className="text-gray-600 mr-2">└─</span>}
@@ -1863,8 +1863,8 @@ export default function AdminPage() {
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition ${currentPage === 1
-                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                      : 'bg-gray-700 text-white hover:bg-gray-600'
+                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-700 text-white hover:bg-gray-600'
                     }`}
                 >
                   이전
@@ -1895,8 +1895,8 @@ export default function AdminPage() {
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition ${currentPage === pageNum
-                          ? 'bg-yellow-500 text-gray-900'
-                          : 'bg-gray-700 text-white hover:bg-gray-600'
+                        ? 'bg-yellow-500 text-gray-900'
+                        : 'bg-gray-700 text-white hover:bg-gray-600'
                         }`}
                     >
                       {pageNum}
@@ -1909,8 +1909,8 @@ export default function AdminPage() {
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition ${currentPage === totalPages
-                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                      : 'bg-gray-700 text-white hover:bg-gray-600'
+                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-700 text-white hover:bg-gray-600'
                     }`}
                 >
                   다음
@@ -1937,8 +1937,8 @@ export default function AdminPage() {
                     setGrantAmount('')
                   }}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition ${grantMode === 'add'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                     }`}
                 >
                   지급
@@ -1949,8 +1949,8 @@ export default function AdminPage() {
                     setGrantAmount(selectedUser ? selectedUser.dividendCoins.toString() : '')
                   }}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition ${grantMode === 'set'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                     }`}
                 >
                   수정
@@ -2182,8 +2182,8 @@ export default function AdminPage() {
                     setSecurityGrantAmount('')
                   }}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition ${securityGrantMode === 'add'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                     }`}
                 >
                   지급
@@ -2194,8 +2194,8 @@ export default function AdminPage() {
                     setSecurityGrantAmount(securitySelectedUser ? securitySelectedUser.securityCoins.toString() : '')
                   }}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition ${securityGrantMode === 'set'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                     }`}
                 >
                   수정
@@ -2538,10 +2538,10 @@ export default function AdminPage() {
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
                           <span className={`px-2 py-1 text-xs rounded ${resource.type === 'IMPORTANT' ? 'bg-red-500' :
-                              resource.type === 'NOTICE' ? 'bg-blue-500' :
-                                resource.type === 'EVENT' ? 'bg-green-500' :
-                                  resource.type === 'UPDATE' ? 'bg-purple-500' :
-                                    'bg-gray-500'
+                            resource.type === 'NOTICE' ? 'bg-blue-500' :
+                              resource.type === 'EVENT' ? 'bg-green-500' :
+                                resource.type === 'UPDATE' ? 'bg-purple-500' :
+                                  'bg-gray-500'
                             } text-white`}>
                             {resource.type === 'IMPORTANT' ? '중요' :
                               resource.type === 'NOTICE' ? '공지' :
@@ -3792,8 +3792,8 @@ export default function AdminPage() {
                 <div>
                   <p className="text-sm text-gray-400">계정 상태</p>
                   <p className={`text-lg font-semibold ${selectedUserDetail.status === 'BLOCKED' ? 'text-red-400' :
-                      selectedUserDetail.status === 'DELETED' ? 'text-gray-500' :
-                        'text-green-400'
+                    selectedUserDetail.status === 'DELETED' ? 'text-gray-500' :
+                      'text-green-400'
                     }`}>
                     {selectedUserDetail.status === 'BLOCKED' ? '🚫 차단됨' :
                       selectedUserDetail.status === 'DELETED' ? '❌ 탈퇴' :
