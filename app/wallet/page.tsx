@@ -15,6 +15,7 @@ export default function WalletPage() {
   const [referredUsers, setReferredUsers] = useState<any[]>([])
   const [isTeamLeader, setIsTeamLeader] = useState(false)
   const [teamStats, setTeamStats] = useState<any>(null)
+  const [totalReferralBonus, setTotalReferralBonus] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'wallet' | 'transactions' | 'referral' | 'notice' | 'mypage'>('wallet')
   const [expandedReferrals, setExpandedReferrals] = useState<Set<string>>(new Set())
@@ -206,6 +207,7 @@ export default function WalletPage() {
         setReferredUsers(data.referredUsers || [])
         setIsTeamLeader(data.isTeamLeader || false)
         setTeamStats(data.teamStats || null)
+        setTotalReferralBonus(data.totalReferralBonus || 0)
       }
     } catch (error) {
       console.error('추천 회원 목록 가져오기 실패:', error)
@@ -610,7 +612,7 @@ export default function WalletPage() {
     const googlePlayUrl = 'https://play.google.com/store/apps/details?id=com.threedvcoin.wallet'
     const shareText = `V COIN과 함께 태양광 투자로 안정적인 수익을 만들어보세요!
 
-지금 가입하면 증권코인 500개 + 추천 보너스 1,000개!
+지금 가입하면 증권코인 130개 + 추천 보너스 260개!
 추천 코드: ${user?.referralCode}
 
 앱 다운로드: ${googlePlayUrl}`
@@ -1353,8 +1355,8 @@ export default function WalletPage() {
                   <Coins className="w-6 h-6 text-blue-400 mr-2" />
                   <h3 className="text-lg font-semibold text-white">{t('referral.receivedBonus')}</h3>
                 </div>
-                <p className="text-4xl font-bold text-blue-400">{(referredUsers.length * 1000).toLocaleString()}{t('wallet.pieces')}</p>
-                <p className="text-xs text-gray-500 mt-2">{t('wallet.securityCoins')}</p>
+                <p className="text-4xl font-bold text-blue-400">{totalReferralBonus.toLocaleString()}{t('wallet.pieces')}</p>
+                <p className="text-xs text-gray-500 mt-2">{t('wallet.securityCoins')}(합계)</p>
               </div>
             </div>
 

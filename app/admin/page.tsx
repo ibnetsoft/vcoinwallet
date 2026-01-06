@@ -113,9 +113,9 @@ export default function AdminPage() {
 
   // 코인지급 설정 상태
   const [coinSettings, setCoinSettings] = useState({
-    newUserReward: 500, // 신규 가입 보너스
-    referralBonus: 1000, // 추천인 보너스 (안전코인)
-    dividendCoinPer100: 10000, // 100만원당 배당코인
+    newUserReward: 130, // 신규 가입 보너스
+    referralBonus: 260, // 추천인 보너스 (안전코인)
+    dividendCoinPer100: 2600, // 100만원당 배당코인
     referralBonusPercentage: 10, // 배당코인 추천 보너스 비율 (%)
     youtubeUrl: 'https://www.youtube.com/embed/mJPAA9OzoPI', // 메인 페이지 유튜브 URL
     boardName: '게시판', // 게시판 이름
