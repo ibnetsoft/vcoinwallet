@@ -132,7 +132,10 @@ export async function GET(request: NextRequest) {
     // 추천 보너스 총합 계산 (증권코인 기준)
     const transactions = await db.getTransactionsByUserId(user.id)
     const totalReferralBonus = transactions
-      .filter(tx => tx.type === 'REFERRAL_BONUS' && tx.coinType === 'SECURITY')
+      .filter(tx =>
+        (tx.type === 'REFERRAL_BONUS' || tx.type === 'SIGNUP_BONUS' || tx.type === 'BONUS_RECLAIM') &&
+        tx.coinType === 'SECURITY'
+      )
       .reduce((sum, tx) => sum + tx.amount, 0)
 
     return NextResponse.json({

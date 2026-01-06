@@ -145,7 +145,7 @@
     "noReferrals": "아직 추천한 회원이 없습니다",
     "noReferralsDesc": "친구를 초대하고 보너스를 받아보세요!",
     "directReferrals": "직접 추천한 인원",
-    "receivedBonus": "받은 추천 보너스",
+    "receivedBonus": "보너스 획득 총계",
     "referredList": "추천한 회원 목록"
   },
   "admin": {
