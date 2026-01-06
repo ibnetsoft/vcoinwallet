@@ -1356,7 +1356,7 @@ export default function WalletPage() {
                   <h3 className="text-lg font-semibold text-white">{t('referral.receivedBonus')}</h3>
                 </div>
                 <p className="text-4xl font-bold text-blue-400">{totalReferralBonus.toLocaleString()}{t('wallet.pieces')}</p>
-                <p className="text-xs text-gray-500 mt-2">{t('wallet.securityCoins')}(합계)</p>
+                <p className="text-xs text-gray-500 mt-2">{t('wallet.securityCoins')}</p>
               </div>
             </div>
 

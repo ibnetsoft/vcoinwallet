@@ -140,11 +140,7 @@ export async function GET(request: NextRequest) {
       total: safeReferredUsers.length,
       isTeamLeader: canViewTeamStats, // 프론트엔드에서 stats 표시 여부를 결정하는 플래그로 사용
       teamStats,
-      totalReferralBonus,
-      debug: {
-        txCount: transactions.length,
-        referralBonusTxCount: transactions.filter(tx => tx.type === 'REFERRAL_BONUS' && tx.coinType === 'SECURITY').length
-      }
+      totalReferralBonus
     })
 
   } catch (error) {
