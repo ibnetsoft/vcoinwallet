@@ -1,12 +1,8 @@
 // Service Worker for PWA and Push Notifications
 
-const CACHE_NAME = 'vcoin-v1'
+const CACHE_NAME = 'vcoin-v2'
+// HTML은 fetch에서 네트워크 우선이므로 설치 시 캐시하지 않음 (F5 시 항상 최신 버전)
 const urlsToCache = [
-  '/',
-  '/wallet',
-  '/notices',
-  '/login',
-  '/signup',
   '/vcoin_logo.png',
   '/manifest.json'
 ]
@@ -35,36 +31,44 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - document(HTML)는 항상 네트워크 우선, 나머지는 캐시 우선
 self.addEventListener('fetch', (event) => {
-  // chrome-extension 등 지원되지 않는 스킴은 무시
   if (!event.request.url.startsWith('http')) {
     return
   }
 
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response
-        }
-        return fetch(event.request).then((response) => {
-          // Don't cache if not a valid response
+  const isDocument = event.request.mode === 'navigate' || event.request.destination === 'document'
+
+  if (isDocument) {
+    // HTML 페이지: 네트워크 우선 (캐시 시 F5 시 예전 버전 노출 방지)
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
           if (!response || response.status !== 200 || response.type !== 'basic') {
             return response
           }
           const responseToCache = response.clone()
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache)
-            })
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache))
           return response
-        }).catch(() => {
-          // 네트워크 오류 시 빈 응답 반환
-          return new Response('', { status: 408, statusText: 'Request Timeout' })
         })
-      })
+        .catch(() => caches.match(event.request).then((cached) => cached || new Response('', { status: 408, statusText: 'Request Timeout' })))
+    )
+    return
+  }
+
+  // 정적 리소스: 캐시 우선, 없으면 네트워크
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      if (response) return response
+      return fetch(event.request).then((response) => {
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response
+        }
+        const responseToCache = response.clone()
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache))
+        return response
+      }).catch(() => new Response('', { status: 408, statusText: 'Request Timeout' }))
+    })
   )
 })
 

@@ -48,6 +48,12 @@ export default function WalletPage() {
   const [swapRequests, setSwapRequests] = useState<any[]>([])
   const [isSwapLoading, setIsSwapLoading] = useState(false)
 
+  // 쇼핑몰 마일리지 전환 관련 상태
+  const [showMallTransferModal, setShowMallTransferModal] = useState(false)
+  const [mallTransferReferralCode, setMallTransferReferralCode] = useState('')
+  const [mallTransferAmount, setMallTransferAmount] = useState('')
+  const [isMallTransferLoading, setIsMallTransferLoading] = useState(false)
+
   useEffect(() => {
     const token = localStorage.getItem('token')
     const userData = localStorage.getItem('user')
@@ -77,7 +83,7 @@ export default function WalletPage() {
     // 푸시 알림 구독 요청 (웹/네이티브 분기)
     initPushNotifications(token)
 
-    setIsLoading(false)
+    // isLoading은 fetchUserInfo에서 user 준비 후 해제 (버튼 깜빡임 방지)
 
     // 10초마다 알림 업데이트
     const notificationInterval = setInterval(() => {
@@ -157,6 +163,9 @@ export default function WalletPage() {
           newPassword: '',
           confirmPassword: ''
         })
+        setIsLoading(false)
+      } else {
+        setIsLoading(false)
       }
     } catch (error) {
       console.error('사용자 정보 가져오기 실패:', error)
@@ -174,6 +183,7 @@ export default function WalletPage() {
           confirmPassword: ''
         })
       }
+      setIsLoading(false)
     }
   }
 
@@ -291,6 +301,57 @@ export default function WalletPage() {
       toast.error(error.message || '스왑 요청 중 오류가 발생했습니다.')
     } finally {
       setIsSwapLoading(false)
+    }
+  }
+
+  const handleMallTransfer = async () => {
+    const code = mallTransferReferralCode.trim()
+    const amount = parseInt(mallTransferAmount, 10)
+    if (!code) {
+      toast.error('쇼핑몰 회원코드를 입력해주세요.')
+      return
+    }
+    if (!Number.isInteger(amount) || amount <= 0) {
+      toast.error('전환 수량을 입력해주세요.')
+      return
+    }
+    if (amount > (user?.securityCoins ?? 0)) {
+      toast.error('보유 증권코인보다 많을 수 없습니다.')
+      return
+    }
+    const token = localStorage.getItem('token')
+    if (!token) {
+      toast.error('다시 로그인해주세요.')
+      return
+    }
+    setIsMallTransferLoading(true)
+    try {
+      const response = await fetch('/api/wallet/transfer-to-mall', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ referralCode: code, amount }),
+      })
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.error || '쇼핑몰 마일리지 전환에 실패했습니다.')
+      }
+      toast.success(result.message || `쇼핑몰 마일리지 ${(amount * 10000).toLocaleString()}P가 적립되었습니다.`)
+      setShowMallTransferModal(false)
+      setMallTransferReferralCode('')
+      setMallTransferAmount('')
+      const userData = localStorage.getItem('user')
+      if (userData) {
+        const parsedUser = JSON.parse(userData)
+        fetchUserInfo(parsedUser.id, token)
+        fetchTransactions(parsedUser.id, token)
+      }
+    } catch (error: any) {
+      toast.error(error.message || '쇼핑몰 마일리지 전환 중 오류가 발생했습니다.')
+    } finally {
+      setIsMallTransferLoading(false)
     }
   }
 
@@ -967,6 +1028,14 @@ export default function WalletPage() {
                 <p className="text-xs text-gray-500 mt-2">
                   {t('wallet.companyProfit')}
                 </p>
+                {/* 쇼핑몰 마일리지 전환 버튼 */}
+                <button
+                  onClick={() => setShowMallTransferModal(true)}
+                  className="mt-4 w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-400 hover:to-indigo-400 transition font-semibold flex items-center justify-center"
+                >
+                  <Wallet className="w-4 h-4 mr-2" />
+                  쇼핑몰 마일리지 전환
+                </button>
               </div>
 
               {/* 배당코인 */}
@@ -1223,13 +1292,15 @@ export default function WalletPage() {
                             tx.type === 'REFERRAL_BONUS' ? 'bg-purple-500/20 text-purple-400' :
                               tx.type === 'ADMIN_GRANT' ? 'bg-orange-500/20 text-orange-400' :
                                 tx.type === 'BONUS_RECLAIM' ? 'bg-red-500/20 text-red-400' :
-                                  'bg-gray-500/20 text-gray-400'
+                                  tx.type === 'MALL_TRANSFER' ? 'bg-blue-500/20 text-blue-400' :
+                                    'bg-gray-500/20 text-gray-400'
                             }`}>
                             {tx.type === 'SIGNUP_BONUS' ? t('wallet.signupBonus') :
                               tx.type === 'REFERRAL_BONUS' ? t('referral.referralBonus') :
                                 tx.type === 'ADMIN_GRANT' ? t('admin.grantCoins') :
                                   tx.type === 'BONUS_RECLAIM' ? '추천 보너스 회수' :
-                                    tx.type}
+                                    tx.type === 'MALL_TRANSFER' ? '쇼핑몰 마일리지 전환' :
+                                      tx.type}
                           </span>
                         </div>
                       </div>
@@ -1975,6 +2046,118 @@ export default function WalletPage() {
                   }`}
               >
                 {isSwapLoading ? t('wallet.requesting') : t('wallet.swapRequestTitle')}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* 쇼핑몰 마일리지 전환 모달 */}
+      {showMallTransferModal && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/60 z-[9998]"
+            onClick={() => !isMallTransferLoading && setShowMallTransferModal(false)}
+          />
+          <div className="fixed left-4 right-4 sm:left-1/2 sm:right-auto top-1/2 -translate-y-1/2 sm:-translate-x-1/2 w-auto sm:w-[500px] bg-gray-900 border border-blue-500/50 rounded-xl shadow-xl z-[9999] p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Wallet className="w-8 h-8 text-blue-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">쇼핑몰 마일리지 전환</h3>
+              <p className="text-sm text-gray-400">증권코인을 쇼핑몰 마일리지로 전환합니다 (1:10000)</p>
+            </div>
+
+            <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-400">보유 증권코인</span>
+                <span className="text-lg font-bold text-blue-400">{user?.securityCoins?.toLocaleString() || 0}개</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-400">전환 비율</span>
+                <span className="text-sm text-green-400">1 : 10000 (쇼핑몰 마일리지 P)</span>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm text-gray-300 mb-2">쇼핑몰 회원코드</label>
+              <input
+                type="text"
+                value={mallTransferReferralCode}
+                onChange={(e) => setMallTransferReferralCode(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                placeholder="회원코드(레퍼럴코드) 입력"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm text-gray-300 mb-2">전환 수량 (증권코인)</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={mallTransferAmount}
+                  onChange={(e) => setMallTransferAmount(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  placeholder="0"
+                  min="1"
+                  max={user?.securityCoins || 0}
+                />
+                <button
+                  type="button"
+                  onClick={() => setMallTransferAmount(String(user?.securityCoins || 0))}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-blue-500/20 text-blue-400 rounded text-sm hover:bg-blue-500/30 transition"
+                >
+                  전액
+                </button>
+              </div>
+              {mallTransferAmount && parseInt(mallTransferAmount, 10) > 0 && (
+                <p className="text-sm text-green-400 mt-2">
+                  → 쇼핑몰 마일리지 {(parseInt(mallTransferAmount, 10) * 10000).toLocaleString()}P 적립
+                </p>
+              )}
+            </div>
+
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
+              <p className="text-sm text-blue-400">
+                전환 시 해당 쇼핑몰 회원코드 계정으로 마일리지가 적립됩니다. 전환 후에는 취소할 수 없습니다.
+              </p>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isMallTransferLoading) {
+                    setShowMallTransferModal(false)
+                    setMallTransferReferralCode('')
+                    setMallTransferAmount('')
+                  }
+                }}
+                disabled={isMallTransferLoading}
+                className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold disabled:opacity-50"
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={handleMallTransfer}
+                disabled={
+                  !mallTransferReferralCode.trim() ||
+                  !mallTransferAmount ||
+                  parseInt(mallTransferAmount, 10) <= 0 ||
+                  parseInt(mallTransferAmount, 10) > (user?.securityCoins ?? 0) ||
+                  isMallTransferLoading
+                }
+                className={`flex-1 px-4 py-3 rounded-lg transition font-semibold ${
+                  mallTransferReferralCode.trim() &&
+                  parseInt(mallTransferAmount, 10) > 0 &&
+                  parseInt(mallTransferAmount, 10) <= (user?.securityCoins ?? 0) &&
+                  !isMallTransferLoading
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-400 hover:to-indigo-400'
+                    : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {isMallTransferLoading ? '처리 중...' : '전환'}
               </button>
             </div>
           </div>
