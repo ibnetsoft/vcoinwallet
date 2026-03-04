@@ -1,0 +1,24 @@
+# Database - Supabase PostgreSQL
+# Password URL encoded: & = %26, - = %2D
+DATABASE_URL="postgresql://postgres.owudrvqzcsjbfnrenveg:%26k6%2DjTQs6hUgmVL@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.owudrvqzcsjbfnrenveg:%26k6%2DjTQs6hUgmVL@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres"
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL="https://owudrvqzcsjbfnrenveg.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93dWRydnF6Y3NqYmZucmVudmVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MTk0ODEsImV4cCI6MjA3NzA5NTQ4MX0.BhqEr_itfmu4QOTggqD0ycuI8FM8Qh8VC31xMxib6Wg"
+SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93dWRydnF6Y3NqYmZucmVudmVnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTUxOTQ4MSwiZXhwIjoyMDc3MDk1NDgxfQ.koTbepOM-onzPcrFau3GJugkxyThZ_mEPB0rlSFsQ7E"
+
+# JWT Secret
+JWT_SECRET="j71rKeNhtRmpL/Mg08tcAbLzM7EsHe6bicE19h20Uj8UmKsnHulwEhEcXm5IGpuoQzTCy5KfJd70HqjcuNxU8w=="
+
+# Next Auth URL
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-nextauth-secret-change-this-in-production"
+
+# Prisma
+PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+
+# Web Push Notifications (VAPID)
+NEXT_PUBLIC_VAPID_PUBLIC_KEY="BEB4a-9BYeevEdraBL2iOGrxTVagG3IAl44Y1vS8dJdSuJop4eE3XT4oRO7Mn5PK94gzPwlK4pVdpRwYVb7A5ys"
+VAPID_PRIVATE_KEY="K9EwIKn-mzhcUDXO6B3c81uTitwQ8mCMmjsrCyBk2UE"
+VAPID_EMAIL="admin@3dvcoin.com"

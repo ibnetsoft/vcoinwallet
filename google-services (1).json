@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "868781517014",
+    "project_id": "vcoin-b45f3",
+    "storage_bucket": "vcoin-b45f3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868781517014:android:74bfe2bb4bb88e069a8177",
+        "android_client_info": {
+          "package_name": "com.threedvcoin.wallet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACbaZOOlhQtgm-JoTcF970xDaI1G6f4qg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868781517014:android:e47583d1217eb18e9a8177",
+        "android_client_info": {
+          "package_name": "com.threevcoin.wallet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACbaZOOlhQtgm-JoTcF970xDaI1G6f4qg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
