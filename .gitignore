@@ -56,4 +56,5 @@ firebase-service-account.json
 /android/.idea/
 /android/local.properties
 /android/captures/
+google-services.json
 
